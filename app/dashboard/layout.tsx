@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Shield, LayoutDashboard, Users, AlertTriangle, FileText, Settings, LogOut } from 'lucide-react'
+import { Shield, LayoutDashboard, Users, AlertTriangle, FileText, Settings, LogOut, FileSpreadsheet } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -30,6 +30,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <NavItem href="/dashboard/clients" icon={<Users className="w-4 h-4" />} label="Clients" />
           <NavItem href="/dashboard/alerts" icon={<AlertTriangle className="w-4 h-4" />} label="Alert Queue" />
           <NavItem href="/dashboard/vendors" icon={<FileText className="w-4 h-4" />} label="Vendors" />
+          <NavItem href="/dashboard/reports" icon={<FileSpreadsheet className="w-4 h-4" />} label="Reports" />
           <NavItem href="/dashboard/settings" icon={<Settings className="w-4 h-4" />} label="Settings" />
         </nav>
 
