@@ -110,14 +110,22 @@ export async function incrementalSync(clientId: string) {
     const changedVendors: QBOVendor[] = queryResponse.find(q => Array.isArray(q.Vendor))?.Vendor ?? []
     const changedBills: QBOBill[] = queryResponse.find(q => Array.isArray(q.Bill))?.Bill ?? []
 
-    if (changedVendors.length) await syncVendors(clientId, changedVendors)
+    const affectedVendorIds: string[] = []
+    if (changedVendors.length) {
+      await syncVendors(clientId, changedVendors)
+      const qboVendorIds = changedVendors.map(v => v.Id)
+      const syncedVendors = await prisma.vendor.findMany({
+        where: { clientId, qboVendorId: { in: qboVendorIds } },
+        select: { id: true },
+      })
+      affectedVendorIds.push(...syncedVendors.map(v => v.id))
+    }
 
     let syncedInvoiceIds: string[] = []
-    let affectedVendorIds: string[] = []
     if (changedBills.length) {
       const result = await syncBills(clientId, changedBills)
       syncedInvoiceIds = result.invoiceIds
-      affectedVendorIds = result.vendorIds
+      affectedVendorIds.push(...result.vendorIds)
     }
 
     // Update fingerprints only for vendors whose payment history changed
