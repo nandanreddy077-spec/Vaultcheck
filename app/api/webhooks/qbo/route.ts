@@ -65,7 +65,8 @@ export async function POST(req: NextRequest) {
     if (!client) continue
 
     const entities = n.dataChangeEvent?.entities?.map(e => e.name) ?? []
-    const isRelevant = entities.includes('Bill') || entities.includes('Vendor')
+    const isRelevant =
+      entities.includes('Bill') || entities.includes('BillPayment') || entities.includes('Vendor')
     if (!isRelevant) continue
 
     await enqueueQboSync({ clientId: client.id, type: 'incremental' })

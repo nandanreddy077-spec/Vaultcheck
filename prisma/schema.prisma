@@ -7,8 +7,6 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // ─── Core Entities ───────────────────────────────────────────────────────────
@@ -18,6 +16,7 @@ model Firm {
   name             String
   email            String   @unique
   plan             String   @default("trial") // trial, solo, starter, growth, enterprise
+  slackWebhookUrl String?
   stripeCustomerId String?  @unique
   stripeSubId      String?
   maxClients       Int      @default(3)

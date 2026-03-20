@@ -36,7 +36,9 @@ function detectPatterns(invoiceNums: string[]): string[] {
 
 export async function calculateFingerprint(vendorId: string) {
   const invoices = await prisma.invoice.findMany({
-    where: { vendorId },
+    // Fingerprints should reflect "normal" based on payment history,
+    // not on pending/unpaid bills.
+    where: { vendorId, status: 'paid' },
     orderBy: { createdAt: 'asc' },
   })
 
@@ -94,11 +96,15 @@ export async function calculateFingerprint(vendorId: string) {
 
   // Typical days of month
   const daysOfMonth = invoices.map(i => i.createdAt.getDate())
-  const typicalDayOfMonth = [...new Set(daysOfMonth)]
+  const typicalDayOfMonth = Array.from(new Set(daysOfMonth))
 
   // Known emails and bank hashes (deduplicated)
-  const knownEmails = [...new Set(invoices.map(i => i.senderEmail).filter((e): e is string => !!e))]
-  const knownBankHashes = [...new Set(invoices.map(i => i.bankAccountHash).filter((e): e is string => !!e))]
+  const knownEmails = Array.from(
+    new Set(invoices.map(i => i.senderEmail).filter((e): e is string => !!e)),
+  )
+  const knownBankHashes = Array.from(
+    new Set(invoices.map(i => i.bankAccountHash).filter((e): e is string => !!e)),
+  )
   const invoicePatterns = detectPatterns(invoices.map(i => i.invoiceNumber).filter((n): n is string => !!n))
 
   // Confidence: 0-1 based on data volume and history length

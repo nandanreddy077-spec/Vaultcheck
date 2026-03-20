@@ -3,7 +3,6 @@ import { requireRole } from '@/lib/auth'
 import { getWeeklyReportData } from '@/lib/reports/weekly'
 import WeeklyReportPdf from '@/lib/reports/WeeklyReportPdf'
 import { renderToBuffer } from '@react-pdf/renderer'
-import React from 'react'
 
 export async function GET(
   _req: NextRequest,
@@ -17,11 +16,14 @@ export async function GET(
   const clientId = params.clientId
   const model = await getWeeklyReportData({ firmId: dbUser.firmId, clientId })
 
-  const pdfBuffer = await renderToBuffer(
-    React.createElement(WeeklyReportPdf, { model })
-  )
+  const pdfBuffer = await renderToBuffer(<WeeklyReportPdf model={model} />)
+  // NextResponse expects an ArrayBuffer/BodyInit; convert Buffer explicitly for TS compatibility.
+  const pdfArrayBuffer = pdfBuffer.buffer.slice(
+    pdfBuffer.byteOffset,
+    pdfBuffer.byteOffset + pdfBuffer.byteLength,
+  ) as ArrayBuffer
 
-  return new NextResponse(pdfBuffer, {
+  return new NextResponse(pdfArrayBuffer, {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="vaultcheck-weekly-${model.clientName.replaceAll(

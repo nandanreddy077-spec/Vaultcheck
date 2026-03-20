@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import BillingPanel from '@/components/BillingPanel'
+import SlackWebhookPanel from '@/components/SlackWebhookPanel'
 
 export default async function SettingsPage() {
   const { dbUser, error } = await requireAuth()
@@ -52,6 +53,7 @@ export default async function SettingsPage() {
         </div>
 
         <BillingPanel />
+        <SlackWebhookPanel initialUrl={dbUser.firm.slackWebhookUrl} />
       </div>
     </div>
   )

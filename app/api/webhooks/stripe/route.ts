@@ -7,7 +7,7 @@ const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
 function getStripe() {
   if (!stripeSecretKey) throw new Error('Missing STRIPE_SECRET_KEY')
-  return new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' })
+  return new Stripe(stripeSecretKey)
 }
 
 export async function POST(req: NextRequest) {

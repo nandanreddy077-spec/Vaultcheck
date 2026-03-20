@@ -55,7 +55,7 @@ export async function createAlert(
   })
 
   const firmEmail = invoice?.client?.firm?.email
-  const slackWebhookUrl = getSlackWebhookUrl()
+  const slackWebhookUrl = invoice?.client?.firm?.slackWebhookUrl ?? getSlackWebhookUrl()
 
   for (const factor of significantFactors) {
     const existingAlert = await prisma.alert.findFirst({

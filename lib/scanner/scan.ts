@@ -61,8 +61,8 @@ export async function scanInvoice(invoiceId: string): Promise<ScanResult> {
       where: { id: invoiceId },
       data: {
         riskScore: 0,
-        riskFactors: [] as Prisma.InputJsonValue,
-        scanResult: result as Prisma.InputJsonValue,
+        riskFactors: [] as unknown as Prisma.InputJsonValue,
+        scanResult: result as unknown as Prisma.InputJsonValue,
         status: nextStatus,
         scannedAt: new Date(),
       },
@@ -202,8 +202,8 @@ export async function scanInvoice(invoiceId: string): Promise<ScanResult> {
     where: { id: invoiceId },
     data: {
       riskScore: finalScore,
-      riskFactors: riskFactors as Prisma.InputJsonValue,
-      scanResult: result as Prisma.InputJsonValue,
+      riskFactors: riskFactors as unknown as Prisma.InputJsonValue,
+      scanResult: result as unknown as Prisma.InputJsonValue,
       status: nextStatus,
       scannedAt: new Date(),
     },
