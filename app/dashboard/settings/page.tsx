@@ -1,5 +1,6 @@
 import { requireAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
+import BillingPanel from '@/components/BillingPanel'
 
 export default async function SettingsPage() {
   const { dbUser, error } = await requireAuth()
@@ -50,15 +51,7 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <div className="px-6 py-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-2">Integrations</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            QuickBooks connections are managed per-client. Go to a client&apos;s page to connect or disconnect QuickBooks.
-          </p>
-          <div className="text-sm text-gray-400">
-            Coming in Phase 3: Slack alerts, Resend email configuration, Stripe billing.
-          </div>
-        </div>
+        <BillingPanel />
       </div>
     </div>
   )
