@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
-import { NextRequest } from 'next/server'
 
 export async function getSession() {
   const supabase = await createClient()
@@ -14,7 +13,7 @@ export async function getUser() {
   return user
 }
 
-export async function requireAuth(req?: NextRequest) {
+export async function requireAuth() {
   const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
 
@@ -35,7 +34,7 @@ export async function requireAuth(req?: NextRequest) {
 }
 
 export async function requireRole(allowedRoles: string[]) {
-  const { user, dbUser, error } = await requireAuth()
+  const { dbUser, error } = await requireAuth()
   if (error || !dbUser) return { authorized: false, dbUser: null, error }
 
   if (!allowedRoles.includes(dbUser.role)) {

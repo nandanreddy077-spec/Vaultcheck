@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { createAlert } from '@/lib/alerts/create'
+import type { Prisma } from '@prisma/client'
 
 export interface RiskFactor {
   factor: string
@@ -42,6 +43,44 @@ export async function scanInvoice(invoiceId: string): Promise<ScanResult> {
   })
 
   if (!invoice) throw new Error('Invoice not found')
+
+  const terminalStatuses = ['approved', 'rejected', 'paid']
+  const nextStatus = terminalStatuses.includes(invoice.status) ? invoice.status : 'scanned'
+
+  // If we can't link the invoice to a known vendor, don't fabricate a score.
+  // This keeps rescans safe and avoids generating misleading alerts from incomplete ingestion.
+  if (!invoice.vendorId) {
+    const result: ScanResult = {
+      riskScore: 0,
+      classification: classifyScore(0),
+      recommendation: 'Insufficient vendor linkage to reliably score this invoice.',
+      riskFactors: [],
+    }
+
+    await prisma.invoice.update({
+      where: { id: invoiceId },
+      data: {
+        riskScore: 0,
+        riskFactors: [] as Prisma.InputJsonValue,
+        scanResult: result as Prisma.InputJsonValue,
+        status: nextStatus,
+        scannedAt: new Date(),
+      },
+    })
+
+    await prisma.auditLog.create({
+      data: {
+        firmId: invoice.client.firmId,
+        clientId: invoice.clientId,
+        action: 'invoice_scanned',
+        entityType: 'invoice',
+        entityId: invoiceId,
+        details: { riskScore: 0, classification: result.classification, reason: 'missing_vendorId' },
+      },
+    })
+
+    return result
+  }
 
   const fingerprint = invoice.vendor?.fingerprint
   const riskFactors: RiskFactor[] = []
@@ -121,7 +160,7 @@ export async function scanInvoice(invoiceId: string): Promise<ScanResult> {
   // ── Check 6: Frequency anomaly (weight: 7) ───────────────────────────────────
   if (fingerprint?.avgFreqDays) {
     const lastInvoice = await prisma.invoice.findFirst({
-      where: { vendorId: invoice.vendorId!, id: { not: invoiceId } },
+      where: { vendorId: invoice.vendorId, id: { not: invoiceId } },
       orderBy: { createdAt: 'desc' },
     })
     if (lastInvoice) {
@@ -163,15 +202,15 @@ export async function scanInvoice(invoiceId: string): Promise<ScanResult> {
     where: { id: invoiceId },
     data: {
       riskScore: finalScore,
-      riskFactors: riskFactors as any,
-      scanResult: result as any,
-      status: 'scanned',
+      riskFactors: riskFactors as Prisma.InputJsonValue,
+      scanResult: result as Prisma.InputJsonValue,
+      status: nextStatus,
       scannedAt: new Date(),
     },
   })
 
   // Create alerts for high/critical risk
-  if (finalScore > 15) {
+  if (finalScore > 15 && !terminalStatuses.includes(invoice.status)) {
     await createAlert(invoice.clientId, invoiceId, result, riskFactors)
   }
 

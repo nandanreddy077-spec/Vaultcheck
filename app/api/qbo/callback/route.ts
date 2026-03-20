@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { encrypt } from '@/lib/encryption'
-import { requireAuth } from '@/lib/auth'
 
 const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer'
 
@@ -16,13 +15,22 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard?error=qbo_missing_params', req.url))
   }
 
-  const [state, clientId] = stateParam.split(':')
+  const [state, clientId, firmId] = stateParam.split(':')
   if (!storedState || storedState !== state) {
     return NextResponse.redirect(new URL('/dashboard?error=qbo_state_mismatch', req.url))
   }
 
-  if (!clientId) {
+  if (!clientId || !firmId) {
     return NextResponse.redirect(new URL('/dashboard?error=qbo_missing_client', req.url))
+  }
+
+  // Enforce cross-tenant safety: callback state must match an existing client for this firm.
+  const client = await prisma.client.findFirst({
+    where: { id: clientId, firmId },
+    select: { id: true },
+  })
+  if (!client) {
+    return NextResponse.redirect(new URL('/dashboard?error=qbo_client_firm_mismatch', req.url))
   }
 
   // Exchange code for tokens

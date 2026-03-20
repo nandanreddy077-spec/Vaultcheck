@@ -2,7 +2,7 @@ import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import ConnectQBOButton from '@/components/ConnectQBOButton'
 import SyncButton from '@/components/SyncButton'
 

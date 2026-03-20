@@ -88,7 +88,8 @@ async function refreshTokens(clientId: string, encryptedRefreshToken: string) {
       },
     })
 
-    return { accessToken: tokens.access_token, realmId: client?.qboRealmId! }
+    if (!client?.qboRealmId) return null
+    return { accessToken: tokens.access_token, realmId: client.qboRealmId }
   } catch {
     return null
   }

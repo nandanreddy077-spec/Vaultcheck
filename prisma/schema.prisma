@@ -118,7 +118,8 @@ model Invoice {
   id              String    @id @default(cuid())
   clientId        String
   vendorId        String?
-  qboBillId       String?
+  // QuickBooks Bill ID. Treated as unique so we can idempotently upsert during sync.
+  qboBillId       String?  @unique
   invoiceNumber   String?
   amount          Float
   currency        String    @default("USD")

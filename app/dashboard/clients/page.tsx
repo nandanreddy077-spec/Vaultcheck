@@ -2,7 +2,7 @@ import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, CheckCircle, AlertCircle, Clock, XCircle } from 'lucide-react'
+import { Plus, CheckCircle, Clock, XCircle } from 'lucide-react'
 
 const syncIcons: Record<string, React.ReactNode> = {
   synced: <CheckCircle className="w-4 h-4 text-green-500" />,

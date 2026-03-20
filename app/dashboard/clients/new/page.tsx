@@ -42,7 +42,7 @@ export default function NewClientPage() {
 
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Add a new client</h1>
       <p className="text-sm text-gray-500 mb-8">
-        After creating the client you'll be able to connect their QuickBooks account.
+        After creating the client you&apos;ll be able to connect their QuickBooks account.
       </p>
 
       <form onSubmit={handleCreate} className="bg-white rounded-lg border border-gray-200 p-6 space-y-5">

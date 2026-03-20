@@ -30,7 +30,8 @@ export async function POST(
       : await incrementalSync(clientId)
 
     return NextResponse.json(result)
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Sync failed' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Sync failed'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

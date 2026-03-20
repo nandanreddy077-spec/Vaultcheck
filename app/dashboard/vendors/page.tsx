@@ -40,7 +40,7 @@ export default async function VendorsPage() {
             {vendors.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-400">
-                  No vendors yet. Connect a client's QuickBooks to import vendors.
+                  No vendors yet. Connect a client&apos;s QuickBooks to import vendors.
                 </td>
               </tr>
             ) : (

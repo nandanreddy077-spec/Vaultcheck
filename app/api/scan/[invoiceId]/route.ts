@@ -27,7 +27,8 @@ export async function POST(
   try {
     const result = await scanInvoice(params.invoiceId)
     return NextResponse.json(result)
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Scan failed'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
