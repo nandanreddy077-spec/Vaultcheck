@@ -29,7 +29,7 @@ export default function AlertsPage() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [filter])
+  useEffect(() => { load() }, [filter]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function resolve(alertId: string, resolution: string) {
     setResolving(alertId)

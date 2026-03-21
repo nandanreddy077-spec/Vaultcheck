@@ -48,7 +48,12 @@ export default async function VendorsPage() {
                 <tr key={vendor.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{vendor.displayName}</p>
+                      <Link
+                        href={`/dashboard/vendors/${vendor.id}`}
+                        className="text-sm font-medium text-gray-900 hover:text-blue-600"
+                      >
+                        {vendor.displayName}
+                      </Link>
                       {vendor.email && <p className="text-xs text-gray-400">{vendor.email}</p>}
                     </div>
                   </td>

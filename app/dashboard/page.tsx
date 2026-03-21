@@ -8,7 +8,7 @@ export default async function DashboardPage() {
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) redirect('/login')
 
-  const [clients, openAlerts, scannedThisMonth, criticalAlerts] = await Promise.all([
+  const [clients, openAlerts, scannedThisMonth, criticalAlerts, highRiskCount] = await Promise.all([
     prisma.client.findMany({
       where: { firmId: dbUser.firmId, isActive: true },
       include: { _count: { select: { invoices: true, alerts: true } } },
@@ -35,6 +35,13 @@ export default async function DashboardPage() {
       },
       orderBy: [{ severity: 'asc' }, { createdAt: 'desc' }],
       take: 10,
+    }),
+    prisma.invoice.count({
+      where: {
+        client: { firmId: dbUser.firmId },
+        riskScore: { gte: 36 },
+        createdAt: { gte: new Date(new Date().setDate(1)) },
+      },
     }),
   ])
 
@@ -64,7 +71,12 @@ export default async function DashboardPage() {
           icon={<AlertTriangle className="w-5 h-5 text-orange-500" />}
           highlight={openAlerts > 0}
         />
-        <StatCard title="Clients on Trial" value={clients.length} icon={<TrendingUp className="w-5 h-5 text-green-500" />} />
+        <StatCard
+          title="High Risk This Month"
+          value={highRiskCount}
+          icon={<TrendingUp className="w-5 h-5 text-red-500" />}
+          highlight={highRiskCount > 0}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-6">

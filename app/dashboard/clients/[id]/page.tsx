@@ -105,7 +105,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               </p>
             ) : (
               client.invoices.map(inv => (
-                <div key={inv.id} className="px-6 py-3 flex items-center gap-3">
+                <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} className="px-6 py-3 flex items-center gap-3 hover:bg-gray-50">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {inv.vendor?.displayName || 'Unknown vendor'}
@@ -125,7 +125,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                       Pending
                     </span>
                   )}
-                </div>
+                </Link>
               ))
             )}
           </div>
@@ -175,7 +175,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <p className="px-6 py-8 text-sm text-gray-400 text-center">No vendors synced yet.</p>
           ) : (
             client.vendors.slice(0, 10).map(vendor => (
-              <div key={vendor.id} className="px-6 py-3 flex items-center gap-4">
+              <Link key={vendor.id} href={`/dashboard/vendors/${vendor.id}`} className="px-6 py-3 flex items-center gap-4 hover:bg-gray-50">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900">{vendor.displayName}</p>
                   {vendor.email && (
@@ -194,7 +194,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                 ) : (
                   <span className="text-xs text-gray-400">No fingerprint</span>
                 )}
-              </div>
+              </Link>
             ))
           )}
           {client.vendors.length > 10 && (
