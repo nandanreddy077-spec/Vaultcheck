@@ -30,11 +30,11 @@ export default function LandingPage() {
           Payment verification for accounting firms
         </div>
         <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          Catch fraudulent invoices<br />before money leaves the account
+          Flag suspicious invoices<br />before money leaves the account
         </h1>
         <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">
           VaultCheck connects to QuickBooks Online, builds statistical profiles of every vendor, and
-          automatically flags suspicious invoices — before your clients pay them.
+          helps flag anomalous invoices — before your clients pay them.
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link
@@ -54,7 +54,7 @@ export default function LandingPage() {
       <section className="bg-gray-50 py-16">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">How it works</h2>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 step: '1',
@@ -68,8 +68,8 @@ export default function LandingPage() {
               },
               {
                 step: '3',
-                title: 'Suspicious invoices are flagged',
-                desc: 'Every new invoice is scored against the vendor\'s fingerprint. High-risk invoices trigger instant alerts.',
+                title: 'Anomalous invoices are flagged',
+                desc: 'Every new invoice is scored against the vendor\'s fingerprint. High-risk anomalies trigger instant alerts for your review.',
               },
             ].map(item => (
               <div key={item.step} className="text-center">
@@ -87,7 +87,7 @@ export default function LandingPage() {
       {/* Features */}
       <section className="max-w-6xl mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">What we detect</h2>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             {
               icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
@@ -126,7 +126,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Pricing</h2>
           <p className="text-gray-500 text-center mb-12">Per-client pricing. No hidden fees.</p>
-          <div className="grid grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
               { name: 'Firm Starter', price: '$149', unit: '/mo per client', clients: 'Up to 10 clients', features: ['Multi-client dashboard', 'Email alerts', 'Vendor fingerprinting', 'Alert queue'] },
               { name: 'Firm Growth', price: '$129', unit: '/mo per client', clients: 'Up to 30 clients', features: ['Everything in Starter', 'Slack alerts', 'API access', 'Priority support'], popular: true },
@@ -181,7 +181,11 @@ export default function LandingPage() {
             <Shield className="w-5 h-5 text-blue-600" />
             <span className="font-semibold text-gray-900">VaultCheck</span>
           </div>
-          <p className="text-sm text-gray-400">© 2026 VaultCheck. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link href="/terms" className="text-sm text-gray-400 hover:text-gray-600">Terms of Service</Link>
+            <Link href="/privacy" className="text-sm text-gray-400 hover:text-gray-600">Privacy Policy</Link>
+            <p className="text-sm text-gray-400">© 2026 VaultCheck. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

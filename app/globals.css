@@ -3,8 +3,18 @@
 @tailwind utilities;
 
 @layer components {
+  /* Risk severity badges */
   .risk-badge-low      { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800; }
   .risk-badge-moderate { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800; }
   .risk-badge-high     { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800; }
   .risk-badge-critical { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800; }
+
+  /* Severity indicator dots */
+  .severity-dot-critical { @apply w-2.5 h-2.5 rounded-full bg-red-500; }
+  .severity-dot-high     { @apply w-2.5 h-2.5 rounded-full bg-orange-500; }
+  .severity-dot-medium   { @apply w-2.5 h-2.5 rounded-full bg-yellow-500; }
+  .severity-dot-low      { @apply w-2.5 h-2.5 rounded-full bg-green-500; }
+
+  /* Risk score bar */
+  .risk-score-bar { @apply h-1.5 rounded-full; }
 }

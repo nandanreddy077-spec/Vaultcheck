@@ -23,8 +23,9 @@ model Firm {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  users   User[]
-  clients Client[]
+  users       User[]
+  clients     Client[]
+  invitations Invitation[]
 }
 
 model User {
@@ -164,6 +165,21 @@ model Alert {
 
   @@index([clientId, status])
   @@index([severity])
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  firmId    String
+  email     String
+  name      String
+  role      String   @default("staff") // admin, staff
+  status    String   @default("pending") // pending, accepted, revoked
+  invitedBy String
+  createdAt DateTime @default(now())
+
+  firm Firm @relation(fields: [firmId], references: [id])
+
+  @@index([firmId, status])
 }
 
 model AuditLog {

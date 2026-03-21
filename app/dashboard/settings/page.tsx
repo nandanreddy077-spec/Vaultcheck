@@ -1,11 +1,19 @@
 import { requireAuth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import BillingPanel from '@/components/BillingPanel'
 import SlackWebhookPanel from '@/components/SlackWebhookPanel'
+import TeamPanel from '@/components/TeamPanel'
 
 export default async function SettingsPage() {
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) redirect('/login')
+
+  const teamMembers = await prisma.user.findMany({
+    where: { firmId: dbUser.firmId },
+    select: { id: true, name: true, email: true, role: true },
+    orderBy: { createdAt: 'asc' },
+  })
 
   return (
     <div className="p-8 max-w-2xl">
@@ -51,6 +59,12 @@ export default async function SettingsPage() {
             </div>
           </div>
         </div>
+
+        <TeamPanel
+          members={teamMembers}
+          currentUserId={dbUser.id}
+          isAdmin={dbUser.role === 'admin'}
+        />
 
         <BillingPanel />
         <SlackWebhookPanel initialUrl={dbUser.firm.slackWebhookUrl} />
