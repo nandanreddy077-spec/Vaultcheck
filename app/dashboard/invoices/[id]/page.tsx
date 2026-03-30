@@ -348,7 +348,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
 
       {/* Disclaimer */}
       <p className="text-xs text-gray-400 mt-6 border-t border-gray-100 pt-4">
-        VaultCheck provides payment verification assistance. It does not guarantee fraud detection.
+        Vantirs provides payment verification assistance. It does not guarantee fraud detection.
         Always verify suspicious payments through direct phone contact with known vendor numbers.
       </p>
     </div>

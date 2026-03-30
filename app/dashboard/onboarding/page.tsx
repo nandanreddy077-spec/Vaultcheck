@@ -24,7 +24,7 @@ const steps = [
   {
     number: 3,
     title: 'Review your first scan',
-    description: 'Once synced, VaultCheck builds vendor fingerprints and scans invoices for anomalies. Check the alert queue for any flags.',
+    description: 'Once synced, Vantirs builds vendor fingerprints and scans invoices for anomalies. Check the alert queue for any flags.',
     action: '/dashboard/alerts',
     actionLabel: 'View alerts',
     icon: Search,
@@ -65,7 +65,7 @@ export default function OnboardingPage() {
             <Shield className="w-7 h-7 text-blue-600" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to VaultCheck</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Vantirs</h1>
         <p className="text-gray-500">
           Let&apos;s get your first client set up. This takes about 5 minutes.
         </p>
@@ -80,7 +80,7 @@ export default function OnboardingPage() {
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">You&apos;re all set!</h2>
           <p className="text-gray-500 mb-6">
-            VaultCheck is now monitoring your client&apos;s invoices. We&apos;ll flag anything suspicious.
+            Vantirs is now monitoring your client&apos;s invoices. We&apos;ll flag anything suspicious.
           </p>
           <Link
             href="/dashboard"

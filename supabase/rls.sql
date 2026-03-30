@@ -1,4 +1,4 @@
--- VaultCheck RLS policies
+-- Vantirs RLS policies
 --
 -- Assumes Prisma created tables with the following column names:
 -- Firm(id, email, ...)

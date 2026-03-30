@@ -109,9 +109,9 @@ export async function createAlert(
 
     await sendAlertEmail({
       to: firmEmail,
-      subject: `[VaultCheck] ${severity.toUpperCase()}: ${title}`,
+      subject: `[Vantirs] ${severity.toUpperCase()}: ${title}`,
       text:
-        `VaultCheck flagged a suspicious invoice.\n\n` +
+        `Vantirs flagged a suspicious invoice.\n\n` +
         `Firm: ${firmName}\n` +
         `Client: ${clientName}\n` +
         `Vendor: ${vendorName}\n` +
@@ -120,7 +120,7 @@ export async function createAlert(
         `Risk score: ${scanResult.riskScore}/100 (${scanResult.classification})\n` +
         `Alert: ${title}\n` +
         `Details: ${factor.detail}\n\n` +
-        `VaultCheck provides payment verification assistance and does not guarantee fraud detection.\n` +
+        `Vantirs provides payment verification assistance and does not guarantee fraud detection.\n` +
         `Always verify suspicious payments through direct phone contact with known vendor numbers.`,
     })
 
@@ -128,7 +128,7 @@ export async function createAlert(
       await sendSlackAlert({
         webhookUrl: slackWebhookUrl,
         text:
-          `VaultCheck *${severity.toUpperCase()}* alert: ${title}\n` +
+          `Vantirs *${severity.toUpperCase()}* alert: ${title}\n` +
           `Firm: ${firmName}\n` +
           `Client: ${clientName}\n` +
           `Vendor: ${vendorName}\n` +

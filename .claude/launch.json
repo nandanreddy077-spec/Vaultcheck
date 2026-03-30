@@ -2,15 +2,22 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "VaultCheck Dev",
+      "name": "Vantirs Dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "runtimeArgs": ["--prefix", "/Users/nandanreddyavanaganti/Vaultcheck", "run", "dev"],
+      "port": 3000,
+      "autoPort": false
+    },
+    {
+      "name": "QBO Worker",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/nandanreddyavanaganti/Vaultcheck", "run", "worker:qbo"],
+      "port": 3001
     },
     {
       "name": "Prisma Studio",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "db:studio"],
+      "runtimeArgs": ["--prefix", "/Users/nandanreddyavanaganti/Vaultcheck", "run", "db:studio"],
       "port": 5555
     }
   ]

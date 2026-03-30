@@ -21,7 +21,7 @@ export default function WeeklyReportPdf({ model }: { model: WeeklyReportPdfModel
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>VaultCheck Weekly Report</Text>
+        <Text style={styles.title}>Vantirs Weekly Report</Text>
         <View style={styles.section}>
           <Text>
             Client: <Text style={{ fontWeight: 700 }}>{clientName}</Text>
@@ -84,7 +84,7 @@ export default function WeeklyReportPdf({ model }: { model: WeeklyReportPdfModel
         </View>
 
         <Text style={styles.disclaimer}>
-          VaultCheck provides payment verification assistance. It does not guarantee fraud detection. Always
+          Vantirs provides payment verification assistance. It does not guarantee fraud detection. Always
           verify suspicious payments through direct phone contact with known vendor numbers.
         </Text>
       </Page>

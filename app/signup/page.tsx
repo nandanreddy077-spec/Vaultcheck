@@ -41,7 +41,7 @@ export default function SignupPage() {
         <div className="flex justify-center">
           <div className="flex items-center gap-2 text-blue-600">
             <Shield className="w-8 h-8" />
-            <span className="text-2xl font-bold text-gray-900">VaultCheck</span>
+            <span className="text-2xl font-bold text-gray-900">Vantirs</span>
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">

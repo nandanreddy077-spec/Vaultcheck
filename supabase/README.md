@@ -10,7 +10,7 @@ This folder contains SQL you can execute in your Supabase project to enable Row-
    for stricter enforcement.
 
 ## Notes
-- VaultCheck uses Prisma for data access in this repo. Depending on your database user/role configuration,
+- Vantirs uses Prisma for data access in this repo. Depending on your database user/role configuration,
   Prisma queries may bypass RLS (e.g., if the role owns tables and RLS isn’t forced).
 - The policies below are designed to scope rows to `auth.uid()` via the `User.supabaseUid` column.
 

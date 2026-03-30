@@ -67,11 +67,11 @@ async function runSync(data: QboJobData) {
 
       await sendWeeklyReportEmail({
         to: recipients,
-        subject: `[VaultCheck] Weekly report — ${model.clientName}`,
+        subject: `[Vantirs] Weekly report — ${model.clientName}`,
         text:
-          'Attached is your VaultCheck weekly payment verification report. It provides payment verification assistance and does not guarantee fraud detection.',
+          'Attached is your Vantirs weekly payment verification report. It provides payment verification assistance and does not guarantee fraud detection.',
         pdfBase64,
-        filename: `vaultcheck-weekly-${model.clientName.replaceAll(' ', '-')}.pdf`,
+        filename: `vantirs-weekly-${model.clientName.replaceAll(' ', '-')}.pdf`,
       })
 
       generated += 1
