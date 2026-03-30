@@ -4,6 +4,15 @@ import { dirname } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+/** Same rules as lib/supabase/normalize-supabase-url.ts — fixes `//project.supabase.co` in Vercel env. */
+function normalizeSupabaseUrl(raw) {
+  if (!raw || typeof raw !== 'string') return raw
+  const t = raw.trim()
+  if (t.startsWith('//')) return `https:${t}`
+  if (!/^https?:\/\//i.test(t)) return `https://${t.replace(/^\/+/, '')}`
+  return t
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {
@@ -13,7 +22,7 @@ const nextConfig = {
   // even when it mis-detects the workspace root (caused by a stray package.json
   // at the home directory from another project)
   env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_URL: normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
