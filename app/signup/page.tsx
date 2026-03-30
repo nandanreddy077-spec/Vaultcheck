@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Shield } from 'lucide-react'
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ firmName: '', name: '', email: '' })
+  const [form, setForm] = useState({ firmName: '', name: '', email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -18,9 +18,9 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
-    // Sign up via magic link — firm + user created in /auth/callback
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signUp({
       email: form.email,
+      password: form.password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: { name: form.name, firmName: form.firmName },
@@ -66,7 +66,7 @@ export default function SignupPage() {
               </div>
               <h3 className="text-lg font-medium text-gray-900">Check your email</h3>
               <p className="mt-2 text-sm text-gray-600">
-                We sent a sign-in link to <strong>{form.email}</strong>.
+                We sent a confirmation link to <strong>{form.email}</strong>. Click it to activate your account.
               </p>
             </div>
           ) : (
@@ -104,6 +104,18 @@ export default function SignupPage() {
                   placeholder="jane@smithcpa.com"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={form.password}
+                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Min. 8 characters"
+                />
+              </div>
 
               {error && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">{error}</p>
@@ -114,7 +126,7 @@ export default function SignupPage() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {loading ? 'Sending...' : 'Create account & send link'}
+                {loading ? 'Creating account...' : 'Create account'}
               </button>
             </form>
           )}

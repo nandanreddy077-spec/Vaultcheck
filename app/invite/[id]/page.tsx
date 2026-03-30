@@ -16,6 +16,8 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
   const [loading, setLoading] = useState(true)
   const [accepting, setAccepting] = useState(false)
   const [sent, setSent] = useState(false)
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -39,13 +41,19 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
 
   const supabase = createClient()
 
-  async function handleAccept() {
+  async function handleAccept(e: React.FormEvent) {
+    e.preventDefault()
     if (!invite) return
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
     setAccepting(true)
     setError('')
 
-    const { error: authError } = await supabase.auth.signInWithOtp({
+    const { error: authError } = await supabase.auth.signUp({
       email: invite.email,
+      password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard&inviteId=${invite.id}`,
         data: { name: invite.name, inviteId: invite.id },
@@ -100,7 +108,7 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
               </div>
               <h3 className="text-lg font-medium text-gray-900">Check your email</h3>
               <p className="mt-2 text-sm text-gray-600">
-                We sent a sign-in link to <strong>{invite?.email}</strong>.
+                We sent a confirmation link to <strong>{invite?.email}</strong>.
                 Click it to join <strong>{invite?.firmName}</strong>.
               </p>
             </div>
@@ -128,17 +136,43 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
                 </div>
               </div>
 
-              {error && (
-                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2 mb-4">{error}</p>
-              )}
+              <form onSubmit={handleAccept} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Set a password</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Min. 8 characters"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Confirm password</label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="••••••••"
+                  />
+                </div>
 
-              <button
-                onClick={handleAccept}
-                disabled={accepting}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {accepting ? 'Sending...' : 'Accept invitation'}
-              </button>
+                {error && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">{error}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={accepting}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  {accepting ? 'Creating account...' : 'Accept invitation'}
+                </button>
+              </form>
             </>
           )}
         </div>
