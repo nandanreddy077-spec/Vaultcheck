@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { prisma } from '@/lib/prisma'
+import { getSupabaseUrl } from '@/lib/supabase/url'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
   const cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[] = []
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    getSupabaseUrl(),
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
