@@ -20,12 +20,13 @@ function riskLabel(score: number): string {
   return 'Critical'
 }
 
-export default async function ClientDetailPage({ params }: { params: { id: string } }) {
+export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) redirect('/login')
 
   const client = await prisma.client.findFirst({
-    where: { id: params.id, firmId: dbUser.firmId },
+    where: { id: id, firmId: dbUser.firmId },
     include: {
       vendors: {
         include: { fingerprint: true },

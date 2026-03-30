@@ -4,14 +4,14 @@
     {
       "name": "Vantirs Dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/nandanreddyavanaganti/Vaultcheck", "run", "dev"],
+      "runtimeArgs": ["run", "dev"],
       "port": 3000,
       "autoPort": false
     },
     {
       "name": "QBO Worker",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/nandanreddyavanaganti/Vaultcheck", "run", "worker:qbo"],
+      "runtimeArgs": ["run", "worker:qbo"],
       "port": 3001
     },
     {

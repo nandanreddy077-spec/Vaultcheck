@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
 import { prisma } from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
@@ -12,14 +12,38 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=no_code', req.url))
   }
 
-  const supabase = await createClient()
+  // We need to set cookies on the ACTUAL response object that gets returned.
+  // Using cookies() from next/headers won't work because NextResponse.redirect()
+  // creates a new response that doesn't include those cookies.
+  const cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[] = []
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll()
+        },
+        setAll(cookies) {
+          cookiesToSet.push(...cookies.map(c => ({ name: c.name, value: c.value, options: c.options as Record<string, unknown> })))
+        },
+      },
+    }
+  )
+
   const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error || !data.user) {
-    return NextResponse.redirect(new URL('/login?error=auth_failed', req.url))
+    console.error('Auth callback error:', error?.message, error?.status)
+    console.error('Request cookies:', req.cookies.getAll().map(c => c.name))
+    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error?.message || 'auth_failed')}`, req.url))
   }
 
   const { user } = data
+
+  // Determine redirect destination
+  let redirectTo = next
 
   // Check if user already exists in DB
   const existing = await prisma.user.findUnique({ where: { supabaseUid: user.id } })
@@ -78,9 +102,15 @@ export async function GET(req: NextRequest) {
       })
 
       // Redirect new users to onboarding
-      return NextResponse.redirect(new URL('/dashboard/onboarding', req.url))
+      redirectTo = '/dashboard/onboarding'
     }
   }
 
-  return NextResponse.redirect(new URL(next, req.url))
+  // Create redirect response and attach ALL auth cookies to it
+  const response = NextResponse.redirect(new URL(redirectTo, req.url))
+  cookiesToSet.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options)
+  })
+
+  return response
 }

@@ -4,15 +4,16 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const client = await prisma.client.findFirst({
-    where: { id: params.id, firmId: dbUser.firmId },
+    where: { id: id, firmId: dbUser.firmId },
     include: {
       vendors: {
         include: { fingerprint: true },
@@ -40,11 +41,11 @@ export async function GET(
 
   // Summary stats
   const openAlerts = await prisma.alert.count({
-    where: { clientId: params.id, status: 'open' },
+    where: { clientId: id, status: 'open' },
   })
 
   const highRiskInvoices = await prisma.invoice.count({
-    where: { clientId: params.id, riskScore: { gte: 36 } },
+    where: { clientId: id, riskScore: { gte: 36 } },
   })
 
   return NextResponse.json({ ...client, stats: { openAlerts, highRiskInvoices } })

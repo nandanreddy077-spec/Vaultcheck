@@ -27,12 +27,13 @@ function severityColor(severity: string): string {
   }
 }
 
-export default async function VendorDetailPage({ params }: { params: { id: string } }) {
+export default async function VendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) redirect('/login')
 
   const vendor = await prisma.vendor.findFirst({
-    where: { id: params.id, client: { firmId: dbUser.firmId } },
+    where: { id: id, client: { firmId: dbUser.firmId } },
     include: {
       fingerprint: true,
       client: { select: { id: true, name: true } },

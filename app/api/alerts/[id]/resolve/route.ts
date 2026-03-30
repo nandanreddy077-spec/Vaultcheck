@@ -4,8 +4,9 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -24,7 +25,7 @@ export async function POST(
   // Verify alert belongs to user's firm
   const alert = await prisma.alert.findFirst({
     where: {
-      id: params.id,
+      id: id,
       client: { firmId: dbUser.firmId },
     },
   })
@@ -34,7 +35,7 @@ export async function POST(
   }
 
   const updated = await prisma.alert.update({
-    where: { id: params.id },
+    where: { id: id },
     data: {
       status: 'resolved',
       resolution,
@@ -100,7 +101,7 @@ export async function POST(
       userId: dbUser.id,
       action: 'alert_resolved',
       entityType: 'alert',
-      entityId: params.id,
+      entityId: id,
       details: { resolution },
     },
   })

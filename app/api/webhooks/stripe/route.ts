@@ -57,10 +57,14 @@ export async function POST(req: NextRequest) {
       const planFromPrice =
         priceId === process.env.STRIPE_PRICE_SOLO
           ? 'solo'
+          : priceId === process.env.STRIPE_PRICE_PILOT
+            ? 'pilot'
           : priceId === process.env.STRIPE_PRICE_STARTER
             ? 'starter'
             : priceId === process.env.STRIPE_PRICE_GROWTH
               ? 'growth'
+            : priceId === process.env.STRIPE_PRICE_SCALE
+              ? 'scale'
               : priceId === process.env.STRIPE_PRICE_ENTERPRISE
                 ? 'enterprise'
                 : undefined
@@ -68,10 +72,14 @@ export async function POST(req: NextRequest) {
       const maxClientsFromPrice =
         planFromPrice === 'solo'
           ? 1
+          : planFromPrice === 'pilot'
+            ? 20
           : planFromPrice === 'starter'
             ? 10
             : planFromPrice === 'growth'
-              ? 30
+              ? 20
+              : planFromPrice === 'scale'
+                ? 50
               : planFromPrice === 'enterprise'
                 ? 9999
                 : undefined

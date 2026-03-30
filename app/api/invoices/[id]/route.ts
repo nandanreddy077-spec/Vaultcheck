@@ -4,15 +4,16 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const invoice = await prisma.invoice.findFirst({
-    where: { id: params.id, client: { firmId: dbUser.firmId } },
+    where: { id: id, client: { firmId: dbUser.firmId } },
     include: {
       vendor: {
         include: { fingerprint: true },

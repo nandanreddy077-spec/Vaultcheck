@@ -6,14 +6,13 @@ import { renderToBuffer } from '@react-pdf/renderer'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { clientId: string } }
+  { params }: { params: Promise<{ clientId: string }> }
 ) {
+  const { clientId } = await params
   const { authorized, dbUser, error } = await requireRole(['admin', 'staff'])
   if (!authorized || !dbUser) {
     return NextResponse.json({ error: error || 'Unauthorized' }, { status: 401 })
   }
-
-  const clientId = params.clientId
   const model = await getWeeklyReportData({ firmId: dbUser.firmId, clientId })
 
   const pdfBuffer = await renderToBuffer(<WeeklyReportPdf model={model} />)

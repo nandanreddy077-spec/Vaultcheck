@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, XCircle, AlertTriangle, Shield, Clock } from 'lucide-react'
@@ -77,7 +77,8 @@ function factorSeverityColor(weight: number): string {
   return 'border-l-gray-300 bg-gray-50'
 }
 
-export default function InvoiceDetailPage({ params }: { params: { id: string } }) {
+export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
@@ -85,7 +86,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`/api/invoices/${params.id}`)
+    fetch(`/api/invoices/${id}`)
       .then(r => r.json())
       .then(data => {
         if (data.error) setError(data.error)
@@ -93,7 +94,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
       })
       .catch(() => setError('Failed to load invoice'))
       .finally(() => setLoading(false))
-  }, [params.id])
+  }, [id])
 
   async function approve() {
     if (!invoice) return
