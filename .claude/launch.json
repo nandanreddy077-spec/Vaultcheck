@@ -17,7 +17,7 @@
     {
       "name": "Prisma Studio",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "db:studio"],
+      "runtimeArgs": ["--prefix", "/Users/nandanreddyavanaganti/Vaultcheck", "run", "db:studio"],
       "port": 5555
     }
   ]

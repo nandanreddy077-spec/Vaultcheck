@@ -1,4 +1,4 @@
-// VaultCheck Prisma Schema
+// Vantirs Prisma Schema
 // Payment Verification for Accounting Firms
 
 generator client {
