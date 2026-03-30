@@ -4,8 +4,9 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -16,7 +17,7 @@ export async function POST(
   }
 
   const invoice = await prisma.invoice.findFirst({
-    where: { id: params.id, client: { firmId: dbUser.firmId } },
+    where: { id: id, client: { firmId: dbUser.firmId } },
     select: { id: true, clientId: true, status: true },
   })
 
@@ -30,11 +31,11 @@ export async function POST(
 
   const [updated] = await prisma.$transaction([
     prisma.invoice.update({
-      where: { id: params.id },
+      where: { id: id },
       data: { status: 'approved', decidedAt: new Date(), decidedBy: dbUser.id },
     }),
     prisma.alert.updateMany({
-      where: { invoiceId: params.id, status: 'open' },
+      where: { invoiceId: id, status: 'open' },
       data: { status: 'resolved', resolution: 'approved_safe', resolvedBy: dbUser.id, resolvedAt: new Date() },
     }),
     prisma.auditLog.create({
@@ -44,7 +45,7 @@ export async function POST(
         userId: dbUser.id,
         action: 'invoice_approved',
         entityType: 'invoice',
-        entityId: params.id,
+        entityId: id,
         details: { previousStatus: invoice.status },
       },
     }),

@@ -5,8 +5,9 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(
   _req: NextRequest,
-  { params }: { params: { invoiceId: string } }
+  { params }: { params: Promise<{ invoiceId: string }> }
 ) {
+  const { invoiceId } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,7 +16,7 @@ export async function POST(
   // Verify invoice belongs to this firm
   const invoice = await prisma.invoice.findFirst({
     where: {
-      id: params.invoiceId,
+      id: invoiceId,
       client: { firmId: dbUser.firmId },
     },
   })
@@ -25,7 +26,7 @@ export async function POST(
   }
 
   try {
-    const result = await scanInvoice(params.invoiceId)
+    const result = await scanInvoice(invoiceId)
     return NextResponse.json(result)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Scan failed'

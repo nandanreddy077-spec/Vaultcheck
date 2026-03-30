@@ -4,8 +4,9 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -13,7 +14,7 @@ export async function GET(
 
   // Verify client belongs to user's firm
   const client = await prisma.client.findFirst({
-    where: { id: params.id, firmId: dbUser.firmId },
+    where: { id: id, firmId: dbUser.firmId },
     select: { id: true },
   })
 
@@ -29,7 +30,7 @@ export async function GET(
   const minRisk = searchParams.get('minRisk') ? parseInt(searchParams.get('minRisk')!) : undefined
 
   const where = {
-    clientId: params.id,
+    clientId: id,
     ...(status ? { status } : {}),
     ...(minRisk !== undefined ? { riskScore: { gte: minRisk } } : {}),
   }
