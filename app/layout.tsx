@@ -5,9 +5,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'VaultCheck — Payment Verification for Accounting Firms',
+  title: 'Vantirs — Payment Verification for Accounting Firms',
   description:
-    'Protect your clients from BEC fraud and vendor impersonation. VaultCheck flags suspicious invoices before money is sent.',
+    'Protect your clients from BEC fraud and vendor impersonation. Vantirs flags suspicious invoices before money is sent.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

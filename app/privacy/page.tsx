@@ -8,7 +8,7 @@ export default function PrivacyPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-blue-600" />
-            <span className="font-bold text-gray-900 text-lg">VaultCheck</span>
+            <span className="font-bold text-gray-900 text-lg">Vantirs</span>
           </Link>
         </div>
       </nav>
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">1. Overview</h2>
             <p>
-              VaultCheck (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) respects your privacy and is committed to protecting the data you share with us. This Privacy Policy describes how we collect, use, store, and protect your information when you use our payment verification assistance service.
+              Vantirs (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) respects your privacy and is committed to protecting the data you share with us. This Privacy Policy describes how we collect, use, store, and protect your information when you use our payment verification assistance service.
             </p>
           </section>
 
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
               <li><strong>Export</strong> your data in standard formats</li>
               <li><strong>Revoke</strong> QuickBooks access through your Intuit account settings</li>
             </ul>
-            <p className="mt-2">To exercise these rights, contact us at <strong>privacy@vaultcheck.app</strong>.</p>
+            <p className="mt-2">To exercise these rights, contact us at <strong>privacy@vantirs.app</strong>.</p>
           </section>
 
           <section>
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">10. Contact</h2>
             <p>
-              For questions about this Privacy Policy, contact us at <strong>privacy@vaultcheck.app</strong>.
+              For questions about this Privacy Policy, contact us at <strong>privacy@vantirs.app</strong>.
             </p>
           </section>
         </div>

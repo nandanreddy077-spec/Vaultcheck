@@ -67,18 +67,18 @@ export async function POST(req: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   await sendAlertEmail({
     to: email,
-    subject: `You're invited to join ${dbUser.firm.name} on VaultCheck`,
+    subject: `You're invited to join ${dbUser.firm.name} on Vantirs`,
     text: [
       `Hi ${name},`,
       '',
-      `${dbUser.name} has invited you to join ${dbUser.firm.name} on VaultCheck as a ${role}.`,
+      `${dbUser.name} has invited you to join ${dbUser.firm.name} on Vantirs as a ${role}.`,
       '',
       `Click the link below to accept your invitation and create your account:`,
       `${appUrl}/invite/${invitation.id}`,
       '',
       `This invitation expires in 7 days.`,
       '',
-      '— VaultCheck',
+      '— Vantirs',
     ].join('\n'),
   })
 

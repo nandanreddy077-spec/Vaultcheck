@@ -86,7 +86,7 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
         <div className="flex justify-center">
           <div className="flex items-center gap-2 text-blue-600">
             <Shield className="w-8 h-8" />
-            <span className="text-2xl font-bold text-gray-900">VaultCheck</span>
+            <span className="text-2xl font-bold text-gray-900">Vantirs</span>
           </div>
         </div>
 
@@ -110,7 +110,7 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
                 You&apos;re invited
               </h2>
               <p className="text-sm text-gray-500 text-center mb-6">
-                Join <strong>{invite?.firmName}</strong> on VaultCheck as {invite?.role === 'admin' ? 'an admin' : 'a staff member'}.
+                Join <strong>{invite?.firmName}</strong> on Vantirs as {invite?.role === 'admin' ? 'an admin' : 'a staff member'}.
               </p>
 
               <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-2">

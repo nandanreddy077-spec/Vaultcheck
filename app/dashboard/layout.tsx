@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-200">
           <Shield className="w-6 h-6 text-blue-600" />
-          <span className="font-bold text-gray-900 text-lg">VaultCheck</span>
+          <span className="font-bold text-gray-900 text-lg">Vantirs</span>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">

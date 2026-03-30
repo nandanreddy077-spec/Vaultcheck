@@ -26,7 +26,7 @@ export async function GET(
   return new NextResponse(pdfArrayBuffer, {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="vaultcheck-weekly-${model.clientName.replaceAll(
+      'Content-Disposition': `attachment; filename="vantirs-weekly-${model.clientName.replaceAll(
         ' ',
         '-',
       )}.pdf"`,

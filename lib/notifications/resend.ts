@@ -14,7 +14,7 @@ export async function sendAlertEmail(opts: {
   const resend = new Resend(apiKey)
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'alerts@vaultcheck.app',
+    from: process.env.RESEND_FROM_EMAIL || 'alerts@vantirs.app',
     to: [opts.to],
     subject: opts.subject,
     text: opts.text,
@@ -37,7 +37,7 @@ export async function sendWeeklyReportEmail(opts: {
   const resend = new Resend(apiKey)
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'reports@vaultcheck.app',
+    from: process.env.RESEND_FROM_EMAIL || 'reports@vantirs.app',
     to: opts.to,
     subject: opts.subject,
     text: opts.text,

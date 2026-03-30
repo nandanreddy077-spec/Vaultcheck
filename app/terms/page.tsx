@@ -8,7 +8,7 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-blue-600" />
-            <span className="font-bold text-gray-900 text-lg">VaultCheck</span>
+            <span className="font-bold text-gray-900 text-lg">Vantirs</span>
           </Link>
         </div>
       </nav>
@@ -21,21 +21,21 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using VaultCheck (&quot;the Service&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service. The Service is provided by VaultCheck, Inc. (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
+              By accessing or using Vantirs (&quot;the Service&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service. The Service is provided by Vantirs, Inc. (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">2. Description of Service</h2>
             <p>
-              VaultCheck is a payment verification assistance tool that connects to QuickBooks Online, analyzes vendor payment history, and flags anomalous invoices for your review. The Service is designed to help identify potential anomalies in vendor invoices. <strong>The Service does not guarantee fraud detection or prevention.</strong>
+              Vantirs is a payment verification assistance tool that connects to QuickBooks Online, analyzes vendor payment history, and flags anomalous invoices for your review. The Service is designed to help identify potential anomalies in vendor invoices. <strong>The Service does not guarantee fraud detection or prevention.</strong>
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">3. Advisory Nature of Service</h2>
             <p>
-              VaultCheck is advisory only. The Service provides recommendations and flags anomalies based on statistical analysis. <strong>VaultCheck does not make payment decisions, block transactions, or guarantee the accuracy of its analysis.</strong> All payment decisions remain the sole responsibility of the user. You should always verify suspicious payments through direct phone contact with known vendor numbers.
+              Vantirs is advisory only. The Service provides recommendations and flags anomalies based on statistical analysis. <strong>Vantirs does not make payment decisions, block transactions, or guarantee the accuracy of its analysis.</strong> All payment decisions remain the sole responsibility of the user. You should always verify suspicious payments through direct phone contact with known vendor numbers.
             </p>
           </section>
 
@@ -49,7 +49,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">5. QuickBooks Online Integration</h2>
             <p>
-              By connecting your QuickBooks Online account, you authorize VaultCheck to access vendor, bill, and bill payment data from the connected company file. VaultCheck accesses data in read-only mode. We do not modify, delete, or create records in your QuickBooks account. You may disconnect access at any time through the VaultCheck dashboard or your Intuit account settings.
+              By connecting your QuickBooks Online account, you authorize Vantirs to access vendor, bill, and bill payment data from the connected company file. Vantirs accesses data in read-only mode. We do not modify, delete, or create records in your QuickBooks account. You may disconnect access at any time through the Vantirs dashboard or your Intuit account settings.
             </p>
           </section>
 
@@ -70,17 +70,17 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">8. Limitation of Liability</h2>
             <p>
-              <strong>TO THE MAXIMUM EXTENT PERMITTED BY LAW, VAULTCHECK SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM:</strong>
+              <strong>TO THE MAXIMUM EXTENT PERMITTED BY LAW, VANTIRS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM:</strong>
             </p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li>Your use of or inability to use the Service;</li>
               <li>Any unauthorized access to or use of our servers and/or any personal information stored therein;</li>
               <li>Any failure of the Service to detect fraudulent, anomalous, or suspicious activity;</li>
-              <li>Any payment made based on or despite VaultCheck&apos;s analysis or recommendations;</li>
+              <li>Any payment made based on or despite Vantirs&apos;s analysis or recommendations;</li>
               <li>Any errors, inaccuracies, or omissions in the Service&apos;s analysis or alerts.</li>
             </ul>
             <p className="mt-3">
-              <strong>VaultCheck&apos;s total liability to you for all claims arising from the Service shall not exceed the amount you paid to us in the twelve (12) months preceding the claim.</strong>
+              <strong>Vantirs&apos;s total liability to you for all claims arising from the Service shall not exceed the amount you paid to us in the twelve (12) months preceding the claim.</strong>
             </p>
           </section>
 
@@ -108,7 +108,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">12. Contact</h2>
             <p>
-              For questions about these Terms, contact us at <strong>legal@vaultcheck.app</strong>.
+              For questions about these Terms, contact us at <strong>legal@vantirs.app</strong>.
             </p>
           </section>
         </div>
