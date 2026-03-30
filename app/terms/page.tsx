@@ -63,7 +63,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">7. Subscription and Billing</h2>
             <p>
-              Paid subscriptions are billed monthly through Stripe. You may cancel at any time. Cancellation takes effect at the end of the current billing period. Free trial periods last 30 days. No credit card is required for the trial. Pricing is per-client for firm plans.
+              Paid subscriptions are billed monthly through Paddle. You may cancel at any time. Cancellation takes effect at the end of the current billing period. Free trial periods last 30 days. No credit card is required for the trial. Pricing is per-client for firm plans.
             </p>
           </section>
 

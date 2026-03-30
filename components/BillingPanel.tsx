@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { parseJsonResponse } from '@/lib/parse-json-response'
 
 type Plan = 'pilot' | 'solo' | 'starter' | 'growth' | 'scale' | 'enterprise'
 
@@ -23,15 +24,17 @@ export default function BillingPanel({ currentPlan, pilotAvailable }: { currentP
     setLoadingPlan(plan)
     setError(null)
     try {
-      const res = await fetch('/api/stripe/checkout', {
+      const res = await fetch('/api/paddle/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Checkout failed')
-      if (data.url) window.location.href = data.url
-      else throw new Error('Missing checkout url')
+      const data = await parseJsonResponse<{ error?: string; url?: string }>(res)
+      if (!res.ok) {
+        throw new Error(data?.error || `Checkout failed (${res.status})`)
+      }
+      if (data?.url) window.location.href = data.url
+      else throw new Error(data?.error || 'Missing checkout URL. Check Paddle configuration.')
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Checkout failed'
       setError(message)
@@ -41,15 +44,15 @@ export default function BillingPanel({ currentPlan, pilotAvailable }: { currentP
 
   return (
     <div className="px-6 py-5">
-      <h2 className="text-base font-semibold text-gray-900 mb-2">Billing</h2>
-      <p className="text-sm text-gray-500 mb-4">
+      <h2 className="text-xl font-semibold text-[#0b1c30] mb-2">Billing</h2>
+      <p className="text-sm text-slate-500 mb-4">
         Choose a plan to upgrade your firm subscription.
       </p>
 
       {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">{error}</p>}
 
       {currentPlan === 'trial' && (
-        <p className="text-xs text-gray-500 mb-3">
+        <p className="text-xs text-slate-500 mb-3">
           Pick the plan that matches how many QuickBooks client entities you expect to connect.
         </p>
       )}
@@ -63,7 +66,7 @@ export default function BillingPanel({ currentPlan, pilotAvailable }: { currentP
             type="button"
             disabled={loadingPlan === p.plan || p.plan === currentPlan}
             onClick={() => startCheckout(p.plan)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-gradient-to-br from-[#003ec7] to-[#0052ff] text-white hover:opacity-90 disabled:opacity-50"
           >
             {loadingPlan === p.plan ? `Loading ${p.label}...` : p.plan === currentPlan ? `${p.label} (Current)` : p.label}
           </button>

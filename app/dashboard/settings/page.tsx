@@ -19,59 +19,58 @@ export default async function SettingsPage() {
   const pilotAvailable = pilotCount < 10
 
   return (
-    <div className="p-8 max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
-
-      <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
-        <div className="px-6 py-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Firm</h2>
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider">Name</label>
-              <p className="text-sm text-gray-900 mt-0.5">{dbUser.firm.name}</p>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider">Email</label>
-              <p className="text-sm text-gray-900 mt-0.5">{dbUser.firm.email}</p>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider">Plan</label>
-              <p className="text-sm text-gray-900 mt-0.5 capitalize">{dbUser.firm.plan}</p>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider">Client limit</label>
-              <p className="text-sm text-gray-900 mt-0.5">{dbUser.firm.maxClients} clients</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-6 py-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Your account</h2>
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider">Name</label>
-              <p className="text-sm text-gray-900 mt-0.5">{dbUser.name}</p>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider">Email</label>
-              <p className="text-sm text-gray-900 mt-0.5">{dbUser.email}</p>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider">Role</label>
-              <p className="text-sm text-gray-900 mt-0.5 capitalize">{dbUser.role}</p>
-            </div>
-          </div>
-        </div>
-
-        <TeamPanel
-          members={teamMembers}
-          currentUserId={dbUser.id}
-          isAdmin={dbUser.role === 'admin'}
-        />
-
-        <BillingPanel currentPlan={dbUser.firm.plan} pilotAvailable={pilotAvailable} />
-        <SlackWebhookPanel initialUrl={dbUser.firm.slackWebhookUrl} />
+    <div className="p-10 max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-4xl font-semibold text-[#0b1c30]">Settings</h1>
+        <p className="mt-2 text-sm text-slate-500">Manage firm identity, access, billing, and alert channels.</p>
       </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="surface-panel p-6">
+          <h2 className="text-xl font-semibold text-[#0b1c30] mb-5">Firm</h2>
+          <div className="space-y-4">
+            <InfoBlock label="Name" value={dbUser.firm.name} />
+            <InfoBlock label="Email" value={dbUser.firm.email} />
+            <InfoBlock label="Plan" value={dbUser.firm.plan} />
+            <InfoBlock label="Client limit" value={`${dbUser.firm.maxClients} clients`} />
+          </div>
+        </div>
+
+        <div className="surface-panel p-6">
+          <h2 className="text-xl font-semibold text-[#0b1c30] mb-5">Your account</h2>
+          <div className="space-y-4">
+            <InfoBlock label="Name" value={dbUser.name} />
+            <InfoBlock label="Email" value={dbUser.email} />
+            <InfoBlock label="Role" value={dbUser.role} />
+          </div>
+        </div>
+
+        <div className="surface-panel p-0 overflow-hidden">
+          <TeamPanel
+            members={teamMembers}
+            currentUserId={dbUser.id}
+            isAdmin={dbUser.role === 'admin'}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+        <div className="surface-panel p-0 overflow-hidden">
+          <BillingPanel currentPlan={dbUser.firm.plan} pilotAvailable={pilotAvailable} />
+        </div>
+        <div className="surface-panel p-0 overflow-hidden">
+          <SlackWebhookPanel initialUrl={dbUser.firm.slackWebhookUrl} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function InfoBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-[#eff4ff] px-4 py-3">
+      <p className="text-[11px] uppercase tracking-[0.08em] text-slate-500">{label}</p>
+      <p className="mt-1 text-sm text-[#0b1c30] capitalize">{value}</p>
     </div>
   )
 }

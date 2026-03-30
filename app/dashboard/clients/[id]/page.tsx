@@ -51,14 +51,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const qboConnectUrl = `/api/qbo/connect?clientId=${client.id}`
 
   return (
-    <div className="p-8">
+    <div className="p-10">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/dashboard/clients" className="text-gray-400 hover:text-gray-600">
+        <Link href="/dashboard/clients" className="text-slate-400 hover:text-slate-600">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-4xl font-semibold text-[#0b1c30]">{client.name}</h1>
+          <p className="text-sm text-slate-500 mt-2">
             {isQBOConnected ? `QuickBooks connected · Realm ${client.qboRealmId}` : 'QuickBooks not connected'}
           </p>
         </div>
@@ -72,57 +72,57 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Vendors Tracked</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{client.vendors.length}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+        <div className="surface-panel p-5">
+          <p className="text-[11px] text-slate-500 uppercase tracking-[0.08em]">Vendors Tracked</p>
+          <p className="text-3xl font-semibold text-[#0b1c30] mt-1">{client.vendors.length}</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Invoices</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{client.invoices.length}</p>
+        <div className="surface-panel p-5">
+          <p className="text-[11px] text-slate-500 uppercase tracking-[0.08em]">Invoices</p>
+          <p className="text-3xl font-semibold text-[#0b1c30] mt-1">{client.invoices.length}</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Open Alerts</p>
-          <p className={`text-2xl font-bold mt-1 ${client.alerts.length > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
+        <div className="surface-panel p-5">
+          <p className="text-[11px] text-slate-500 uppercase tracking-[0.08em]">Open Alerts</p>
+          <p className={`text-3xl font-semibold mt-1 ${client.alerts.length > 0 ? 'text-orange-600' : 'text-[#0b1c30]'}`}>
             {client.alerts.length}
           </p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Sync Status</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1 capitalize">{client.syncStatus}</p>
+        <div className="surface-panel p-5">
+          <p className="text-[11px] text-slate-500 uppercase tracking-[0.08em]">Sync Status</p>
+          <p className="text-3xl font-semibold text-[#0b1c30] mt-1 capitalize">{client.syncStatus}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Recent Invoices */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">Recent Invoices</h2>
+        <div className="surface-panel">
+          <div className="px-6 py-5">
+            <h2 className="font-semibold text-[#0b1c30] text-xl">Recent Invoices</h2>
           </div>
-          <div className="divide-y divide-gray-50 max-h-96 overflow-y-auto">
+          <div className="space-y-3 px-4 pb-4 max-h-96 overflow-y-auto">
             {client.invoices.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-gray-400 text-center">
+              <p className="px-6 py-8 text-sm text-slate-400 text-center">
                 {isQBOConnected ? 'No invoices synced yet. Run a sync.' : 'Connect QuickBooks to import invoices.'}
               </p>
             ) : (
               client.invoices.map(inv => (
-                <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} className="px-6 py-3 flex items-center gap-3 hover:bg-gray-50">
+                <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} className="px-4 py-4 rounded-xl bg-[#eff4ff] hover:bg-[#e5eeff] flex items-center gap-3 transition-colors">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-[#0b1c30] truncate">
                       {inv.vendor?.displayName || 'Unknown vendor'}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-slate-500 mt-1">
                       {inv.invoiceNumber && `#${inv.invoiceNumber} · `}
                       {new Date(inv.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <p className="text-sm font-medium text-gray-900">${inv.amount.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-[#0b1c30]">${inv.amount.toLocaleString()}</p>
                   {inv.scannedAt ? (
                     <span className={riskBadgeClass(inv.riskScore)}>
                       {riskLabel(inv.riskScore)}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
                       Pending
                     </span>
                   )}
@@ -133,25 +133,25 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </div>
 
         {/* Open Alerts */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">Open Alerts</h2>
-            <Link href={`/dashboard/alerts?clientId=${client.id}`} className="text-sm text-blue-600 hover:underline">
+        <div className="surface-panel">
+          <div className="flex items-center justify-between px-6 py-5">
+            <h2 className="font-semibold text-[#0b1c30] text-xl">Open Alerts</h2>
+            <Link href={`/dashboard/alerts?clientId=${client.id}`} className="text-sm text-[#003ec7] hover:text-[#0052ff]">
               View all
             </Link>
           </div>
-          <div className="divide-y divide-gray-50 max-h-96 overflow-y-auto">
+          <div className="space-y-3 px-4 pb-4 max-h-96 overflow-y-auto">
             {client.alerts.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-gray-400 text-center">No open alerts</p>
+              <p className="px-6 py-8 text-sm text-slate-400 text-center">No open alerts</p>
             ) : (
               client.alerts.map(alert => (
-                <div key={alert.id} className="px-6 py-3">
+                <div key={alert.id} className="px-4 py-4 rounded-xl bg-[#eff4ff]">
                   <div className="flex items-start gap-2">
                     <div className={`mt-1.5 severity-dot-${alert.severity}`} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{alert.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{alert.description}</p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-sm font-medium text-[#0b1c30]">{alert.title}</p>
+                      <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">{alert.description}</p>
+                      <p className="text-xs text-slate-500 mt-1">
                         ${alert.invoice.amount.toLocaleString()} · {new Date(alert.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -167,39 +167,39 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Vendor List */}
-      <div className="bg-white rounded-lg border border-gray-200 mt-6">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">Vendors ({client.vendors.length})</h2>
+      <div className="surface-panel mt-6">
+        <div className="px-6 py-5">
+          <h2 className="font-semibold text-[#0b1c30] text-xl">Vendors ({client.vendors.length})</h2>
         </div>
-        <div className="divide-y divide-gray-50">
+        <div className="space-y-3 px-4 pb-4">
           {client.vendors.length === 0 ? (
-            <p className="px-6 py-8 text-sm text-gray-400 text-center">No vendors synced yet.</p>
+            <p className="px-6 py-8 text-sm text-slate-400 text-center">No vendors synced yet.</p>
           ) : (
             client.vendors.slice(0, 10).map(vendor => (
-              <Link key={vendor.id} href={`/dashboard/vendors/${vendor.id}`} className="px-6 py-3 flex items-center gap-4 hover:bg-gray-50">
+              <Link key={vendor.id} href={`/dashboard/vendors/${vendor.id}`} className="px-4 py-4 rounded-xl bg-[#eff4ff] hover:bg-[#e5eeff] flex items-center gap-4 transition-colors">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{vendor.displayName}</p>
+                  <p className="text-sm font-medium text-[#0b1c30]">{vendor.displayName}</p>
                   {vendor.email && (
-                    <p className="text-xs text-gray-400">{vendor.email}</p>
+                    <p className="text-xs text-slate-500">{vendor.email}</p>
                   )}
                 </div>
                 {vendor.fingerprint ? (
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-600">
                       Avg ${vendor.fingerprint.avgAmount.toLocaleString()} · {vendor.fingerprint.totalInvoices} invoices
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-slate-500">
                       Confidence: {(vendor.fingerprint.confidenceScore * 100).toFixed(0)}%
                     </p>
                   </div>
                 ) : (
-                  <span className="text-xs text-gray-400">No fingerprint</span>
+                  <span className="text-xs text-slate-400">No fingerprint</span>
                 )}
               </Link>
             ))
           )}
           {client.vendors.length > 10 && (
-            <p className="px-6 py-3 text-sm text-gray-400 text-center">
+            <p className="px-6 py-3 text-sm text-slate-400 text-center">
               +{client.vendors.length - 10} more vendors
             </p>
           )}

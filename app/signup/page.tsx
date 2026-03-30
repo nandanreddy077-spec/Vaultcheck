@@ -1,37 +1,62 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Shield } from 'lucide-react'
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ firmName: '', name: '', email: '' })
-  const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState('')
-
+  const router = useRouter()
   const supabase = createClient()
+
+  const [form, setForm] = useState({ firmName: '', name: '', email: '', password: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+
+  const passwordStrong = form.password.length >= 8
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
+    if (!passwordStrong) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
     setLoading(true)
     setError('')
 
-    // Sign up via magic link — firm + user created in /auth/callback
-    const { error } = await supabase.auth.signInWithOtp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
+      password: form.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: { name: form.name, firmName: form.firmName },
       },
     })
 
-    if (error) {
-      setError(error.message)
-    } else {
-      setSent(true)
+    if (signUpError) {
+      setError(signUpError.message)
+      setLoading(false)
+      return
     }
+
+    if (data.session) {
+      // Email confirmation is disabled — user is signed in immediately
+      try {
+        await fetch('/api/auth/setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: form.name, firmName: form.firmName }),
+        })
+      } catch {
+        // Non-fatal: onboarding page can retry
+      }
+      router.push('/dashboard/onboarding')
+    } else {
+      // Email confirmation is enabled — ask user to check email
+      setEmailSent(true)
+    }
+
     setLoading(false)
   }
 
@@ -57,7 +82,7 @@ export default function SignupPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {sent ? (
+          {emailSent ? (
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -66,7 +91,7 @@ export default function SignupPage() {
               </div>
               <h3 className="text-lg font-medium text-gray-900">Check your email</h3>
               <p className="mt-2 text-sm text-gray-600">
-                We sent a sign-in link to <strong>{form.email}</strong>.
+                We sent a confirmation link to <strong>{form.email}</strong>. Click it to activate your account.
               </p>
             </div>
           ) : (
@@ -82,6 +107,7 @@ export default function SignupPage() {
                   placeholder="Smith & Partners CPA"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Your name</label>
                 <input
@@ -93,6 +119,7 @@ export default function SignupPage() {
                   placeholder="Jane Smith"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Work email</label>
                 <input
@@ -105,6 +132,34 @@ export default function SignupPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={form.password}
+                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="At least 8 characters"
+                />
+                {form.password.length > 0 && (
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <div
+                      className={`h-1.5 flex-1 rounded-full transition-colors ${
+                        passwordStrong ? 'bg-green-500' : 'bg-red-400'
+                      }`}
+                    />
+                    <span
+                      className={`text-xs font-medium ${
+                        passwordStrong ? 'text-green-600' : 'text-red-500'
+                      }`}
+                    >
+                      {passwordStrong ? 'Strong enough' : 'Too short'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {error && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">{error}</p>
               )}
@@ -112,9 +167,9 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Sending...' : 'Create account & send link'}
+                {loading ? 'Creating account...' : 'Create account'}
               </button>
             </form>
           )}

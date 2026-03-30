@@ -3,9 +3,9 @@ import { Shield, CheckCircle, AlertTriangle, TrendingUp, Lock } from 'lucide-rea
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#f8f9ff]">
       {/* Nav */}
-      <nav className="border-b border-gray-100 bg-white/80 backdrop-blur sticky top-0 z-10">
+      <nav className="bg-[#f8f9ff]/90 backdrop-blur sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-blue-600" />
@@ -15,7 +15,7 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900">Sign in</Link>
             <Link
               href="/signup"
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+              className="btn-primary-gradient text-sm"
             >
               Start free trial
             </Link>
@@ -25,11 +25,11 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 py-20 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#e5eeff] text-[#003ec7] rounded-full text-sm font-medium mb-6">
           <Shield className="w-4 h-4" />
           Payment verification for accounting firms
         </div>
-        <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+        <h1 className="text-5xl font-semibold text-[#0b1c30] mb-6 leading-tight">
           Flag suspicious invoices<br />before money leaves the account
         </h1>
         <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">
@@ -39,11 +39,11 @@ export default function LandingPage() {
         <div className="flex items-center justify-center gap-4">
           <Link
             href="/signup"
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 text-base"
+            className="btn-primary-gradient px-6 py-3 text-base"
           >
             Start 30-day free trial
           </Link>
-          <Link href="/login" className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 text-base">
+          <Link href="/login" className="px-6 py-3 bg-white text-slate-700 font-medium rounded-lg hover:bg-[#eff4ff] text-base shadow-[0_4px_20px_rgba(11,28,48,0.06)]">
             Sign in
           </Link>
         </div>
@@ -51,7 +51,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-[#eff4ff] py-16">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">How it works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -110,7 +110,7 @@ export default function LandingPage() {
               desc: 'Every invoice from a first-time vendor is flagged for manual review. No payment history = no trust.',
             },
           ].map(feature => (
-            <div key={feature.title} className="flex gap-4 p-6 bg-gray-50 rounded-lg">
+              <div key={feature.title} className="flex gap-4 p-6 bg-white rounded-xl shadow-[0_4px_20px_rgba(11,28,48,0.06)]">
               <div className="mt-0.5 shrink-0">{feature.icon}</div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>

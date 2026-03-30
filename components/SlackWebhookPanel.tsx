@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { parseJsonResponse } from '@/lib/parse-json-response'
 
 export default function SlackWebhookPanel({ initialUrl }: { initialUrl?: string | null }) {
   const [slackWebhookUrl, setSlackWebhookUrl] = useState(initialUrl ?? '')
@@ -20,9 +21,9 @@ export default function SlackWebhookPanel({ initialUrl }: { initialUrl?: string 
         body: JSON.stringify({ slackWebhookUrl }),
       })
 
+      const data = await parseJsonResponse<{ error?: string; ok?: boolean }>(res)
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string }
-        throw new Error(data.error || 'Failed to save Slack webhook.')
+        throw new Error(data?.error || 'Failed to save Slack webhook.')
       }
 
       setSaved(true)
@@ -36,19 +37,19 @@ export default function SlackWebhookPanel({ initialUrl }: { initialUrl?: string 
 
   return (
     <div className="px-6 py-5">
-      <h2 className="text-base font-semibold text-gray-900 mb-4">Slack alerts</h2>
+      <h2 className="text-xl font-semibold text-[#0b1c30] mb-4">Slack alerts</h2>
 
       <div className="space-y-3">
         <div>
-          <label className="text-xs text-gray-500 uppercase tracking-wider">Webhook URL</label>
+          <label className="text-xs text-slate-500 uppercase tracking-wider">Webhook URL</label>
           <textarea
-            className="mt-2 block w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+            className="mt-2 block w-full rounded-xl bg-[#eff4ff] px-3 py-2 text-sm text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-blue-200"
             rows={3}
             value={slackWebhookUrl}
             onChange={e => setSlackWebhookUrl(e.target.value)}
             placeholder="https://hooks.slack.com/services/..."
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-slate-500">
             Used for critical/high alerts. Leave blank to disable.
           </p>
         </div>
@@ -58,7 +59,7 @@ export default function SlackWebhookPanel({ initialUrl }: { initialUrl?: string 
             type="button"
             onClick={onSave}
             disabled={loading}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="btn-primary-gradient text-sm disabled:opacity-50"
           >
             {loading ? 'Saving...' : 'Save'}
           </button>

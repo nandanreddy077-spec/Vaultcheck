@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { UserPlus, X, Mail, Clock } from 'lucide-react'
+import { parseJsonResponse } from '@/lib/parse-json-response'
 
 type TeamMember = { id: string; name: string; email: string; role: string }
 type Invitation = { id: string; name: string; email: string; role: string; status: string }
@@ -25,8 +26,10 @@ export default function TeamPanel({
   useEffect(() => {
     if (!isAdmin) return
     fetch('/api/invitations')
-      .then(r => r.json())
-      .then(d => setInvitations(d.invitations || []))
+      .then(async r => {
+        const d = await parseJsonResponse<{ invitations?: Invitation[] }>(r)
+        if (r.ok && d?.invitations) setInvitations(d.invitations)
+      })
       .catch(() => {})
   }, [isAdmin])
 
@@ -41,15 +44,17 @@ export default function TeamPanel({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
-    const data = await res.json()
+    const data = await parseJsonResponse<{ error?: string; invitation?: Invitation }>(res)
 
     if (!res.ok) {
-      setError(data.error || 'Failed to send invitation.')
-    } else {
+      setError(data?.error || 'Failed to send invitation.')
+    } else if (data?.invitation) {
       setSuccess(`Invitation sent to ${form.email}`)
-      setInvitations(prev => [data.invitation, ...prev])
+      setInvitations(prev => [data.invitation!, ...prev])
       setForm({ name: '', email: '', role: 'staff' })
       setShowInvite(false)
+    } else {
+      setError('Unexpected response from server.')
     }
     setLoading(false)
   }
@@ -62,11 +67,11 @@ export default function TeamPanel({
   return (
     <div className="px-6 py-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold text-gray-900">Team members</h2>
+        <h2 className="text-xl font-semibold text-[#0b1c30]">Team members</h2>
         {isAdmin && (
           <button
             onClick={() => setShowInvite(!showInvite)}
-            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="flex items-center gap-1 text-sm text-[#003ec7] hover:text-[#0052ff] font-medium"
           >
             <UserPlus className="w-4 h-4" />
             Invite
@@ -76,7 +81,7 @@ export default function TeamPanel({
 
       {/* Invite form */}
       {showInvite && (
-        <form onSubmit={handleInvite} className="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
+        <form onSubmit={handleInvite} className="bg-[#eff4ff] rounded-xl p-4 mb-4 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
@@ -84,7 +89,7 @@ export default function TeamPanel({
               placeholder="Name"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-2 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
             <input
               type="email"
@@ -92,14 +97,14 @@ export default function TeamPanel({
               placeholder="Email"
               value={form.email}
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-2 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
           <div className="flex items-center gap-3">
             <select
               value={form.role}
               onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-2 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
             >
               <option value="staff">Staff</option>
               <option value="admin">Admin</option>
@@ -107,7 +112,7 @@ export default function TeamPanel({
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="btn-primary-gradient text-sm disabled:opacity-50"
             >
               {loading ? 'Sending...' : 'Send invite'}
             </button>
@@ -128,9 +133,9 @@ export default function TeamPanel({
       {/* Members list */}
       <div className="space-y-2">
         {members.map(m => (
-          <div key={m.id} className="flex items-center justify-between py-2">
+          <div key={m.id} className="flex items-center justify-between py-3 px-3 rounded-xl bg-[#eff4ff]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-medium">
+              <div className="w-8 h-8 bg-white text-blue-700 rounded-full flex items-center justify-center text-sm font-medium">
                 {m.name.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -140,7 +145,7 @@ export default function TeamPanel({
                 <p className="text-xs text-gray-500">{m.email}</p>
               </div>
             </div>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 capitalize">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white text-slate-600 capitalize">
               {m.role}
             </span>
           </div>
@@ -149,10 +154,10 @@ export default function TeamPanel({
 
       {/* Pending invitations */}
       {invitations.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Pending invitations</p>
+        <div className="mt-4 pt-4">
+          <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Pending invitations</p>
           {invitations.map(inv => (
-            <div key={inv.id} className="flex items-center justify-between py-2">
+            <div key={inv.id} className="flex items-center justify-between py-2 px-3 rounded-xl bg-[#eff4ff] mb-2">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center">
                   <Mail className="w-4 h-4" />

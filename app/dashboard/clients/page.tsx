@@ -31,18 +31,18 @@ export default async function ClientsPage() {
   const alertMap = Object.fromEntries(openAlertsByClient.map(a => [a.clientId, a._count._all]))
 
   return (
-    <div className="p-8">
+    <div className="p-10">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-4xl font-semibold text-[#0b1c30]">Clients</h1>
+          <p className="text-sm text-slate-500 mt-2">
             {clients.length} of {dbUser.firm.maxClients} clients used
           </p>
         </div>
         {dbUser.role === 'admin' && (
           <Link
             href="/dashboard/clients/new"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+            className="btn-primary-gradient gap-2 text-sm"
           >
             <Plus className="w-4 h-4" />
             Add Client
@@ -50,25 +50,25 @@ export default async function ClientsPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="surface-panel overflow-hidden">
+        <table className="min-w-full">
+          <thead className="bg-[#eff4ff]">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QBO Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendors</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoices</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Alerts</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Sync</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Client</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">QBO Status</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Vendors</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Invoices</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Open Alerts</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Last Sync</th>
               <th className="px-6 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {clients.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-400">
+                <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
                   No clients yet.{' '}
-                  <Link href="/dashboard/clients/new" className="text-blue-600 hover:underline">
+                  <Link href="/dashboard/clients/new" className="text-[#003ec7] hover:text-[#0052ff]">
                     Add your first client
                   </Link>
                 </td>
@@ -77,31 +77,31 @@ export default async function ClientsPage() {
               clients.map(client => {
                 const openAlerts = alertMap[client.id] || 0
                 return (
-                  <tr key={client.id} className="hover:bg-gray-50">
+                  <tr key={client.id} className="odd:bg-white even:bg-[#f8f9ff] hover:bg-[#eff4ff] transition-colors">
                     <td className="px-6 py-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{client.name}</p>
+                        <p className="text-sm font-medium text-[#0b1c30]">{client.name}</p>
                         {client.qboRealmId && (
-                          <p className="text-xs text-gray-400">QBO: {client.qboRealmId}</p>
+                          <p className="text-xs text-slate-400">QBO: {client.qboRealmId}</p>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {syncIcons[client.syncStatus] || syncIcons.pending}
-                        <span className="text-sm text-gray-600 capitalize">{client.syncStatus}</span>
+                        <span className="text-sm text-slate-600 capitalize">{client.syncStatus}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{client._count.vendors}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{client._count.invoices}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600">{client._count.vendors}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600">{client._count.invoices}</td>
                     <td className="px-6 py-4">
                       {openAlerts > 0 ? (
                         <span className="risk-badge-high">{openAlerts} open</span>
                       ) : (
-                        <span className="text-sm text-gray-400">—</span>
+                        <span className="text-sm text-slate-400">—</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-slate-500">
                       {client.lastSyncAt
                         ? new Date(client.lastSyncAt).toLocaleDateString()
                         : '—'}
@@ -109,7 +109,7 @@ export default async function ClientsPage() {
                     <td className="px-6 py-4 text-right">
                       <Link
                         href={`/dashboard/clients/${client.id}`}
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-[#003ec7] hover:text-[#0052ff]"
                       >
                         View →
                       </Link>

@@ -31,7 +31,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-1">
               <li>Name, email address, and firm name (provided during signup)</li>
               <li>Authentication data managed by Supabase Auth (session tokens)</li>
-              <li>Billing information processed by Stripe (we do not store credit card numbers)</li>
+              <li>Billing information processed by Paddle (we do not store credit card numbers)</li>
             </ul>
 
             <h3 className="text-base font-medium text-gray-800 mt-4 mb-2">QuickBooks Online Data</h3>
@@ -97,7 +97,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li><strong>Supabase:</strong> Authentication and database hosting (PostgreSQL)</li>
               <li><strong>Vercel:</strong> Application hosting and deployment</li>
-              <li><strong>Stripe:</strong> Payment processing (PCI-compliant)</li>
+              <li><strong>Paddle:</strong> Merchant of record and payment processing (PCI-compliant)</li>
               <li><strong>Resend:</strong> Transactional email delivery</li>
               <li><strong>Upstash:</strong> Redis for background job queues</li>
               <li><strong>Sentry:</strong> Error monitoring (no sensitive data is sent)</li>

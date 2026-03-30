@@ -18,55 +18,55 @@ export default async function VendorsPage() {
   })
 
   return (
-    <div className="p-8">
+    <div className="p-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
-        <p className="text-sm text-gray-500 mt-1">{vendors.length} vendors tracked across all clients</p>
+        <h1 className="text-4xl font-semibold text-[#0b1c30]">Vendors</h1>
+        <p className="text-sm text-slate-500 mt-2">{vendors.length} vendors tracked across all clients</p>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="surface-panel overflow-hidden">
+        <table className="min-w-full">
+          <thead className="bg-[#eff4ff]">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoices</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Payment</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Vendor</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Client</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Invoices</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Avg Amount</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Confidence</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Last Payment</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {vendors.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-400">
+                <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">
                   No vendors yet. Connect a client&apos;s QuickBooks to import vendors.
                 </td>
               </tr>
             ) : (
               vendors.map(vendor => (
-                <tr key={vendor.id} className="hover:bg-gray-50">
+                <tr key={vendor.id} className="odd:bg-white even:bg-[#f8f9ff] hover:bg-[#eff4ff] transition-colors">
                   <td className="px-6 py-4">
                     <div>
                       <Link
                         href={`/dashboard/vendors/${vendor.id}`}
-                        className="text-sm font-medium text-gray-900 hover:text-blue-600"
+                        className="text-sm font-medium text-[#0b1c30] hover:text-[#003ec7]"
                       >
                         {vendor.displayName}
                       </Link>
-                      {vendor.email && <p className="text-xs text-gray-400">{vendor.email}</p>}
+                      {vendor.email && <p className="text-xs text-slate-400">{vendor.email}</p>}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <Link
                       href={`/dashboard/clients/${vendor.client.id}`}
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-[#003ec7] hover:text-[#0052ff]"
                     >
                       {vendor.client.name}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{vendor._count.invoices}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-slate-600">{vendor._count.invoices}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
                     {vendor.fingerprint
                       ? `$${vendor.fingerprint.avgAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                       : '—'}
@@ -74,21 +74,21 @@ export default async function VendorsPage() {
                   <td className="px-6 py-4">
                     {vendor.fingerprint ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-16 bg-gray-100 rounded-full h-1.5">
+                        <div className="w-16 bg-slate-100 rounded-full h-1.5">
                           <div
-                            className="bg-blue-500 h-1.5 rounded-full"
+                            className="bg-[#003ec7] h-1.5 rounded-full"
                             style={{ width: `${(vendor.fingerprint.confidenceScore * 100).toFixed(0)}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-slate-500">
                           {(vendor.fingerprint.confidenceScore * 100).toFixed(0)}%
                         </span>
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-400">No data</span>
+                      <span className="text-xs text-slate-400">No data</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-slate-500">
                     {vendor.lastPaymentAt
                       ? new Date(vendor.lastPaymentAt).toLocaleDateString()
                       : '—'}

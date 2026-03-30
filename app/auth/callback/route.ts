@@ -78,30 +78,9 @@ export async function GET(req: NextRequest) {
         data: { status: 'accepted' },
       })
     } else {
-      // New user — create firm + user from signup metadata
-      const name = user.user_metadata?.name || user.email?.split('@')[0] || 'User'
-      const firmName = user.user_metadata?.firmName || `${name}'s Firm`
-
-      const firm = await prisma.firm.create({
-        data: {
-          name: firmName,
-          email: user.email!,
-          plan: 'trial',
-          maxClients: 3,
-        },
-      })
-
-      await prisma.user.create({
-        data: {
-          email: user.email!,
-          name,
-          role: 'admin',
-          firmId: firm.id,
-          supabaseUid: user.id,
-        },
-      })
-
-      // Redirect new users to onboarding
+      // New user via email confirmation link — redirect to onboarding.
+      // Firm + user creation is handled by /api/auth/setup (called from signup page)
+      // or will be handled on the onboarding page itself.
       redirectTo = '/dashboard/onboarding'
     }
   }
