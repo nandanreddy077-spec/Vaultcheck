@@ -5,7 +5,7 @@ import { dirname } from 'path'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 /** Same rules as lib/supabase/normalize-supabase-url.ts — fixes `//project.supabase.co` in Vercel env. */
-function normalizeSupabaseUrl(raw) {
+function normalizePublicUrl(raw) {
   if (!raw || typeof raw !== 'string') return raw
   const t = raw.trim()
   if (t.startsWith('//')) return `https:${t}`
@@ -13,18 +13,20 @@ function normalizeSupabaseUrl(raw) {
   return t
 }
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const appUrl = process.env.NEXT_PUBLIC_APP_URL
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {
     root: __dirname,
   },
-  // Explicitly inline NEXT_PUBLIC_ vars so Turbopack always finds them
-  // even when it mis-detects the workspace root (caused by a stray package.json
-  // at the home directory from another project)
+  // Only set keys that exist — setting `undefined` can break Next's env inlining vs Vercel's real values.
   env: {
-    NEXT_PUBLIC_SUPABASE_URL: normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL),
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    ...(supabaseUrl && { NEXT_PUBLIC_SUPABASE_URL: normalizePublicUrl(supabaseUrl) }),
+    ...(anonKey && { NEXT_PUBLIC_SUPABASE_ANON_KEY: anonKey }),
+    ...(appUrl && { NEXT_PUBLIC_APP_URL: normalizePublicUrl(appUrl) }),
   },
 }
 

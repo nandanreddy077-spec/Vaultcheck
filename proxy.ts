@@ -1,3 +1,4 @@
+import '@/lib/env-bootstrap'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { getSupabaseUrl } from '@/lib/supabase/url'

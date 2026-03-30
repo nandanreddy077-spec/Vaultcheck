@@ -1,3 +1,4 @@
+import '@/lib/env-bootstrap'
 import { createBrowserClient } from '@supabase/ssr'
 import { getSupabaseUrl } from '@/lib/supabase/url'
 

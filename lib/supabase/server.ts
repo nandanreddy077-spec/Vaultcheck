@@ -1,3 +1,4 @@
+import '@/lib/env-bootstrap'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getSupabaseUrl } from '@/lib/supabase/url'
