@@ -15,7 +15,7 @@ model Firm {
   id               String   @id @default(cuid())
   name             String
   email            String   @unique
-  plan             String   @default("trial") // trial, solo, starter, growth, enterprise
+  plan             String   @default("trial") // trial, pilot, solo, starter, growth, scale, enterprise
   slackWebhookUrl String?
   stripeCustomerId String?  @unique
   stripeSubId      String?

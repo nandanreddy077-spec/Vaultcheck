@@ -9,19 +9,39 @@ function getStripe() {
   return new Stripe(key)
 }
 
-type Plan = 'solo' | 'starter' | 'growth' | 'enterprise'
+type Plan = 'pilot' | 'solo' | 'starter' | 'growth' | 'scale' | 'enterprise'
 
 function planToPriceAndMaxClients(plan: Plan) {
-  const price =
-    plan === 'solo'
-      ? process.env.STRIPE_PRICE_SOLO
-      : plan === 'starter'
-        ? process.env.STRIPE_PRICE_STARTER
-        : plan === 'growth'
-          ? process.env.STRIPE_PRICE_GROWTH
-          : process.env.STRIPE_PRICE_ENTERPRISE
+  let price: string | undefined
+  let maxClients: number
 
-  const maxClients = plan === 'solo' ? 1 : plan === 'starter' ? 10 : plan === 'growth' ? 30 : 9999
+  switch (plan) {
+    case 'solo':
+      price = process.env.STRIPE_PRICE_SOLO
+      maxClients = 1
+      break
+    case 'pilot':
+      price = process.env.STRIPE_PRICE_PILOT
+      maxClients = 20
+      break
+    case 'starter':
+      price = process.env.STRIPE_PRICE_STARTER
+      maxClients = 10
+      break
+    case 'growth':
+      price = process.env.STRIPE_PRICE_GROWTH
+      maxClients = 20
+      break
+    case 'scale':
+      price = process.env.STRIPE_PRICE_SCALE
+      maxClients = 50
+      break
+    case 'enterprise':
+      price = process.env.STRIPE_PRICE_ENTERPRISE
+      maxClients = 9999
+      break
+  }
+
   if (!price) throw new Error(`Missing Stripe price env for plan=${plan}`)
   return { price, maxClients }
 }
@@ -34,15 +54,22 @@ export async function POST(req: NextRequest) {
 
   const body = (await req.json().catch(() => ({}))) as { plan?: string }
   const plan = body.plan as Plan | undefined
-  if (!plan || !['solo', 'starter', 'growth', 'enterprise'].includes(plan)) {
+  if (!plan || !['pilot', 'solo', 'starter', 'growth', 'scale', 'enterprise'].includes(plan)) {
     return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
   }
 
   const firm = await prisma.firm.findUnique({
     where: { id: dbUser.firmId },
-    select: { id: true, name: true, email: true, stripeCustomerId: true },
+    select: { id: true, name: true, email: true, stripeCustomerId: true, plan: true },
   })
   if (!firm) return NextResponse.json({ error: 'Firm not found' }, { status: 404 })
+
+  if (plan === 'pilot' && firm.plan !== 'pilot') {
+    const pilotCount = await prisma.firm.count({ where: { plan: 'pilot' } })
+    if (pilotCount >= 10) {
+      return NextResponse.json({ error: 'Pilot offer is limited to the first 10 firms.' }, { status: 403 })
+    }
+  }
 
   const { price, maxClients } = planToPriceAndMaxClients(plan)
   const stripe = getStripe()
