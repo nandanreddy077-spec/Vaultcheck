@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { LayoutDashboard, Users, AlertTriangle, FileText, Settings, LogOut, FileSpreadsheet } from 'lucide-react'
 import Link from 'next/link'
 import VantirsLogo from '@/components/VantirsLogo'
+import FirmBadge from '@/components/FirmBadge'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   let user: { email?: string } | null = null
@@ -37,7 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="flex items-center gap-3 px-7 py-7">
           <VantirsLogo href="/" className="shrink-0" imageClassName="h-10 w-auto" width={172} height={60} />
           <div>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-slate-500">Enterprise tier</p>
+            <FirmBadge />
           </div>
         </div>
 
