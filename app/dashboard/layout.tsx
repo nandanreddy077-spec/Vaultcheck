@@ -35,12 +35,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="min-h-screen bg-[#f8f9ff] flex">
       {/* Sidebar */}
       <div className="w-72 bg-[#eff4ff] flex flex-col">
-        <div className="flex items-center gap-3 px-7 py-7">
-          <VantirsLogo href="/" className="shrink-0" imageClassName="h-10 w-auto" width={172} height={60} />
-          <div>
-            <FirmBadge />
-          </div>
+        {/* Sidebar header */}
+        <div className="px-6 pt-7 pb-5">
+          <VantirsLogo href="/" className="block" imageClassName="h-9 w-auto" width={160} height={54} />
+          <FirmBadge />
         </div>
+        <div className="mx-5 h-px bg-slate-200/80 mb-2" />
 
         <nav className="flex-1 px-4 py-2 space-y-1.5">
           <NavItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" />
