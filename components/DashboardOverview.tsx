@@ -51,7 +51,7 @@ export default function DashboardOverview({ firmName }: { firmName: string }) {
 
   useEffect(() => {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 6000)
+    const timeout = setTimeout(() => controller.abort(), 15000)
 
     async function loadOverview() {
       try {

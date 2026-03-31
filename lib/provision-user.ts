@@ -54,6 +54,7 @@ export async function ensureProvisionedUser(user: AuthLikeUser) {
       name,
       supabaseUid: user.id,
       firmId: firm.id,
+      role: 'admin',
     },
     create: {
       email,

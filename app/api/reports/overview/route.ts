@@ -8,9 +8,6 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (!['admin'].includes(dbUser.role)) {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-  }
 
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
