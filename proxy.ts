@@ -42,18 +42,18 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // Use the cookie-backed session for routing decisions. If the refresh token is
-  // stale or invalid, clear Supabase auth cookies so the app can recover cleanly
-  // instead of bouncing between dashboard and login forever.
+  // Call getUser() — this verifies the JWT with Supabase servers and automatically
+  // refreshes the access token via the refresh token when needed. getSession() only
+  // reads the cookie without refreshing, causing 401s on Vercel after token expiry.
   let user: { id: string } | null = null
   let authErrorCode: string | null = null
 
   try {
-    const { data: sessionData, error } = await supabase.auth.getSession()
+    const { data: userData, error } = await supabase.auth.getUser()
     if (error) {
       authErrorCode = (error as { code?: string }).code || null
     } else {
-      user = sessionData?.session?.user ?? null
+      user = userData?.user ?? null
     }
   } catch {
     authErrorCode = 'session_unavailable'
