@@ -36,7 +36,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Sidebar */}
       <div className="w-72 bg-[#eff4ff] flex flex-col">
         {/* Sidebar header */}
-        <div className="px-6 pt-7 pb-5">
+        <div className="flex flex-col items-start px-6 pt-7 pb-5 gap-3">
           <VantirsLogo href="/" className="block" imageClassName="h-9 w-auto" width={160} height={54} />
           <FirmBadge />
         </div>
