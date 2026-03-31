@@ -25,7 +25,15 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  let user: { id: string } | null = null
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+  if (!userError && userData?.user) {
+    user = userData.user
+  } else {
+    // Fallback to cookie session when Auth API is transiently unavailable.
+    const { data: sessionData } = await supabase.auth.getSession()
+    user = sessionData?.session?.user ?? null
+  }
 
   const { pathname } = request.nextUrl
 

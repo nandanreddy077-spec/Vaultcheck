@@ -8,10 +8,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
   let user: { email?: string } | null = null
   try {
     const supabase = await createClient()
-    const { data: { user: supabaseUser } } = await supabase.auth.getUser()
-    user = supabaseUser
+    const { data: userData, error } = await supabase.auth.getUser()
+    if (!error && userData?.user) {
+      user = userData.user
+    } else {
+      const { data: sessionData } = await supabase.auth.getSession()
+      user = sessionData?.session?.user ?? null
+    }
   } catch {
-    redirect('/login?error=auth_failed')
+    // Network/transient auth failures should not hard fail the dashboard shell.
+    // Let the normal unauthenticated redirect handle truly missing sessions.
+    user = null
   }
 
   if (!user) redirect('/login')
@@ -28,7 +35,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Sidebar */}
       <div className="w-72 bg-[#eff4ff] flex flex-col">
         <div className="flex items-center gap-3 px-7 py-7">
-          <VantirsLogo href="/" variant="icon" className="shrink-0" imageClassName="h-10 w-auto" width={132} height={88} />
+          <VantirsLogo href="/" className="shrink-0" imageClassName="h-10 w-auto" width={172} height={60} />
           <div>
             <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-slate-500">Enterprise tier</p>
           </div>

@@ -9,16 +9,25 @@ export async function getSession() {
 
 export async function getUser() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (!error && user) return user
+  const { data: sessionData } = await supabase.auth.getSession()
+  return sessionData?.session?.user ?? null
 }
 
 export async function requireAuth() {
   try {
     const supabase = await createClient()
-    const { data: { user }, error } = await supabase.auth.getUser()
+    let user = null
+    const { data: userData, error } = await supabase.auth.getUser()
+    if (!error && userData?.user) {
+      user = userData.user
+    } else {
+      const { data: sessionData } = await supabase.auth.getSession()
+      user = sessionData?.session?.user ?? null
+    }
 
-    if (error || !user) {
+    if (!user) {
       return { user: null, dbUser: null, error: 'Unauthorized' }
     }
 
