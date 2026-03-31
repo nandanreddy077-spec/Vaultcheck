@@ -28,6 +28,15 @@ export default function LoginPage() {
       return
     }
 
+    try {
+      await fetch('/api/auth/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch {
+      // Non-fatal: dashboard/onboarding will continue if setup already exists.
+    }
+
     window.location.assign('/dashboard')
   }
 
