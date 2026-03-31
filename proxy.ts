@@ -25,15 +25,10 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  let user: { id: string } | null = null
-  const { data: userData, error: userError } = await supabase.auth.getUser()
-  if (!userError && userData?.user) {
-    user = userData.user
-  } else {
-    // Fallback to cookie session when Auth API is transiently unavailable.
-    const { data: sessionData } = await supabase.auth.getSession()
-    user = sessionData?.session?.user ?? null
-  }
+  // Use the cookie-backed session for routing decisions. This avoids
+  // production redirect loops caused by transient getUser() failures at the edge.
+  const { data: sessionData } = await supabase.auth.getSession()
+  const user = sessionData?.session?.user ?? null
 
   const { pathname } = request.nextUrl
 
