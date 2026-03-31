@@ -36,6 +36,10 @@ export async function requireAuth() {
       return { user, dbUser: null, error: 'User not found in database' }
     }
 
+    if (!dbUser.firm) {
+      return { user, dbUser: null, error: 'User is not linked to a firm' }
+    }
+
     return { user, dbUser, error: null }
   } catch {
     return { user: null, dbUser: null, error: 'Unauthorized' }

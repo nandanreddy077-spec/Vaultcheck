@@ -9,6 +9,8 @@ export default async function DashboardPage() {
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) redirect('/login')
 
+  const firmName = dbUser.firm?.name || 'Your firm'
+
   // Defensive defaults: if any relation is missing or the DB query fails,
   // we should not crash the whole dashboard (which triggers the error screen).
   let clients: any[] = []
@@ -69,7 +71,7 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-4xl font-semibold text-[#0b1c30]">Security Operations</h1>
-          <p className="text-sm text-slate-500 mt-2">{dbUser.firm.name} · Real-time invoice analysis and threat detection</p>
+          <p className="text-sm text-slate-500 mt-2">{firmName} · Real-time invoice analysis and threat detection</p>
         </div>
         <Link
           href="/dashboard/clients/new"
