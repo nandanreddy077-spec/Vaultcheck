@@ -72,7 +72,7 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md">
-          <VantirsLogo href="/" className="inline-flex items-center justify-center mx-auto mb-4" imageClassName="h-10 w-auto opacity-30" width={132} height={44} />
+          <VantirsLogo href="/" variant="icon" className="inline-flex items-center justify-center mx-auto mb-4" imageClassName="h-10 w-auto opacity-30" width={132} height={88} />
           <h2 className="text-xl font-bold text-gray-900 mb-2">Invalid invitation</h2>
           <p className="text-sm text-gray-500">{error}</p>
         </div>

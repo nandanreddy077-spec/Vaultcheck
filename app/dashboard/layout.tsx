@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Sidebar */}
       <div className="w-72 bg-[#eff4ff] flex flex-col">
         <div className="flex items-center gap-3 px-7 py-7">
-          <VantirsLogo href="/" className="shrink-0" imageClassName="h-10 w-auto" width={132} height={44} />
+          <VantirsLogo href="/" variant="icon" className="shrink-0" imageClassName="h-10 w-auto" width={132} height={88} />
           <div>
             <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-slate-500">Enterprise tier</p>
           </div>
