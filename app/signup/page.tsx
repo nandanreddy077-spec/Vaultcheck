@@ -43,7 +43,12 @@ export default function SignupPage() {
       try {
         await fetch('/api/auth/setup', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(data.session?.access_token
+              ? { Authorization: `Bearer ${data.session.access_token}` }
+              : {}),
+          },
           body: JSON.stringify({ name: form.name, firmName: form.firmName }),
         })
       } catch {
