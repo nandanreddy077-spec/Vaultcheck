@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import VantirsLogo from '@/components/VantirsLogo'
 
 export default function LoginPage() {
-  const router = useRouter()
   const supabase = createClient()
 
   const [email, setEmail] = useState('')
@@ -30,7 +28,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    window.location.assign('/dashboard')
   }
 
   async function handleForgotPassword(e: React.FormEvent) {

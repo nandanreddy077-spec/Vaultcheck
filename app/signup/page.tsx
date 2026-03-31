@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import VantirsLogo from '@/components/VantirsLogo'
 
 export default function SignupPage() {
-  const router = useRouter()
   const supabase = createClient()
 
   const [form, setForm] = useState({ firmName: '', name: '', email: '', password: '' })
@@ -51,7 +49,7 @@ export default function SignupPage() {
       } catch {
         // Non-fatal: onboarding page can retry
       }
-      router.push('/dashboard/onboarding')
+      window.location.assign('/dashboard/onboarding')
     } else {
       // Email confirmation is enabled — ask user to check email
       setEmailSent(true)
