@@ -5,8 +5,14 @@ import Link from 'next/link'
 import VantirsLogo from '@/components/VantirsLogo'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  let user: { email?: string } | null = null
+  try {
+    const supabase = await createClient()
+    const { data: { user: supabaseUser } } = await supabase.auth.getUser()
+    user = supabaseUser
+  } catch {
+    redirect('/login?error=auth_failed')
+  }
 
   if (!user) redirect('/login')
 
