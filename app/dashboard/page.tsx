@@ -3,47 +3,66 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Users, AlertTriangle, FileText, TrendingUp, Plus } from 'lucide-react'
+import * as Sentry from '@sentry/nextjs'
 
 export default async function DashboardPage() {
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) redirect('/login')
 
-  const [clients, openAlerts, scannedThisMonth, criticalAlerts, highRiskCount] = await Promise.all([
-    prisma.client.findMany({
-      where: { firmId: dbUser.firmId, isActive: true },
-      include: { _count: { select: { invoices: true, alerts: true } } },
-      orderBy: { updatedAt: 'desc' },
-    }),
-    prisma.alert.count({
-      where: { client: { firmId: dbUser.firmId }, status: 'open' },
-    }),
-    prisma.invoice.count({
-      where: {
-        client: { firmId: dbUser.firmId },
-        createdAt: { gte: new Date(new Date().setDate(1)) },
-      },
-    }),
-    prisma.alert.findMany({
-      where: {
-        client: { firmId: dbUser.firmId },
-        status: 'open',
-        severity: { in: ['critical', 'high'] },
-      },
-      include: {
-        invoice: { include: { vendor: true } },
-        client: { select: { name: true } },
-      },
-      orderBy: [{ severity: 'asc' }, { createdAt: 'desc' }],
-      take: 10,
-    }),
-    prisma.invoice.count({
-      where: {
-        client: { firmId: dbUser.firmId },
-        riskScore: { gte: 36 },
-        createdAt: { gte: new Date(new Date().setDate(1)) },
-      },
-    }),
-  ])
+  // Defensive defaults: if any relation is missing or the DB query fails,
+  // we should not crash the whole dashboard (which triggers the error screen).
+  let clients: any[] = []
+  let openAlerts = 0
+  let scannedThisMonth = 0
+  let criticalAlerts: any[] = []
+  let highRiskCount = 0
+
+  try {
+    ;[
+      clients,
+      openAlerts,
+      scannedThisMonth,
+      criticalAlerts,
+      highRiskCount,
+    ] = await Promise.all([
+      prisma.client.findMany({
+        where: { firmId: dbUser.firmId, isActive: true },
+        include: { _count: { select: { invoices: true, alerts: true } } },
+        orderBy: { updatedAt: 'desc' },
+      }),
+      prisma.alert.count({
+        where: { client: { firmId: dbUser.firmId }, status: 'open' },
+      }),
+      prisma.invoice.count({
+        where: {
+          client: { firmId: dbUser.firmId },
+          createdAt: { gte: new Date(new Date().setDate(1)) },
+        },
+      }),
+      prisma.alert.findMany({
+        where: {
+          client: { firmId: dbUser.firmId },
+          status: 'open',
+          severity: { in: ['critical', 'high'] },
+        },
+        include: {
+          invoice: { include: { vendor: true } },
+          client: { select: { name: true } },
+        },
+        orderBy: [{ severity: 'asc' }, { createdAt: 'desc' }],
+        take: 10,
+      }),
+      prisma.invoice.count({
+        where: {
+          client: { firmId: dbUser.firmId },
+          riskScore: { gte: 36 },
+          createdAt: { gte: new Date(new Date().setDate(1)) },
+        },
+      }),
+    ])
+  } catch (e) {
+    Sentry.captureException(e)
+  }
 
   return (
     <div className="p-10">
@@ -96,8 +115,9 @@ export default async function DashboardPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[#0b1c30] truncate">{alert.title}</p>
                     <p className="text-xs text-slate-500 mt-1">
-                      {alert.client.name} · {alert.invoice.vendor?.displayName || 'Unknown vendor'}
-                      {' · '}${alert.invoice.amount.toLocaleString()}
+                      {alert.client.name} · {alert.invoice?.vendor?.displayName || 'Unknown vendor'}
+                      {' · '}
+                      {alert.invoice ? `$${alert.invoice.amount.toLocaleString()}` : 'Invoice unavailable'}
                     </p>
                   </div>
                   <span className={`risk-badge-${alert.severity === 'critical' ? 'critical' : 'high'}`}>
