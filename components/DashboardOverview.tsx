@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Users, AlertTriangle, FileText, TrendingUp, Plus } from 'lucide-react'
 
 type OverviewData = {
+  firmName?: string
   clients: {
     total: number
     active: number
@@ -44,7 +45,7 @@ const EMPTY_DATA: OverviewData = {
   recentAlerts: [],
 }
 
-export default function DashboardOverview({ firmName }: { firmName: string }) {
+export default function DashboardOverview() {
   const [data, setData] = useState<OverviewData>(EMPTY_DATA)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -89,7 +90,7 @@ export default function DashboardOverview({ firmName }: { firmName: string }) {
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-4xl font-semibold text-[#0b1c30]">Security Operations</h1>
-          <p className="text-sm text-slate-500 mt-2">{firmName} · Real-time invoice analysis and threat detection</p>
+          <p className="text-sm text-slate-500 mt-2">{data.firmName ?? '…'} · Real-time invoice analysis and threat detection</p>
         </div>
         <Link
           href="/dashboard/clients/new"

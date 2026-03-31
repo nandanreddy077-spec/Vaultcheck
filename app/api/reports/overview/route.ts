@@ -79,6 +79,7 @@ export async function GET() {
       : null
 
   return NextResponse.json({
+    firmName: dbUser.firm?.name || 'Your firm',
     clients: { total: totalClients, active: activeClients, syncErrors: clientSyncErrors },
     vendors: { total: totalVendors },
     invoices: {
