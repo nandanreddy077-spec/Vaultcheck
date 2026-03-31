@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { ensureProvisionedUser } from '@/lib/provision-user'
 
 export async function getSession() {
   const supabase = await createClient()
@@ -37,6 +38,9 @@ export async function requireAuth() {
         where: { supabaseUid: user.id },
         include: { firm: true },
       })
+      if (!dbUser || !dbUser.firm) {
+        dbUser = await ensureProvisionedUser(user)
+      }
     } catch {
       return { user, dbUser: null, error: 'Database unavailable' }
     }

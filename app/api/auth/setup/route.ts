@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { ensureProvisionedUser } from '@/lib/provision-user'
 
 export async function POST(req: NextRequest) {
   let user = null
@@ -33,47 +33,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { supabaseUid: user.id },
-    include: { firm: true },
-  })
-
-  // Already set up — skip silently
-  if (existingUser) {
-    return NextResponse.json({ ok: true })
-  }
-
   const body = await req.json().catch(() => ({}))
-  const metadata = user.user_metadata || {}
-  const name = typeof body?.name === 'string' ? body.name : undefined
-  const firmName = typeof body?.firmName === 'string' ? body.firmName : undefined
-  const resolvedName =
-    name ||
-    (typeof metadata.name === 'string' ? metadata.name : undefined) ||
-    user.email!.split('@')[0]
-  const resolvedFirmName =
-    firmName ||
-    (typeof metadata.firmName === 'string' ? metadata.firmName : undefined) ||
-    `${resolvedName}'s Firm`
-
-  const firm = await prisma.firm.create({
-    data: {
-      name: resolvedFirmName,
-      email: user.email!,
-      plan: 'trial',
-      maxClients: 3,
+  const provisionedUser = await ensureProvisionedUser({
+    ...user,
+    user_metadata: {
+      ...(user.user_metadata || {}),
+      ...(typeof body?.name === 'string' ? { name: body.name } : {}),
+      ...(typeof body?.firmName === 'string' ? { firmName: body.firmName } : {}),
     },
   })
 
-  await prisma.user.create({
-    data: {
-      email: user.email!,
-      name: resolvedName,
-      role: 'admin',
-      firmId: firm.id,
-      supabaseUid: user.id,
-    },
-  })
-
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, firmId: provisionedUser.firmId })
 }
