@@ -1,15 +1,12 @@
 import Link from 'next/link'
-import { Shield } from 'lucide-react'
+import VantirsLogo from '@/components/VantirsLogo'
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-white">
       <nav className="border-b border-gray-100 bg-white/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-blue-600" />
-            <span className="font-bold text-gray-900 text-lg">Vantirs</span>
-          </Link>
+          <VantirsLogo href="/" className="inline-flex items-center" imageClassName="h-8 w-auto" width={142} height={48} />
         </div>
       </nav>
 

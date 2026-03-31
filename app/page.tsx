@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import {
-  Shield,
   CheckCircle,
   AlertTriangle,
   TrendingUp,
@@ -12,6 +11,7 @@ import {
   BarChart3,
   Quote,
 } from 'lucide-react'
+import VantirsLogo from '@/components/VantirsLogo'
 
 export default function LandingPage() {
   return (
@@ -19,10 +19,7 @@ export default function LandingPage() {
       {/* Nav — Trustpair-style: airy, anchor links */}
       <header className="fixed top-0 z-50 w-full border-b border-transparent bg-[#f8f9ff]/85 backdrop-blur-md">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-8">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="h-7 w-7 text-[#003ec7]" strokeWidth={1.75} />
-            <span className="font-manrope text-xl font-extrabold tracking-tight text-[#0b1c30]">Vantirs</span>
-          </Link>
+          <VantirsLogo href="/" className="inline-flex items-center" imageClassName="h-9 w-auto" width={160} height={54} />
           <div className="hidden items-center gap-10 md:flex">
             <a href="#platform" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
               Platform
@@ -473,10 +470,7 @@ export default function LandingPage() {
         <footer className="border-t border-[#c3c5d9]/15 bg-[#f8f9ff] py-14">
           <div className="mx-auto grid max-w-7xl gap-10 px-6 md:grid-cols-2 md:gap-12 lg:grid-cols-4 md:px-8">
             <div>
-              <Link href="/" className="flex items-center gap-2">
-                <Shield className="h-6 w-6 text-[#003ec7]" />
-                <span className="font-manrope text-lg font-bold text-[#0b1c30]">Vantirs</span>
-              </Link>
+              <VantirsLogo href="/" className="inline-flex items-center" imageClassName="h-8 w-auto" width={142} height={48} />
               <p className="mt-4 text-xs leading-relaxed text-slate-500">
                 Payment verification for accounting firms on QuickBooks Online—fingerprint vendors, flag anomalies,
                 protect client cash.

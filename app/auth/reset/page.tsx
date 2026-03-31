@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Shield } from 'lucide-react'
+import VantirsLogo from '@/components/VantirsLogo'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -41,10 +41,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="flex items-center gap-2 text-blue-600">
-            <Shield className="w-8 h-8" />
-            <span className="text-2xl font-bold text-gray-900">Vantirs</span>
-          </div>
+          <VantirsLogo href="/" className="inline-flex items-center" imageClassName="h-10 w-auto" width={160} height={54} />
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Set a new password</h2>
       </div>

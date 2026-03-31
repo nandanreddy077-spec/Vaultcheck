@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Shield, LayoutDashboard, Users, AlertTriangle, FileText, Settings, LogOut, FileSpreadsheet } from 'lucide-react'
+import { LayoutDashboard, Users, AlertTriangle, FileText, Settings, LogOut, FileSpreadsheet } from 'lucide-react'
 import Link from 'next/link'
+import VantirsLogo from '@/components/VantirsLogo'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -21,11 +22,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Sidebar */}
       <div className="w-72 bg-[#eff4ff] flex flex-col">
         <div className="flex items-center gap-3 px-7 py-7">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#003ec7] to-[#0052ff] text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Shield className="w-5 h-5" />
-          </div>
+          <VantirsLogo href="/" className="shrink-0" imageClassName="h-10 w-auto" width={132} height={44} />
           <div>
-            <span className="font-semibold text-[#0b1c30] text-lg leading-none">Vantirs</span>
             <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-slate-500">Enterprise tier</p>
           </div>
         </div>

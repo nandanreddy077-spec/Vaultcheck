@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Shield } from 'lucide-react'
+import VantirsLogo from '@/components/VantirsLogo'
 
 export default function InvitePage({ params }: { params: Promise<{ id: string }> }) {
   const [inviteId, setInviteId] = useState<string | null>(null)
@@ -72,7 +72,7 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md">
-          <Shield className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+          <VantirsLogo href="/" className="inline-flex items-center justify-center mx-auto mb-4" imageClassName="h-10 w-auto opacity-30" width={132} height={44} />
           <h2 className="text-xl font-bold text-gray-900 mb-2">Invalid invitation</h2>
           <p className="text-sm text-gray-500">{error}</p>
         </div>
@@ -84,10 +84,7 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="flex items-center gap-2 text-blue-600">
-            <Shield className="w-8 h-8" />
-            <span className="text-2xl font-bold text-gray-900">Vantirs</span>
-          </div>
+          <VantirsLogo href="/" className="inline-flex items-center" imageClassName="h-10 w-auto" width={160} height={54} />
         </div>
 
         <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
