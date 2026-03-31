@@ -5,6 +5,26 @@ import Link from 'next/link'
 import { Users, AlertTriangle, FileText, TrendingUp, Plus } from 'lucide-react'
 import * as Sentry from '@sentry/nextjs'
 
+const OVERVIEW_QUERY_TIMEOUT_MS = 4000
+
+function withTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Dashboard overview query timed out: ${label}`))
+    }, OVERVIEW_QUERY_TIMEOUT_MS)
+
+    promise
+      .then(value => {
+        clearTimeout(timer)
+        resolve(value)
+      })
+      .catch(error => {
+        clearTimeout(timer)
+        reject(error)
+      })
+  })
+}
+
 export default async function DashboardPage() {
   const { dbUser, error } = await requireAuth()
   if (error || !dbUser) redirect('/login')
@@ -19,29 +39,22 @@ export default async function DashboardPage() {
   let criticalAlerts: any[] = []
   let highRiskCount = 0
 
-  try {
-    ;[
-      clients,
-      openAlerts,
-      scannedThisMonth,
-      criticalAlerts,
-      highRiskCount,
-    ] = await Promise.all([
-      prisma.client.findMany({
+  const results = await Promise.allSettled([
+    withTimeout(prisma.client.findMany({
         where: { firmId: dbUser.firmId, isActive: true },
         include: { _count: { select: { invoices: true, alerts: true } } },
         orderBy: { updatedAt: 'desc' },
-      }),
-      prisma.alert.count({
+      }), 'clients'),
+    withTimeout(prisma.alert.count({
         where: { client: { firmId: dbUser.firmId }, status: 'open' },
-      }),
-      prisma.invoice.count({
+      }), 'open-alert-count'),
+    withTimeout(prisma.invoice.count({
         where: {
           client: { firmId: dbUser.firmId },
           createdAt: { gte: new Date(new Date().setDate(1)) },
         },
-      }),
-      prisma.alert.findMany({
+      }), 'monthly-invoice-count'),
+    withTimeout(prisma.alert.findMany({
         where: {
           client: { firmId: dbUser.firmId },
           status: 'open',
@@ -53,17 +66,44 @@ export default async function DashboardPage() {
         },
         orderBy: [{ severity: 'asc' }, { createdAt: 'desc' }],
         take: 10,
-      }),
-      prisma.invoice.count({
+      }), 'critical-alerts'),
+    withTimeout(prisma.invoice.count({
         where: {
           client: { firmId: dbUser.firmId },
           riskScore: { gte: 36 },
           createdAt: { gte: new Date(new Date().setDate(1)) },
         },
-      }),
-    ])
-  } catch (e) {
-    Sentry.captureException(e)
+      }), 'high-risk-count'),
+  ])
+
+  if (results[0].status === 'fulfilled') {
+    clients = results[0].value
+  } else {
+    Sentry.captureException(results[0].reason)
+  }
+
+  if (results[1].status === 'fulfilled') {
+    openAlerts = results[1].value
+  } else {
+    Sentry.captureException(results[1].reason)
+  }
+
+  if (results[2].status === 'fulfilled') {
+    scannedThisMonth = results[2].value
+  } else {
+    Sentry.captureException(results[2].reason)
+  }
+
+  if (results[3].status === 'fulfilled') {
+    criticalAlerts = results[3].value
+  } else {
+    Sentry.captureException(results[3].reason)
+  }
+
+  if (results[4].status === 'fulfilled') {
+    highRiskCount = results[4].value
+  } else {
+    Sentry.captureException(results[4].reason)
   }
 
   return (
