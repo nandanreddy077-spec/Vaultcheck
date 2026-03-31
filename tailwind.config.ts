@@ -12,6 +12,10 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        sans: ["var(--font-inter)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        manrope: ["var(--font-manrope)", "Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
     },
   },
   plugins: [],
