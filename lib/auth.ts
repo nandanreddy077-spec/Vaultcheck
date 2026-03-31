@@ -21,13 +21,35 @@ export async function requireAuth() {
     return { user: null, dbUser: null, error: 'Unauthorized' }
   }
 
-  const dbUser = await prisma.user.findUnique({
+  let dbUser = await prisma.user.findUnique({
     where: { supabaseUid: user.id },
     include: { firm: true },
   })
 
   if (!dbUser) {
-    return { user, dbUser: null, error: 'User not found in database' }
+    // User exists in Supabase but not in DB — auto-provision them.
+    // This recovers from cases where /auth/callback was skipped or failed.
+    const name = user.user_metadata?.name || user.email?.split('@')[0] || 'User'
+    const firmName = user.user_metadata?.firmName || `${name}'s Firm`
+
+    // Check if a firm with this email already exists (e.g. partial callback run)
+    let firm = await prisma.firm.findUnique({ where: { email: user.email! } })
+    if (!firm) {
+      firm = await prisma.firm.create({
+        data: { name: firmName, email: user.email!, plan: 'trial', maxClients: 3 },
+      })
+    }
+
+    dbUser = await prisma.user.create({
+      data: {
+        email: user.email!,
+        name,
+        role: 'admin',
+        firmId: firm.id,
+        supabaseUid: user.id,
+      },
+      include: { firm: true },
+    })
   }
 
   return { user, dbUser, error: null }
