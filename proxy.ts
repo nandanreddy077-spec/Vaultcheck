@@ -3,6 +3,23 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { getSupabaseUrl } from '@/lib/supabase/url'
 
+function isSupabaseAuthCookie(name: string) {
+  return name.startsWith('sb-') && name.includes('auth-token')
+}
+
+function clearSupabaseAuthCookies(response: NextResponse, request: NextRequest) {
+  for (const cookie of request.cookies.getAll()) {
+    if (isSupabaseAuthCookie(cookie.name)) {
+      response.cookies.set(cookie.name, '', {
+        path: '/',
+        expires: new Date(0),
+        maxAge: 0,
+      })
+    }
+  }
+  return response
+}
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -25,12 +42,33 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // Use the cookie-backed session for routing decisions. This avoids
-  // production redirect loops caused by transient getUser() failures at the edge.
-  const { data: sessionData } = await supabase.auth.getSession()
-  const user = sessionData?.session?.user ?? null
+  // Use the cookie-backed session for routing decisions. If the refresh token is
+  // stale or invalid, clear Supabase auth cookies so the app can recover cleanly
+  // instead of bouncing between dashboard and login forever.
+  let user: { id: string } | null = null
+  let authErrorCode: string | null = null
+
+  try {
+    const { data: sessionData, error } = await supabase.auth.getSession()
+    if (error) {
+      authErrorCode = (error as { code?: string }).code || null
+    } else {
+      user = sessionData?.session?.user ?? null
+    }
+  } catch {
+    authErrorCode = 'session_unavailable'
+  }
 
   const { pathname } = request.nextUrl
+
+  if (authErrorCode === 'refresh_token_not_found') {
+    if (pathname.startsWith('/dashboard')) {
+      const loginUrl = new URL('/login?error=session_expired', request.url)
+      return clearSupabaseAuthCookies(NextResponse.redirect(loginUrl), request)
+    }
+
+    return clearSupabaseAuthCookies(supabaseResponse, request)
+  }
 
   // Protect dashboard routes
   if (pathname.startsWith('/dashboard') && !user) {
