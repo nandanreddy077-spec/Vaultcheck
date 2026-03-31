@@ -15,9 +15,10 @@ function connectionStringForUrlParse(connectionString: string): string {
 }
 
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL
+  // Always use DATABASE_URL (pgBouncer) for runtime queries — DIRECT_URL is for migrations only.
+  const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
-    throw new Error('Missing DATABASE_URL or DIRECT_URL for Prisma Client.')
+    throw new Error('Missing DATABASE_URL for Prisma Client.')
   }
 
   const url = new URL(connectionStringForUrlParse(connectionString))
@@ -28,6 +29,9 @@ function createPrismaClient(): PrismaClient {
     user: decodeURIComponent(url.username),
     password: decodeURIComponent(url.password),
     ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 8000,
+    idleTimeoutMillis: 30000,
+    max: 3,
   })
 
   const adapter = new PrismaPg(pool)
