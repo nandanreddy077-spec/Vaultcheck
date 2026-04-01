@@ -42,6 +42,42 @@ function planToPriceAndMaxClients(plan: Plan): { priceId: string; maxClients: nu
   return { priceId, maxClients }
 }
 
+async function ensurePaddleCustomerId(params: {
+  firmId: string
+  firmEmail: string
+  firmName: string
+  existingCustomerId: string | null
+}) {
+  const paddle = getPaddle()
+  const { firmId, firmEmail, firmName, existingCustomerId } = params
+
+  if (existingCustomerId) {
+    try {
+      const existingCustomer = await paddle.customers.get(existingCustomerId)
+      return existingCustomer.id
+    } catch (error) {
+      console.warn('paddle checkout: invalid stored customer id, recreating', {
+        firmId,
+        existingCustomerId,
+        error,
+      })
+    }
+  }
+
+  const customer = await paddle.customers.create({
+    email: firmEmail,
+    name: firmName,
+    customData: { firmId },
+  })
+
+  await prisma.firm.update({
+    where: { id: firmId },
+    data: { paddleCustomerId: customer.id },
+  })
+
+  return customer.id
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { authorized, dbUser, error } = await requireRole(['admin', 'staff'])
@@ -69,21 +105,12 @@ export async function POST(req: NextRequest) {
     }
 
     const { priceId, maxClients } = planToPriceAndMaxClients(plan)
-    const paddle = getPaddle()
-
-    let paddleCustomerId = firm.paddleCustomerId
-    if (!paddleCustomerId) {
-      const customer = await paddle.customers.create({
-        email: firm.email,
-        name: firm.name,
-        customData: { firmId: firm.id },
-      })
-      paddleCustomerId = customer.id
-      await prisma.firm.update({
-        where: { id: firm.id },
-        data: { paddleCustomerId },
-      })
-    }
+    const paddleCustomerId = await ensurePaddleCustomerId({
+      firmId: firm.id,
+      firmEmail: firm.email,
+      firmName: firm.name,
+      existingCustomerId: firm.paddleCustomerId,
+    })
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.vantirs.com'
     return NextResponse.json({

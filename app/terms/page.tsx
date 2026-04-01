@@ -18,7 +18,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using Vantirs (&quot;the Service&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service. The Service is provided by Vantirs, Inc. (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
+              By accessing or using Vantirs (&quot;the Service&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service. The Service is provided by Vantirs (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
             </p>
           </section>
 

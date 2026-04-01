@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getSiteUrl } from '@/lib/site-url'
 
-const paths = ['/', '/login', '/signup', '/privacy', '/terms'] as const
+const paths = ['/', '/login', '/signup', '/privacy', '/terms', '/terms-of-service', '/refund-policy'] as const
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = getSiteUrl()
