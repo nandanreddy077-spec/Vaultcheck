@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.vantirs.com'
     const transaction = await paddle.transactions.create({
       items: [{ priceId, quantity: 1 }],
       customerId: paddleCustomerId,
@@ -92,6 +93,9 @@ export async function POST(req: NextRequest) {
         firmId: firm.id,
         plan,
         maxClients: String(maxClients),
+      },
+      checkout: {
+        url: `${appUrl}/dashboard/settings?billing=success`,
       },
     })
 
