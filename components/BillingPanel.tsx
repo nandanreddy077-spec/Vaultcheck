@@ -171,7 +171,7 @@ const UPGRADE_PLANS: Array<{
 ]
 
 const PLAN_LABELS: Record<string, string> = {
-  trial: 'Free Trial',
+  trial: 'Trial · 3 clients, 30 days',
   pilot: 'Outreach Partner',
   solo: 'Solo',
   starter: 'Starter',
@@ -271,7 +271,7 @@ export default function BillingPanel({
             Current: {planLabel}
           </span>
           {currentPlan === 'trial' && (
-            <span className="text-xs text-slate-400">· 30-day free trial</span>
+            <span className="text-xs text-slate-400">· 3 clients free for 30 days</span>
           )}
         </div>
       </div>
@@ -356,7 +356,7 @@ export default function BillingPanel({
           </div>
           <p className="text-sm text-blue-100 mb-4 leading-relaxed">
             Have a partner code? Activate the{' '}
-            <strong className="text-white">Scale plan (50 clients)</strong> completely free.{' '}
+            <strong className="text-white">Scale plan (50 clients)</strong> free for 3 months.{' '}
             <span className="line-through text-blue-300 text-xs">$99/mo value</span>
           </p>
           <div className="flex gap-2">

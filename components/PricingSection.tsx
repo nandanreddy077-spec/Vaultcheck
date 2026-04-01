@@ -211,10 +211,10 @@ export default function PricingSection() {
                 Scale plan — complimentary for select partners
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-blue-100">
-                Normally{' '}
-                <span className="line-through text-blue-300">$99/month</span>
-                {' '}· Up to 50 clients · All Scale features included.{' '}
-                If you received a partner code, redeem it below — or sign up first and apply it in your dashboard.
+                Have a partner code? Activate the{' '}
+                <strong className="text-white">Scale plan (50 clients)</strong> free for 3 months.{' '}
+                <span className="line-through text-blue-300">$99/mo value</span>
+                {' '}· All Scale features included · No credit card needed for trial period.
               </p>
               <div className="mt-5 flex gap-2">
                 <input
@@ -241,7 +241,7 @@ export default function PricingSection() {
         </div>
 
         <p className="mt-8 text-center text-sm text-slate-400">
-          No credit card required · Cancel anytime
+          All plans start with <strong className="text-slate-600">3 clients free for 30 days</strong> · No credit card required · Cancel anytime
         </p>
       </div>
     </section>
