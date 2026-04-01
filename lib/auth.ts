@@ -53,6 +53,20 @@ export async function requireAuth() {
       return { user, dbUser: null, error: 'User is not linked to a firm' }
     }
 
+    // Auto-expire pilot plan after 3 months
+    if (
+      dbUser.firm.plan === 'pilot' &&
+      dbUser.firm.pilotExpiresAt &&
+      dbUser.firm.pilotExpiresAt < new Date()
+    ) {
+      await prisma.firm.update({
+        where: { id: dbUser.firm.id },
+        data: { plan: 'trial', maxClients: 3, pilotExpiresAt: null },
+      })
+      dbUser.firm.plan = 'trial'
+      dbUser.firm.maxClients = 3
+    }
+
     return { user, dbUser, error: null }
   } catch {
     return { user: null, dbUser: null, error: 'Unauthorized' }

@@ -16,6 +16,7 @@ model Firm {
   name             String
   email            String   @unique
   plan             String   @default("trial") // trial, pilot, solo, starter, growth, scale, enterprise
+  pilotExpiresAt   DateTime? // set when pilot plan is activated via coupon; null = no expiry (paid plans)
   slackWebhookUrl String?
   paddleCustomerId     String? @unique
   paddleSubscriptionId String?

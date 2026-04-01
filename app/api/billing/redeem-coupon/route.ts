@@ -37,10 +37,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
-    // Activate outreach plan: Scale-tier features, 50 clients, free
+    // Activate outreach plan: Scale-tier features, 50 clients, free for 3 months
+    const pilotExpiresAt = new Date()
+    pilotExpiresAt.setMonth(pilotExpiresAt.getMonth() + 3)
+
     await prisma.firm.update({
       where: { id: dbUser.firmId },
-      data: { plan: 'pilot', maxClients: 50 },
+      data: { plan: 'pilot', maxClients: 50, pilotExpiresAt },
     })
 
     await prisma.auditLog.create({
@@ -50,7 +53,7 @@ export async function POST(req: NextRequest) {
         action: 'plan.outreach_coupon_redeemed',
         entityType: 'firm',
         entityId: dbUser.firmId,
-        details: { plan: 'pilot', maxClients: 50 },
+        details: { plan: 'pilot', maxClients: 50, pilotExpiresAt: pilotExpiresAt.toISOString() },
       },
     })
 
