@@ -53,18 +53,34 @@ export async function requireAuth() {
       return { user, dbUser: null, error: 'User is not linked to a firm' }
     }
 
+    const now = new Date()
+
+    // Auto-expire trial after 30 days — lock to 0 clients (force upgrade)
+    if (dbUser.firm.plan === 'trial') {
+      const trialStart = dbUser.firm.trialStartedAt ?? dbUser.firm.createdAt
+      const trialExpiry = new Date(trialStart)
+      trialExpiry.setDate(trialExpiry.getDate() + 30)
+      if (now > trialExpiry) {
+        await prisma.firm.update({
+          where: { id: dbUser.firm.id },
+          data: { maxClients: 0 },
+        })
+        dbUser.firm.maxClients = 0
+      }
+    }
+
     // Auto-expire pilot plan after 3 months
     if (
       dbUser.firm.plan === 'pilot' &&
       dbUser.firm.pilotExpiresAt &&
-      dbUser.firm.pilotExpiresAt < new Date()
+      dbUser.firm.pilotExpiresAt < now
     ) {
       await prisma.firm.update({
         where: { id: dbUser.firm.id },
-        data: { plan: 'trial', maxClients: 3, pilotExpiresAt: null },
+        data: { plan: 'trial', maxClients: 0, pilotExpiresAt: null },
       })
       dbUser.firm.plan = 'trial'
-      dbUser.firm.maxClients = 3
+      dbUser.firm.maxClients = 0
     }
 
     return { user, dbUser, error: null }

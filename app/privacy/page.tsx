@@ -124,7 +124,7 @@ export default function PrivacyPage() {
               <li><strong>Export</strong> your data in standard formats</li>
               <li><strong>Revoke</strong> QuickBooks access through your Intuit account settings</li>
             </ul>
-            <p className="mt-2">To exercise these rights, contact us at <strong>privacy@vantirs.app</strong>.</p>
+            <p className="mt-2">To exercise these rights, contact us at <strong>privacy@vantirs.com</strong>.</p>
           </section>
 
           <section>
@@ -144,7 +144,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">10. Contact</h2>
             <p>
-              For questions about this Privacy Policy, contact us at <strong>privacy@vantirs.app</strong>.
+              For questions about this Privacy Policy, contact us at <strong>privacy@vantirs.com</strong>.
             </p>
           </section>
         </div>

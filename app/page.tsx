@@ -374,7 +374,7 @@ export default function LandingPage() {
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Legal</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
                 <li>
-                  <Link href="/terms-of-service" className="hover:text-[#003ec7]">
+                  <Link href="/terms" className="hover:text-[#003ec7]">
                     Terms of Service
                   </Link>
                 </li>

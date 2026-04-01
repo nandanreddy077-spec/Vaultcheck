@@ -60,7 +60,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">7. Subscription and Billing</h2>
             <p>
-              Paid subscriptions are billed monthly through Paddle. You may cancel at any time. Cancellation takes effect at the end of the current billing period. Free trial periods last 30 days. No credit card is required for the trial. Pricing is per-client for firm plans.
+              Paid subscriptions are billed monthly through Paddle. You may cancel at any time. Cancellation takes effect at the end of the current billing period. New accounts include a 30-day trial with up to 3 client accounts — no credit card required. Pricing is per-firm, not per-seat.
             </p>
           </section>
 
@@ -105,7 +105,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">12. Contact</h2>
             <p>
-              For questions about these Terms, contact us at <strong>legal@vantirs.app</strong>.
+              For questions about these Terms, contact us at <strong>legal@vantirs.com</strong>.
             </p>
           </section>
         </div>
