@@ -12,6 +12,7 @@ import {
   Quote,
 } from 'lucide-react'
 import VantirsLogo from '@/components/VantirsLogo'
+import PricingSection from '@/components/PricingSection'
 
 export default function LandingPage() {
   return (
@@ -328,135 +329,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Pricing — existing tiers, restyled */}
-        <section className="bg-[#eff4ff] py-20 md:py-24" id="pricing">
-          <div className="mx-auto max-w-7xl px-6 md:px-8">
-            <div className="mx-auto mb-12 max-w-3xl rounded-2xl bg-gradient-to-br from-[#003ec7] to-[#0052ff] p-8 text-center shadow-[0_12px_40px_rgba(0,62,199,0.25)] md:p-10">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">Start here</p>
-              <h2 className="mt-2 font-manrope text-2xl font-bold text-white md:text-3xl">Run a free vendor audit — no commitment</h2>
-              <p className="mx-auto mt-3 max-w-lg text-sm text-blue-100">
-                We connect to QuickBooks Online, scan 12 months of payment history, and deliver a risk report. If we find
-                nothing, there&apos;s nothing to buy.
-              </p>
-              <Link
-                href="/signup"
-                className="mt-6 inline-block rounded-lg bg-white px-6 py-3 text-sm font-semibold text-[#003ec7] transition hover:bg-blue-50"
-              >
-                Request your free audit →
-              </Link>
-              <p className="mt-3 text-xs text-blue-200">No credit card. No sales call. Just the data.</p>
-            </div>
-
-            <div className="mx-auto mb-10 max-w-3xl rounded-2xl bg-amber-50/90 px-6 py-4 text-amber-950 ring-1 ring-amber-200/60">
-              <p className="text-sm font-semibold">Founding Firm pricing — limited spots</p>
-              <p className="mt-1 text-sm text-amber-900/90">
-                The first firms lock in <strong>$49/client/month for life</strong>. Once the cohort fills, standard
-                pricing applies.
-              </p>
-            </div>
-
-            <div className="mx-auto mb-4 max-w-2xl text-center">
-              <h2 className="font-manrope text-3xl font-bold text-[#0b1c30]">Pricing</h2>
-              <p className="mt-2 text-slate-600">Per-client pricing — your incentives and ours stay aligned.</p>
-              <p className="mt-2 text-sm text-slate-400">
-                Save 20% with annual billing · All plans include a 30-day free trial
-              </p>
-            </div>
-
-            <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-              {[
-                {
-                  name: 'Founding Firm',
-                  badge: 'Locked for life',
-                  badgeColor: 'bg-amber-50 text-amber-800',
-                  price: '$49',
-                  unit: '/client/mo',
-                  clients: 'First 10 firms only',
-                  note: 'Price never increases',
-                  features: ['Full platform access', 'Unlimited vendor scans', 'Email & Slack alerts', 'Vendor fingerprinting', 'Priority onboarding'],
-                  cta: 'Claim founding spot',
-                  ctaStyle: 'bg-amber-500 text-white hover:bg-amber-600',
-                },
-                {
-                  name: 'Firm Starter',
-                  badge: '1–5 clients',
-                  badgeColor: 'bg-slate-100 text-slate-600',
-                  price: '$79',
-                  unit: '/client/mo',
-                  clients: '5-client firm = $395/mo',
-                  note: 'Less than 1 hour of CPA time',
-                  features: ['Multi-client dashboard', 'Email alerts', 'Vendor fingerprinting', 'Alert queue', '30-day free trial'],
-                  cta: 'Start free trial',
-                  ctaStyle: 'border border-slate-200 bg-white text-slate-800 hover:bg-slate-50',
-                },
-                {
-                  name: 'Firm Growth',
-                  badge: '6–20 clients',
-                  badgeColor: 'bg-blue-50 text-blue-700',
-                  price: '$69',
-                  unit: '/client/mo',
-                  clients: '15-client firm = $1,035/mo',
-                  note: 'Volume discount kicks in',
-                  features: ['Everything in Starter', 'Slack alerts', 'API access', 'Priority support', 'Quarterly business review'],
-                  cta: 'Start free trial',
-                  ctaStyle: 'bg-[#003ec7] text-white hover:bg-[#0032a3]',
-                  popular: true,
-                },
-                {
-                  name: 'Firm Pro',
-                  badge: '21+ clients',
-                  badgeColor: 'bg-slate-100 text-slate-600',
-                  price: '$49',
-                  unit: '/client/mo',
-                  clients: '30-client firm = $1,470/mo',
-                  note: 'Best rate for largest firms',
-                  features: ['Everything in Growth', 'Custom detection rules', 'Dedicated onboarding', 'SLA guarantee', 'White-label reports'],
-                  cta: 'Start free trial',
-                  ctaStyle: 'border border-slate-200 bg-white text-slate-800 hover:bg-slate-50',
-                },
-              ].map(plan => (
-                <div
-                  key={plan.name}
-                  className={`flex flex-col rounded-2xl bg-white p-6 shadow-[0_4px_20px_rgba(11,28,48,0.06)] ring-1 ${
-                    plan.popular ? 'ring-2 ring-[#003ec7]' : 'ring-[#c3c5d9]/15'
-                  }`}
-                >
-                  {plan.popular && (
-                    <span className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[#003ec7]">Most popular</span>
-                  )}
-                  <span className={`mb-3 inline-flex w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ${plan.badgeColor}`}>
-                    {plan.badge}
-                  </span>
-                  <h3 className="font-manrope text-lg font-bold text-[#0b1c30]">{plan.name}</h3>
-                  <div className="mt-2">
-                    <span className="text-3xl font-bold text-[#0b1c30]">{plan.price}</span>
-                    <span className="text-xs text-slate-500">{plan.unit}</span>
-                  </div>
-                  <p className="text-xs font-medium text-slate-600">{plan.clients}</p>
-                  <p className="mb-4 text-xs text-slate-400">{plan.note}</p>
-                  <ul className="mb-6 flex-1 space-y-2">
-                    {plan.features.map(f => (
-                      <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
-                        <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/signup" className={`block w-full rounded-lg py-2.5 text-center text-sm font-semibold ${plan.ctaStyle}`}>
-                    {plan.cta}
-                  </Link>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-10 text-center text-sm text-slate-400">
-              <strong className="text-slate-600">Annual billing saves 20%</strong>
-              <Link href="/signup" className="ml-1 text-[#003ec7] hover:underline">
-                Switch to annual →
-              </Link>
-            </p>
-          </div>
-        </section>
+        {/* Pricing — client component with toggle + outreach plan */}
+        <PricingSection />
 
         {/* Disclaimer */}
         <section className="py-10">
