@@ -7,6 +7,125 @@ import { parseJsonResponse } from '@/lib/parse-json-response'
 type Plan = 'pilot' | 'solo' | 'starter' | 'growth' | 'scale' | 'enterprise'
 type FirmPlan = Plan | 'trial' | string
 
+type CheckoutPayload = {
+  priceId: string
+  customerId: string
+  successUrl: string
+  customData: Record<string, string>
+  error?: string
+}
+
+type PaddleClient = {
+  Environment: {
+    set(value: 'sandbox' | 'production'): void
+  }
+  Initialize(config: {
+    token: string
+    checkout?: {
+      settings?: {
+        displayMode?: 'overlay'
+        theme?: 'light'
+        locale?: 'en'
+        variant?: 'one-page'
+        allowLogout?: boolean
+        successUrl?: string
+      }
+    }
+  }): void
+  Checkout: {
+    open(config: {
+      items: Array<{ priceId: string; quantity: number }>
+      customer?: { id?: string }
+      customData?: Record<string, string>
+      settings?: {
+        displayMode?: 'overlay'
+        theme?: 'light'
+        locale?: 'en'
+        variant?: 'one-page'
+        allowLogout?: boolean
+        successUrl?: string
+      }
+    }): void
+  }
+}
+
+type PaddleWindow = Window & {
+  Paddle?: PaddleClient
+}
+
+let paddleSetupPromise: Promise<PaddleClient> | null = null
+
+async function getPaddleClient(): Promise<PaddleClient> {
+  const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
+  if (!token) {
+    throw new Error('Billing is not configured yet. Add NEXT_PUBLIC_PADDLE_CLIENT_TOKEN to your environment.')
+  }
+
+  if (!paddleSetupPromise) {
+    paddleSetupPromise = new Promise<PaddleClient>((resolve, reject) => {
+      const win = window as PaddleWindow
+
+      const initialize = () => {
+        const paddle = win.Paddle
+        if (!paddle) {
+          reject(new Error('Paddle checkout failed to load. Please refresh and try again.'))
+          return
+        }
+
+        const environment =
+          process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'production' ? 'production' : 'sandbox'
+        paddle.Environment.set(environment)
+        paddle.Initialize({
+          token,
+          checkout: {
+            settings: {
+              displayMode: 'overlay',
+              variant: 'one-page',
+              allowLogout: false,
+              theme: 'light',
+              locale: 'en',
+            },
+          },
+        })
+        resolve(paddle)
+      }
+
+      if (win.Paddle) {
+        initialize()
+        return
+      }
+
+      const existingScript = document.querySelector<HTMLScriptElement>('script[data-paddle-script="true"]')
+      if (existingScript) {
+        existingScript.addEventListener('load', initialize, { once: true })
+        existingScript.addEventListener(
+          'error',
+          () => reject(new Error('Paddle checkout failed to load. Please refresh and try again.')),
+          { once: true }
+        )
+        return
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.paddle.com/paddle/v2/paddle.js'
+      script.async = true
+      script.dataset.paddleScript = 'true'
+      script.addEventListener('load', initialize, { once: true })
+      script.addEventListener(
+        'error',
+        () => reject(new Error('Paddle checkout failed to load. Please refresh and try again.')),
+        { once: true }
+      )
+      document.head.appendChild(script)
+    }).catch(error => {
+      paddleSetupPromise = null
+      throw error
+    })
+  }
+
+  return paddleSetupPromise
+}
+
 const UPGRADE_PLANS: Array<{
   id: Plan
   name: string
@@ -82,10 +201,29 @@ export default function BillingPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan }),
       })
-      const data = await parseJsonResponse<{ error?: string; url?: string }>(res)
+      const data = await parseJsonResponse<CheckoutPayload>(res)
       if (!res.ok) throw new Error(data?.error || `Checkout failed (${res.status})`)
-      if (data?.url) window.location.href = data.url
-      else throw new Error(data?.error || 'Missing checkout URL.')
+      if (!data?.priceId || !data?.customerId) {
+        throw new Error(data?.error || 'Missing Paddle checkout configuration.')
+      }
+
+      const paddle = await getPaddleClient()
+      paddle.Checkout.open({
+        items: [{ priceId: data.priceId, quantity: 1 }],
+        customer: {
+          id: data.customerId,
+        },
+        customData: data.customData,
+        settings: {
+          displayMode: 'overlay',
+          variant: 'one-page',
+          allowLogout: false,
+          theme: 'light',
+          locale: 'en',
+          successUrl: data.successUrl,
+        },
+      })
+      setLoadingPlan(null)
     } catch (e: unknown) {
       setCheckoutError(e instanceof Error ? e.message : 'Checkout failed')
       setLoadingPlan(null)

@@ -86,28 +86,16 @@ export async function POST(req: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.vantirs.com'
-    const transaction = await paddle.transactions.create({
-      items: [{ priceId, quantity: 1 }],
+    return NextResponse.json({
+      priceId,
       customerId: paddleCustomerId,
+      successUrl: `${appUrl}/dashboard/settings?billing=success`,
       customData: {
         firmId: firm.id,
         plan,
         maxClients: String(maxClients),
       },
-      checkout: {
-        url: `${appUrl}/dashboard/settings?billing=success`,
-      },
     })
-
-    const url = transaction.checkout?.url
-    if (!url) {
-      return NextResponse.json(
-        { error: 'Paddle did not return a checkout URL. Ensure prices are subscription/recurring in Paddle.' },
-        { status: 502 }
-      )
-    }
-
-    return NextResponse.json({ url })
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : typeof err === 'string' ? err : 'Checkout failed'
