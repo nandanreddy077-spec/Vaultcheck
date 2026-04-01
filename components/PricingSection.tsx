@@ -16,9 +16,8 @@ const PLANS = [
       'Vendor fingerprinting',
       'Email alerts',
       'Alert queue',
-      '30-day free trial',
     ],
-    cta: 'Start free trial',
+    cta: 'Get started',
     ctaHref: '/signup',
     highlight: false,
   },
@@ -35,7 +34,7 @@ const PLANS = [
       'API access',
       'Priority support',
     ],
-    cta: 'Start free trial',
+    cta: 'Get started',
     ctaHref: '/signup',
     highlight: true,
   },
@@ -52,7 +51,7 @@ const PLANS = [
       'Dedicated onboarding',
       'SLA guarantee',
     ],
-    cta: 'Start free trial',
+    cta: 'Get started',
     ctaHref: '/signup',
     highlight: false,
   },
@@ -69,8 +68,8 @@ const PLANS = [
       'Custom integrations',
       'Dedicated account manager',
     ],
-    cta: 'Contact us',
-    ctaHref: 'mailto:hello@vantirs.com',
+    cta: 'Book a call',
+    ctaHref: 'https://calendly.com/nandan-vantirs/30min',
     highlight: false,
   },
 ]
@@ -242,9 +241,7 @@ export default function PricingSection() {
         </div>
 
         <p className="mt-8 text-center text-sm text-slate-400">
-          All plans include a{' '}
-          <strong className="text-slate-600">30-day free trial</strong> · No credit card required ·
-          Cancel anytime
+          No credit card required · Cancel anytime
         </p>
       </div>
     </section>
