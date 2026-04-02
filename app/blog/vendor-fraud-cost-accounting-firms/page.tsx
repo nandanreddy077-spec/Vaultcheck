@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'The Real Cost of Vendor Fraud for Accounting Firms | Vantirs',
   description:
     'Learn the real financial and reputational cost of vendor fraud for accounting firms—and the controls that prevent it before funds are wired.',
+  alternates: { canonical: '/blog/vendor-fraud-cost-accounting-firms' },
 }
 
 export default function VendorFraudCostPost() {

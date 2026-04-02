@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'AP Fraud Prevention ROI Calculator | Vantirs',
   description:
     'Estimate your AP fraud exposure and potential annual savings. Get an ROI report and see how vendor verification in QuickBooks Online reduces avoidable losses.',
+  alternates: { canonical: '/roi-calculator' },
 }
 
 export default function RoiCalculatorPage() {

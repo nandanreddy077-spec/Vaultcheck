@@ -1,16 +1,34 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { FaqJsonLd } from '@/components/JsonLd'
 import MarketingSeoShell from '@/components/MarketingSeoShell'
 
 export const metadata: Metadata = {
   title: 'How It Works | Vantirs',
   description:
     'How Vantirs prevents vendor fraud in QuickBooks Online: connect, fingerprint vendors using payment history, and alert your team before pay runs.',
+  alternates: { canonical: '/how-it-works' },
 }
+
+const FAQ_ITEMS = [
+  {
+    q: 'How do I connect Vantirs to QuickBooks Online?',
+    a: 'You authorize Vantirs with OAuth for each QuickBooks Online company you want to protect. After connection, we sync vendor and payment history so fingerprints and alerts reflect what is already on the books.',
+  },
+  {
+    q: 'What does “fingerprinting” a vendor mean in Vantirs?',
+    a: 'We build a statistical profile of each vendor from historical payments and related details—so new invoices and payment instructions can be compared to how that vendor usually behaves. Deviations surface as reviewable signals instead of gut feel.',
+  },
+  {
+    q: 'When will my team get alerts?',
+    a: 'Alerts fire when incoming activity looks inconsistent with a vendor’s fingerprint or when spoofing and mismatch signals cross your risk thresholds—typically in time to review before scheduled pay runs or wire releases.',
+  },
+]
 
 export default function HowItWorksPage() {
   return (
     <MarketingSeoShell>
+      <FaqJsonLd items={FAQ_ITEMS} />
       <section className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-20">
         <div className="max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7]">How Vantirs works</p>

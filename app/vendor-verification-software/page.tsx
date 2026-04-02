@@ -1,16 +1,34 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { FaqJsonLd } from '@/components/JsonLd'
 import MarketingSeoShell from '@/components/MarketingSeoShell'
 
 export const metadata: Metadata = {
   title: 'Vendor Verification Software | Vantirs',
   description:
     'The vendor verification layer your AP process is missing. Plug in to QuickBooks Online, fingerprint every vendor, and flag suspicious invoices before money leaves the account.',
+  alternates: { canonical: '/vendor-verification-software' },
 }
+
+const FAQ_ITEMS = [
+  {
+    q: 'What is vendor verification software and where does it sit in AP?',
+    a: 'It is a layer that checks whether an incoming invoice and payment instructions match how you have paid that vendor before—using your own books, not generic risk scores. It typically runs after invoice intake and before final approval or pay runs so issues surface before money leaves.',
+  },
+  {
+    q: 'How is automated vendor verification better than manual spreadsheet checks?',
+    a: 'Manual checks are slow, inconsistent under volume, and hard to audit. Automation applies the same rules to every vendor, compares against full payment history in QuickBooks Online, and produces specific mismatch signals your team can document in an approval trail.',
+  },
+  {
+    q: 'Does Vantirs replace my bank or my accounting system?',
+    a: 'No. Vantirs integrates with QuickBooks Online to read vendor and payment data and alert on suspicious patterns. You still run AP and banking in your existing stack; Vantirs adds verification signals before you release funds.',
+  },
+]
 
 export default function VendorVerificationSoftwarePage() {
   return (
     <MarketingSeoShell>
+      <FaqJsonLd items={FAQ_ITEMS} />
       <section className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-20">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
           <div>

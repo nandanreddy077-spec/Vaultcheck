@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Vantirs vs Trustpair | Invoice Fraud Protection | Vantirs',
   description:
     'A direct comparison of Vantirs vs Trustpair for accounting firms on QuickBooks Online. See how QuickBooks-native vendor fingerprinting and contextual alerts help prevent vendor fraud.',
+  alternates: { canonical: '/vs-trustpair' },
 }
 
 export default function VsTrustpairPage() {

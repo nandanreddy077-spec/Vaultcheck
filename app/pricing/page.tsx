@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'Pricing | Vantirs',
   description:
     'Transparent, simple pricing for accounting firms using Vantirs to prevent vendor fraud and BEC-style invoice scams in QuickBooks Online.',
+  alternates: { canonical: '/pricing' },
 }
 
 export default function PricingPage() {

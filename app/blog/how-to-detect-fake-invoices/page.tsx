@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'How to Detect Fake Invoices Before You Pay Them | Vantirs',
   description:
     'A step-by-step guide to detect fake invoices, including red flags and a practical checklist for AP teams on QuickBooks Online.',
+  alternates: { canonical: '/blog/how-to-detect-fake-invoices' },
 }
 
 export default function FakeInvoicesPost() {

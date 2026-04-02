@@ -1,16 +1,25 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import MarketingSeoShell from '@/components/MarketingSeoShell'
+import { FaqJsonLd } from '@/components/JsonLd'
+
+const FAQ_ITEMS = [
+  { q: 'How does Vantirs connect to QuickBooks Online?', a: 'Vantirs uses OAuth to connect directly to your client\'s QuickBooks Online account. The setup takes under 2 minutes and syncs vendor and payment history automatically.' },
+  { q: 'What types of fraud does Vantirs detect in QuickBooks?', a: 'Vantirs flags bank account mismatches, email domain spoofing (BEC-style attacks), amount anomalies vs. vendor history, and new vendors that require explicit review.' },
+  { q: 'Is Vantirs built only for QuickBooks Online?', a: 'Yes. Vantirs is purpose-built for QuickBooks Online, which means vendor fingerprinting is anchored to your real QBO payment data—not generic risk scores.' },
+]
 
 export const metadata: Metadata = {
   title: 'QuickBooks Fraud Prevention App | Vantirs',
   description:
     'QuickBooks Online fraud prevention built natively for accounting firms. Fingerprint vendors using payment history and flag bank mismatches and spoofed emails before clients pay.',
+  alternates: { canonical: '/quickbooks-fraud-prevention' },
 }
 
 export default function QuickbooksFraudPreventionPage() {
   return (
     <MarketingSeoShell>
+      <FaqJsonLd items={FAQ_ITEMS} />
       <section className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-20">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
           <div>

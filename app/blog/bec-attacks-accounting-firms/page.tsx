@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'BEC Attacks Targeting Accounting Firms | Vantirs',
   description:
     'Learn why business email compromise (BEC) targets accounting firms and how to fight back with vendor fingerprinting and contextual invoice fraud alerts.',
+  alternates: { canonical: '/blog/bec-attacks-accounting-firms' },
 }
 
 export default function BecAttacksPost() {

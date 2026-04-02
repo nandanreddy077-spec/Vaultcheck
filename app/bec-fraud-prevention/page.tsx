@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'BEC Fraud Prevention Software | Vantirs',
   description:
     'Stop business email compromise from draining accounts payable. Vantirs flags spoofed vendor emails, bank mismatches, and suspicious invoices before the wire leaves QuickBooks Online.',
+  alternates: { canonical: '/bec-fraud-prevention' },
 }
 
 export default function BecFraudPreventionPage() {

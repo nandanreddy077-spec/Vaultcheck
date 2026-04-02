@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Accounts Payable Fraud Prevention Software | Vantirs',
   description:
     'Prevent AP fraud before payment clears. Vantirs flags suspicious invoices and vendor/payment mismatches in QuickBooks Online so approvals are faster and more defensible.',
+  alternates: { canonical: '/accounts-payable-fraud-prevention' },
 }
 
 export default function AccountsPayableFraudPreventionPage() {

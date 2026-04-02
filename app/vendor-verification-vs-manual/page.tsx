@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Automated Vendor Verification vs Manual | Vantirs',
   description:
     'Compare automated vendor verification vs manual checks. Reduce review time, catch bank mismatches earlier, and make approvals more defensible.',
+  alternates: { canonical: '/vendor-verification-vs-manual' },
 }
 
 export default function VendorVerificationVsManualPage() {

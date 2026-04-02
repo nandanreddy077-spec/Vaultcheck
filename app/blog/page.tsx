@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Blog | Vantirs',
   description:
     'Guides and research on invoice fraud, vendor verification, and QuickBooks Online fraud prevention for accounting firms.',
+  alternates: { canonical: '/blog' },
 }
 
 const POSTS = [

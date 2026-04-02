@@ -1,16 +1,34 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { FaqJsonLd } from '@/components/JsonLd'
 import MarketingSeoShell from '@/components/MarketingSeoShell'
 
 export const metadata: Metadata = {
   title: 'Fraud Prevention for Accounting Firms | Vantirs',
   description:
     'Built for accounting firms that manage client money on QuickBooks Online. Prevent vendor fraud and BEC-style invoice scams with contextual vendor fingerprinting and alerts.',
+  alternates: { canonical: '/for-accounting-firms' },
 }
+
+const FAQ_ITEMS = [
+  {
+    q: 'What payment fraud risks do accounting firms face when managing client AP?',
+    a: 'Firms are exposed when fraudulent invoices, spoofed vendor emails, or unauthorized bank changes slip through busy-season reviews. A single bad wire can create direct loss, client trust issues, and lengthy investigations. Controls that compare new requests to how each vendor actually paid in the past reduce that exposure.',
+  },
+  {
+    q: 'How does vendor fingerprinting help my firm catch fraud without slowing every invoice?',
+    a: 'Fingerprinting builds a profile from each vendor’s QuickBooks Online payment history—amounts, timing, bank details, and related signals—so anomalies stand out with context. Your team focuses on exceptions that look wrong relative to history instead of re-checking every routine bill.',
+  },
+  {
+    q: 'Can one Vantirs setup cover multiple clients on QuickBooks Online?',
+    a: 'Yes. You connect each client’s QuickBooks Online company via OAuth and get vendor-level signals per client. That keeps reviews scoped to the right books and helps firms apply consistent fraud checks across their portfolio.',
+  },
+]
 
 export default function ForAccountingFirmsPage() {
   return (
     <MarketingSeoShell>
+      <FaqJsonLd items={FAQ_ITEMS} />
       <section className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-20">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
           <div>
