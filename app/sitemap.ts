@@ -22,6 +22,18 @@ const paths = [
   '/blog/vendor-fraud-cost-accounting-firms',
   '/blog/how-to-detect-fake-invoices',
   '/blog/bec-attacks-accounting-firms',
+  '/blog/quickbooks-security-gaps',
+  '/blog/vendor-verification-checklist',
+  '/blog/types-of-ap-fraud',
+  '/blog/vendor-fraud-insurance',
+  '/blog/ap-automation-vs-fraud-prevention',
+  '/blog/spoofed-email-cost',
+  '/blog/vendor-bank-verification-guide',
+  // Competitor alternative + CFO + integrations pages
+  '/eftsure-alternative',
+  '/trustpair-alternative',
+  '/cfo-payment-fraud-prevention',
+  '/integrations',
   // Hub pages (programmatic SEO)
   '/invoice-fraud',
   '/prevent',

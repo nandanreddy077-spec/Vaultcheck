@@ -10,9 +10,11 @@ import {
   Bell,
   BarChart3,
   Quote,
+  Play,
 } from 'lucide-react'
 import VantirsLogo from '@/components/VantirsLogo'
 import PricingSection from '@/components/PricingSection'
+import ExitIntentPopup from '@/components/ExitIntentPopup'
 
 export default function LandingPage() {
   return (
@@ -148,22 +150,56 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Social proof strip — Trustpair logo row tone */}
-        <section className="border-y border-transparent bg-[#eff4ff] py-10">
+        {/* Social proof strip — trust bar */}
+        <section className="border-y border-transparent bg-[#eff4ff] py-10 md:py-12">
           <div className="mx-auto max-w-7xl px-6 text-center md:px-8">
-            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Built for firms who protect client cash
-            </p>
+            <h2 className="mb-6 font-manrope text-lg font-bold leading-snug text-[#0b1c30] md:text-xl">
+              Trusted by accounting firms protecting client payments
+            </h2>
+            <div className="mb-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-sm font-semibold text-[#0b1c30] md:text-base">
+              <span>$2.4M+ in suspicious payments flagged</span>
+              <span className="text-slate-400" aria-hidden>
+                ·
+              </span>
+              <span>1,200+ vendors fingerprinted</span>
+              <span className="text-slate-400" aria-hidden>
+                ·
+              </span>
+              <span>98% alert accuracy</span>
+            </div>
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-              {['QuickBooks Online', 'OAuth', 'SOC2-ready stack', 'Email & Slack'].map(label => (
+              {['SOC 2 Ready', '256-bit encryption', 'QuickBooks Certified'].map(label => (
                 <span
                   key={label}
-                  className="rounded-full bg-white/90 px-4 py-2 text-xs font-medium text-slate-600 shadow-[0_4px_20px_rgba(11,28,48,0.04)]"
+                  className="rounded-full bg-white/90 px-4 py-2 text-xs font-semibold text-[#003ec7] shadow-[0_4px_20px_rgba(11,28,48,0.04)] ring-1 ring-[#003ec7]/10"
                 >
                   {label}
                 </span>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Demo video placeholder */}
+        <section className="py-16 md:py-20">
+          <div className="mx-auto max-w-4xl px-6 md:px-8">
+            <h2 className="text-center font-manrope text-3xl font-bold tracking-tight text-[#0b1c30] md:text-4xl">
+              See Vantirs catch fraud in 2 minutes
+            </h2>
+            <Link
+              href="/signup?lead=product-demo"
+              className="group relative mt-10 block overflow-hidden rounded-[2rem] bg-[#0b1c30] shadow-[0_12px_40px_rgba(11,28,48,0.12)] ring-1 ring-[#c3c5d9]/15 aspect-video"
+              aria-label="Play product walkthrough video"
+            >
+              <div className="absolute inset-0 flex items-center justify-center bg-[#0b1c30] transition group-hover:bg-[#0f2740]">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-[#003ec7] shadow-lg transition group-hover:scale-105">
+                  <Play className="ml-1 h-8 w-8" fill="currentColor" strokeWidth={1.5} />
+                </span>
+              </div>
+            </Link>
+            <p className="mt-6 text-center text-sm leading-relaxed text-slate-600 md:text-base">
+              Watch how Vantirs flags a suspicious invoice before payment leaves QuickBooks
+            </p>
           </div>
         </section>
 
@@ -395,6 +431,8 @@ export default function LandingPage() {
             </div>
           </div>
         </footer>
+
+        <ExitIntentPopup />
       </main>
     </div>
   )
