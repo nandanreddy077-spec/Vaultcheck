@@ -22,13 +22,13 @@ export default function LandingPage() {
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-8">
           <VantirsLogo href="/" className="inline-flex items-center" imageClassName="h-9 w-auto" width={160} height={54} />
           <div className="hidden items-center gap-10 md:flex">
-            <a href="#platform" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
+            <a href="/quickbooks-fraud-prevention" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
               Platform
             </a>
-            <a href="#how" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
+            <a href="/how-it-works" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
               How it works
             </a>
-            <a href="#pricing" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
+            <a href="/pricing" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
               Pricing
             </a>
           </div>
@@ -354,17 +354,17 @@ export default function LandingPage() {
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Product</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
                 <li>
-                  <a href="#platform" className="hover:text-[#003ec7]">
+                  <a href="/quickbooks-fraud-prevention" className="hover:text-[#003ec7]">
                     Platform
                   </a>
                 </li>
                 <li>
-                  <a href="#how" className="hover:text-[#003ec7]">
+                  <a href="/how-it-works" className="hover:text-[#003ec7]">
                     How it works
                   </a>
                 </li>
                 <li>
-                  <a href="#pricing" className="hover:text-[#003ec7]">
+                  <a href="/pricing" className="hover:text-[#003ec7]">
                     Pricing
                   </a>
                 </li>
