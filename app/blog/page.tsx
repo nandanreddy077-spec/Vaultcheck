@@ -11,6 +11,10 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    href: '/blog/ai-generated-fake-invoices',
+    title: "AI-Generated Fake Invoices: How to Detect What Your AP Team Can't See",
+  },
+  {
     href: '/blog/vendor-bank-account-change-fraud',
     title: 'Vendor Bank Account Change Requests: The Fraud Vector Nobody Talks About',
   },

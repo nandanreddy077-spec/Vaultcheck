@@ -1,12 +1,13 @@
 import type { MetadataRoute } from 'next'
 import { getSiteUrl } from '@/lib/site-url'
 
-export const dynamic = 'force-dynamic'
+const FALLBACK_SITE_URL = 'https://www.vantirs.com'
 
 const paths = [
   '/',
   '/blog',
   // Core SEO landing pages
+  '/vendor-fraud-detection-software',
   '/vendor-verification-software',
   '/invoice-fraud-detection',
   '/quickbooks-fraud-prevention',
@@ -20,6 +21,7 @@ const paths = [
   '/how-it-works',
   // Blog posts
   '/blog/vendor-bank-account-change-fraud',
+  '/blog/ai-generated-fake-invoices',
   '/blog/vendor-fraud-cost-accounting-firms',
   '/blog/how-to-detect-fake-invoices',
   '/blog/bec-attacks-accounting-firms',
@@ -35,6 +37,7 @@ const paths = [
   '/trustpair-alternative',
   '/cfo-payment-fraud-prevention',
   '/integrations',
+  '/construction-payment-fraud-prevention',
   // Hub pages (programmatic SEO)
   '/invoice-fraud',
   '/prevent',
@@ -77,14 +80,27 @@ const paths = [
   '/for/cpa-firms',
 ] as const
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Always generate sitemap against canonical marketing domain.
-  const base = getSiteUrl()
-  const nowIso = new Date().toISOString()
-  return paths.map(path => ({
-    url: `${base}${path === '/' ? '' : path}`,
-    lastModified: nowIso,
-    changeFrequency: path === '/' ? ('weekly' as const) : ('monthly' as const),
-    priority: path === '/' ? 1 : 0.6,
-  }))
+export default function sitemap(): MetadataRoute.Sitemap {
+  // Keep sitemap generation fail-safe so indexing never gets blocked by runtime config issues.
+  try {
+    const base = getSiteUrl() || FALLBACK_SITE_URL
+    const now = new Date()
+    const uniquePaths = Array.from(new Set(paths))
+
+    return uniquePaths.map(path => ({
+      url: new URL(path === '/' ? '/' : path, base).toString(),
+      lastModified: now,
+      changeFrequency: path === '/' ? ('weekly' as const) : ('monthly' as const),
+      priority: path === '/' ? 1 : 0.6,
+    }))
+  } catch {
+    return [
+      {
+        url: `${FALLBACK_SITE_URL}/`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 1,
+      },
+    ]
+  }
 }
