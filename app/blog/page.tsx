@@ -10,6 +10,10 @@ export const metadata: Metadata = {
 }
 
 const POSTS = [
+  {
+    href: '/blog/vendor-bank-account-change-fraud',
+    title: 'Vendor Bank Account Change Requests: The Fraud Vector Nobody Talks About',
+  },
   { href: '/blog/vendor-fraud-cost-accounting-firms', title: 'The Real Cost of Vendor Fraud for Accounting Firms (And How to Stop It)' },
   { href: '/blog/how-to-detect-fake-invoices', title: 'How to Detect Fake Invoices Before You Pay Them: A Step-by-Step Guide' },
   { href: '/blog/bec-attacks-accounting-firms', title: 'Business Email Compromise Is Targeting Accounting Firms. Here\'s How to Fight Back' },

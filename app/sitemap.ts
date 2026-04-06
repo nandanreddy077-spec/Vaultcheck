@@ -19,6 +19,7 @@ const paths = [
   '/vs-trustpair',
   '/how-it-works',
   // Blog posts
+  '/blog/vendor-bank-account-change-fraud',
   '/blog/vendor-fraud-cost-accounting-firms',
   '/blog/how-to-detect-fake-invoices',
   '/blog/bec-attacks-accounting-firms',
