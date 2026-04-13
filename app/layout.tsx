@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import { getSiteUrl } from '@/lib/site-url'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
-import { OrganizationJsonLd, SoftwareApplicationJsonLd } from '@/components/JsonLd'
+import { OrganizationJsonLd, SoftwareApplicationJsonLd, WebSiteJsonLd } from '@/components/JsonLd'
 import './globals.css'
 
 const inter = Inter({
@@ -54,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${inter.variable} ${manrope.variable} font-sans antialiased bg-[#f8f9ff] text-[#0b1c30]`}>
         <OrganizationJsonLd />
+        <WebSiteJsonLd />
         <SoftwareApplicationJsonLd />
         <AnalyticsScripts />
         {children}

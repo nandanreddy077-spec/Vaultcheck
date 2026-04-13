@@ -72,6 +72,11 @@ export default function MarketingSeoShell({ children }: { children: ReactNode })
                 </Link>
               </li>
               <li>
+                <Link href="/what-is-vantirs" className="hover:text-[#003ec7]">
+                  What is Vantirs
+                </Link>
+              </li>
+              <li>
                 <Link href="/blog/nacha-2026-ach-fraud-monitoring-compliance" className="hover:text-[#003ec7]">
                   NACHA 2026 compliance guide
                 </Link>

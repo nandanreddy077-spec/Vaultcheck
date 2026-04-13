@@ -26,6 +26,24 @@ export function OrganizationJsonLd() {
   )
 }
 
+export function WebSiteJsonLd() {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Vantirs',
+    url: siteUrl,
+    description:
+      'Payment fraud prevention software for accounting firms and AP teams using QuickBooks Online.',
+    inLanguage: 'en-US',
+  }
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  )
+}
+
 export function SoftwareApplicationJsonLd() {
   const data = {
     '@context': 'https://schema.org',

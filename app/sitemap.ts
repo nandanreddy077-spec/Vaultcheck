@@ -19,6 +19,7 @@ const paths = [
   '/roi-calculator',
   '/vs-trustpair',
   '/how-it-works',
+  '/what-is-vantirs',
   // Blog posts
   '/blog/vendor-bank-account-change-fraud',
   '/blog/nacha-2026-ach-fraud-monitoring-compliance',
