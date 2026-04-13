@@ -21,6 +21,7 @@ const paths = [
   '/how-it-works',
   // Blog posts
   '/blog/vendor-bank-account-change-fraud',
+  '/blog/nacha-2026-ach-fraud-monitoring-compliance',
   '/blog/ai-generated-fake-invoices',
   '/blog/vendor-fraud-cost-accounting-firms',
   '/blog/how-to-detect-fake-invoices',
@@ -38,6 +39,7 @@ const paths = [
   '/cfo-payment-fraud-prevention',
   '/integrations',
   '/construction-payment-fraud-prevention',
+  '/nacha-2026-compliance',
   // Hub pages (programmatic SEO)
   '/invoice-fraud',
   '/prevent',

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import MarketingSeoShell from '@/components/MarketingSeoShell'
+import { BlogPostingJsonLd } from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title: "AI-Generated Fake Invoices: How to Detect What Your AP Team Can't See | Vantirs",
@@ -12,11 +13,20 @@ export const metadata: Metadata = {
 export default function AiGeneratedFakeInvoicesPost() {
   return (
     <MarketingSeoShell>
+      <BlogPostingJsonLd
+        headline="AI-Generated Fake Invoices: How to Detect What Your AP Team Can't See"
+        description="Learn how AP teams can detect AI-generated fake invoices using behavioral verification signals before payment leaves the account."
+        path="/blog/ai-generated-fake-invoices"
+        datePublished="2026-04-10"
+        dateModified="2026-04-13"
+        keywords={['ai generated fake invoice detection', 'invoice fraud detection software', 'accounts payable fraud prevention']}
+      />
       <article className="mx-auto max-w-4xl px-6 py-16 md:px-8 md:py-20">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7]">Blog</p>
         <h1 className="mt-4 font-manrope text-4xl font-extrabold leading-[1.08] tracking-tight text-[#0b1c30]">
           AI-generated fake invoices: how to detect what your AP team can&apos;t see
         </h1>
+        <p className="mt-3 text-sm text-slate-500">Published Apr 10, 2026 · Updated Apr 13, 2026 · About 5 min read</p>
         <p className="mt-5 text-lg leading-relaxed text-slate-600">
           AI has made fake invoices look more convincing than ever. The problem is no longer spelling mistakes and bad
           formatting. It&apos;s legitimate-looking invoices with fraudulent payment instructions.
@@ -49,7 +59,11 @@ export default function AiGeneratedFakeInvoicesPost() {
           </p>
           <p className="mt-3 text-slate-700">
             In Vantirs, this is automated from QuickBooks Online data so teams can review exceptions quickly and defend
-            decisions later.
+            decisions later. For the most common payment-diversion trigger, read{' '}
+            <Link href="/blog/vendor-bank-account-change-fraud" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              vendor bank account change fraud controls
+            </Link>
+            .
           </p>
         </section>
 

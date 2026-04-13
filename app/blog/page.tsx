@@ -11,6 +11,10 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    href: '/blog/nacha-2026-ach-fraud-monitoring-compliance',
+    title: 'NACHA 2026 Rules Are Now Live: What AP Teams Need to Do Before June 22',
+  },
+  {
     href: '/blog/ai-generated-fake-invoices',
     title: "AI-Generated Fake Invoices: How to Detect What Your AP Team Can't See",
   },

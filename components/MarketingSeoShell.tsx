@@ -12,6 +12,9 @@ export default function MarketingSeoShell({ children }: { children: ReactNode })
             <Link href="/quickbooks-fraud-prevention" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
               Platform
             </Link>
+            <Link href="/blog" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
+              Blog
+            </Link>
             <Link href="/how-it-works" className="text-sm font-medium text-slate-600 transition-colors hover:text-[#003ec7]">
               How it works
             </Link>
@@ -33,7 +36,7 @@ export default function MarketingSeoShell({ children }: { children: ReactNode })
       <main>{children}</main>
 
       <footer className="border-t border-[#c3c5d9]/15 bg-[#f8f9ff] py-14">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 md:grid-cols-2 md:gap-12 lg:grid-cols-4 md:px-8">
+        <div className="mx-auto grid max-w-7xl gap-10 px-6 md:grid-cols-2 md:gap-12 lg:grid-cols-5 md:px-8">
           <div>
             <VantirsLogo href="/" className="inline-flex items-center" imageClassName="h-8 w-auto" width={142} height={48} />
             <p className="mt-4 text-xs leading-relaxed text-slate-500">
@@ -56,6 +59,21 @@ export default function MarketingSeoShell({ children }: { children: ReactNode })
               <li>
                 <Link href="/pricing" className="hover:text-[#003ec7]">
                   Pricing
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Resources</p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-600">
+              <li>
+                <Link href="/blog" className="hover:text-[#003ec7]">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog/nacha-2026-ach-fraud-monitoring-compliance" className="hover:text-[#003ec7]">
+                  NACHA 2026 compliance guide
                 </Link>
               </li>
             </ul>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import MarketingSeoShell from '@/components/MarketingSeoShell'
+import { BlogPostingJsonLd } from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title: 'Vendor Bank Account Change Fraud: How to Stop It | Vantirs',
@@ -18,12 +19,25 @@ export const metadata: Metadata = {
 export default function VendorBankAccountChangeFraudPost() {
   return (
     <MarketingSeoShell>
+      <BlogPostingJsonLd
+        headline="Vendor Bank Account Change Requests: The Fraud Vector Nobody Talks About"
+        description="Vendor bank account change requests are the #1 fraud vector in AP. Learn the verification protocol that stops fraudulent payments before money moves."
+        path="/blog/vendor-bank-account-change-fraud"
+        datePublished="2026-04-10"
+        dateModified="2026-04-13"
+        keywords={[
+          'vendor bank account change fraud',
+          'vendor master file fraud',
+          'AP bank account verification',
+          'vendor impersonation scam',
+        ]}
+      />
       <article className="mx-auto max-w-4xl px-6 py-16 md:px-8 md:py-20">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7]">Blog</p>
         <h1 className="mt-4 font-manrope text-4xl font-extrabold leading-[1.08] tracking-tight text-[#0b1c30]">
           Vendor bank account change requests: the fraud vector nobody talks about
         </h1>
-        <p className="mt-3 text-sm text-slate-500">About 8 min read</p>
+        <p className="mt-3 text-sm text-slate-500">Published Apr 10, 2026 · Updated Apr 13, 2026 · About 8 min read</p>
         <p className="mt-5 text-lg leading-relaxed text-slate-600">
           Last quarter, a mid-market manufacturing company processed a routine vendor bank account update. The email came from a known contact at their biggest supplier, referenced the correct PO numbers, and included a professionally formatted letterhead. Three weeks and $340,000 later, the real vendor called asking why they hadn&apos;t been paid. The money was gone — routed to an account controlled by a fraud ring operating out of a compromised email thread the AP team never knew existed.
         </p>
@@ -151,7 +165,13 @@ export default function VendorBankAccountChangeFraudPost() {
             Vendor bank account change fraud doesn&apos;t just cost you the amount of the fraudulent payment. It costs you the time spent investigating — typically 200+ staff hours for a significant incident. It costs you the disruption to your vendor relationship when the real vendor doesn&apos;t get paid. It costs you the potential insurance premium increase, the audit findings, and — for accounting firms managing client payments — the reputational damage that can end client relationships permanently.
           </p>
           <p className="mt-4 text-slate-700">
-            The 2026 NACHA rule updates are also raising the stakes. With enhanced requirements for ACH payment validation and fraud monitoring taking effect, organizations that lack documented verification controls for vendor bank detail changes face increased regulatory exposure.
+            The 2026 NACHA rule updates are also raising the stakes. With enhanced requirements for ACH payment
+            validation and fraud monitoring taking effect, organizations that lack documented verification controls for
+            vendor bank detail changes face increased regulatory exposure. See the{' '}
+            <Link href="/blog/nacha-2026-ach-fraud-monitoring-compliance" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              NACHA 2026 AP compliance guide
+            </Link>{' '}
+            for the action checklist.
           </p>
           <p className="mt-4 text-slate-700">
             Finance leaders who treat bank account change verification as a clerical task are mispricing the risk. This is a control that sits directly between your company&apos;s cash and a fraud ring&apos;s offshore account. It deserves the same rigor you apply to signing authority and wire approval limits.

@@ -39,9 +39,9 @@ export function SoftwareApplicationJsonLd() {
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: 'USD',
-      lowPrice: '79',
-      highPrice: '299',
-      offerCount: '3',
+      lowPrice: '39',
+      highPrice: '499',
+      offerCount: '6',
     },
     featureList: [
       'Vendor fingerprinting',
@@ -100,6 +100,53 @@ export function WebPageJsonLd({
       name: 'Vantirs',
       url: siteUrl,
     },
+  }
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  )
+}
+
+export function BlogPostingJsonLd({
+  headline,
+  description,
+  path,
+  datePublished,
+  dateModified,
+  keywords = [],
+}: {
+  headline: string
+  description: string
+  path: string
+  datePublished: string
+  dateModified?: string
+  keywords?: string[]
+}) {
+  const canonicalUrl = new URL(path, siteUrl).toString()
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline,
+    description,
+    datePublished,
+    dateModified: dateModified || datePublished,
+    mainEntityOfPage: canonicalUrl,
+    url: canonicalUrl,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Vantirs',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/vantirs-logo-wordmark.png`,
+      },
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'Vantirs',
+    },
+    ...(keywords.length > 0 ? { keywords } : {}),
   }
   return (
     <script
