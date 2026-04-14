@@ -22,6 +22,8 @@ const paths = [
   '/what-is-vantirs',
   // Blog posts
   '/blog/vendor-bank-account-change-fraud',
+  '/blog/pre-approved-fraud-accounts-payable',
+  '/blog/bec-vs-vec-accounting-firms',
   '/blog/nacha-2026-ach-fraud-monitoring-compliance',
   '/blog/ai-generated-fake-invoices',
   '/blog/vendor-fraud-cost-accounting-firms',

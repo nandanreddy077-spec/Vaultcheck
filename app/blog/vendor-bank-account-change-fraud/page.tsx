@@ -75,6 +75,11 @@ export default function VendorBankAccountChangeFraudPost() {
           </p>
           <p className="mt-4 text-slate-700">
             This is known as Vendor Email Compromise (VEC), and it&apos;s a more targeted evolution of standard BEC. According to research from Abnormal AI, VEC attacks are harder to detect than traditional BEC because they bypass every email-based security filter — the sender is legitimate.
+            {' '}
+            <Link href="/blog/bec-vs-vec-accounting-firms" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              Compare BEC vs VEC controls for accounting firms
+            </Link>
+            .
           </p>
 
           <h3 className="mt-8 font-manrope text-xl font-bold text-[#0b1c30]">Spoofed email with social engineering</h3>

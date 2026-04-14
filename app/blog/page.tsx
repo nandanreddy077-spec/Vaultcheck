@@ -11,6 +11,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    href: '/blog/pre-approved-fraud-accounts-payable',
+    title: "What 'Pre-Approved Fraud' Means for Your AP Team (And How to Stop It)",
+  },
+  {
+    href: '/blog/bec-vs-vec-accounting-firms',
+    title: 'BEC vs VEC for Accounting Firms: What Changes in Your Fraud Controls',
+  },
+  {
     href: '/blog/nacha-2026-ach-fraud-monitoring-compliance',
     title: 'NACHA 2026 Rules Are Now Live: What AP Teams Need to Do Before June 22',
   },
