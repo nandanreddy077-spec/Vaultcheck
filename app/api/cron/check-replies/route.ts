@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { google } from 'googleapis'
 import { getServiceClient } from '@/lib/agent/supabase'
 
 function verifyCron(req: Request) {
