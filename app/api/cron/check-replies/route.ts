@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/agent/supabase'
+import imaps from 'imap-simple'
 
 function verifyCron(req: Request) {
   const auth = req.headers.get('authorization')
@@ -18,19 +19,23 @@ function getGmailAccounts(): GmailConfig[] {
   return accounts
 }
 
-// Check Gmail IMAP for replies using Gmail API (OAuth2 not needed with service account xoauth2)
-// For app-password accounts we search sent emails that have replies via Gmail REST API using IMAP
-// Alternative: use Gmail API with OAuth. For simplicity with app passwords, we poll via IMAP simulation.
-// This implementation uses the Gmail API with basic auth disabled — instead we detect replies
-// by checking if any lead has an email address that appears in recent inbound messages subject lines.
-//
-// Since Gmail app passwords don't support IMAP OAuth, we use a pragmatic approach:
-// check if leads have replied by looking at our sent message threads.
-async function checkRepliesForAccount(account: GmailConfig): Promise<string[]> {
-  // With app passwords + nodemailer IMAP is complex.
-  // Practical approach: use Gmail search API via fetch with basic auth (IMAP).
-  // We look for emails in INBOX from leads we've contacted in the last 30 days.
+function formatImapDate(date: Date): string {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  return `${day}-${month}-${year}`
+}
 
+function extractEmailAddress(fromHeader: string): string | null {
+  const match = fromHeader.match(/<([^>]+)>/)
+  if (match?.[1]) return match[1].trim().toLowerCase()
+
+  const plainEmail = fromHeader.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)
+  return plainEmail?.[0]?.toLowerCase() ?? null
+}
+
+async function checkRepliesForAccount(account: GmailConfig): Promise<string[]> {
   const db = getServiceClient()
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -49,16 +54,61 @@ async function checkRepliesForAccount(account: GmailConfig): Promise<string[]> {
   const leadEmails = new Set(
     sentEmails
       .map((r) => (r.outreach_leads as { email: string } | null)?.email)
-      .filter(Boolean) as string[]
+      .filter(Boolean)
+      .map((email) => email!.toLowerCase())
   )
 
-  // Use Gmail API with OAuth2 using app password via nodemailer SMTP check
-  // Simplified: return empty for now — production would use Gmail API with proper OAuth
-  // For a complete impl, set up Gmail API OAuth2 and use gmail.users.messages.list with q: "from:leadEmail"
+  let connection: imaps.ImapSimple | null = null
 
-  // Placeholder: this logs the accounts we'd check
-  console.log(`[check-replies] Would check ${leadEmails.size} lead emails for account ${account.user}`)
-  return []
+  try {
+    connection = await imaps.connect({
+      imap: {
+        user: account.user,
+        password: account.password,
+        host: 'imap.gmail.com',
+        port: 993,
+        tls: true,
+        authTimeout: 15000,
+      },
+    })
+
+    await connection.openBox('INBOX')
+
+    const messages = await connection.search(
+      [['SINCE', formatImapDate(thirtyDaysAgo)]],
+      {
+        bodies: ['HEADER.FIELDS (FROM)'],
+        markSeen: false,
+      }
+    )
+
+    const replied = new Set<string>()
+
+    for (const message of messages) {
+      const headerPart = message.parts.find((part) =>
+        part.which?.toUpperCase().includes('HEADER.FIELDS (FROM)')
+      )
+      if (!headerPart || !headerPart.body) continue
+
+      const body = headerPart.body as { from?: string[] | string }
+      const fromRaw = Array.isArray(body.from) ? body.from[0] : body.from
+      if (!fromRaw) continue
+
+      const fromEmail = extractEmailAddress(fromRaw)
+      if (!fromEmail) continue
+
+      if (leadEmails.has(fromEmail)) replied.add(fromEmail)
+    }
+
+    console.log(
+      `[check-replies] Account ${account.user}: checked ${messages.length} inbound messages, found ${replied.size} replies`
+    )
+    return Array.from(replied)
+  } finally {
+    if (connection) {
+      await connection.end()
+    }
+  }
 }
 
 export async function GET(req: Request) {
