@@ -23,41 +23,51 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   const apiKey = process.env.APOLLO_API_KEY
   if (!apiKey) throw new Error('APOLLO_API_KEY not set')
 
-  // Target: QuickBooks ProAdvisors at accounting firms serving construction/real estate
-  const res = await axios.post(
-    `${APOLLO_BASE}/mixed_people/search`,
-    {
-      api_key: apiKey,
-      page: 1,
-      per_page: limit,
-      person_titles: [
-        'QuickBooks ProAdvisor',
-        'Certified QuickBooks ProAdvisor',
-        'Owner',
-        'Partner',
-        'Managing Partner',
-        'Principal',
-        'CPA',
-        'Controller',
-        'Accounting Manager',
-      ],
-      organization_industry_tag_ids: [
-        'accounting',
-        'bookkeeping',
-        'financial services',
-        'cpa',
-      ],
-      // Only US leads with valid emails
-      contact_email_status: ['verified', 'likely to engage'],
-      person_locations: ['United States'],
-      // Smaller firms — most likely to personally feel the pain
-      organization_num_employees_ranges: ['1,20', '21,50', '51,200'],
-      // Sort by most recently active
-      sort_by_field: 'last_activity_date',
-      sort_ascending: false,
-    },
-    { headers: { 'Content-Type': 'application/json' } }
-  )
+  // Target: accounting leaders likely to serve construction/real-estate clients.
+  // Apollo validates many filters strictly, so keep this payload conservative.
+  const payload = {
+    page: 1,
+    per_page: Math.min(Math.max(limit, 1), 100),
+    person_titles: [
+      'QuickBooks ProAdvisor',
+      'Certified QuickBooks ProAdvisor',
+      'Owner',
+      'Partner',
+      'Managing Partner',
+      'Principal',
+      'CPA',
+      'Controller',
+      'Accounting Manager',
+    ],
+    person_locations: ['United States'],
+    contact_email_status: ['verified'],
+    q_keywords: 'accounting bookkeeping cpa quickbooks construction real estate',
+    sort_by_field: 'last_activity_date',
+    sort_ascending: false,
+  }
+
+  let res
+  try {
+    res = await axios.post(
+      `${APOLLO_BASE}/mixed_people/api_search`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'x-api-key': apiKey,
+        },
+      }
+    )
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const details = typeof error.response?.data === 'string'
+        ? error.response.data
+        : JSON.stringify(error.response?.data ?? {})
+      throw new Error(`Apollo API ${error.response?.status ?? 'error'}: ${details}`)
+    }
+    throw error
+  }
 
   const people: ApolloLead[] = (res.data?.people ?? []).map((p: Record<string, unknown>) => {
     const org = (p.organization ?? {}) as Record<string, unknown>

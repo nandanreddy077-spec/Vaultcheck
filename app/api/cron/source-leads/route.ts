@@ -29,8 +29,20 @@ export async function GET(req: Request) {
   const runId = run?.id
 
   try {
-    // 1. Fetch leads from Apollo
-    const rawLeads = await fetchLeadsFromApollo(DAILY_LIMIT)
+    // 1. Fetch leads from Apollo (if unavailable on current plan, continue with existing queued leads)
+    let rawLeads: Awaited<ReturnType<typeof fetchLeadsFromApollo>> = []
+    let sourceWarning: string | null = null
+    try {
+      rawLeads = await fetchLeadsFromApollo(DAILY_LIMIT)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      if (message.includes('API_INACCESSIBLE') || message.includes('403')) {
+        sourceWarning = 'Apollo API is inaccessible on current plan; continuing with existing queued leads.'
+        console.warn('[source-leads]', sourceWarning)
+      } else {
+        throw error
+      }
+    }
 
     // 2. Save new leads (deduplicates internally)
     const { saved, skipped } = await saveLeadsToDb(rawLeads)
@@ -129,12 +141,12 @@ export async function GET(req: Request) {
         status: 'success',
         leads_fetched: rawLeads.length,
         leads_qualified: qualified,
-        details: { saved, skipped },
+        details: { saved, skipped, sourceWarning },
         finished_at: new Date().toISOString(),
       })
       .eq('id', runId)
 
-    return NextResponse.json({ ok: true, fetched: rawLeads.length, saved, qualified })
+    return NextResponse.json({ ok: true, fetched: rawLeads.length, saved, qualified, sourceWarning })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     await db
