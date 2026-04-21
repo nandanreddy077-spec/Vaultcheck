@@ -45,7 +45,7 @@ export async function proxy(request: NextRequest) {
   // Call getUser() — this verifies the JWT with Supabase servers and automatically
   // refreshes the access token via the refresh token when needed. getSession() only
   // reads the cookie without refreshing, causing 401s on Vercel after token expiry.
-  let user: { id: string } | null = null
+  let user: { id: string; email?: string | null } | null = null
   let authErrorCode: string | null = null
 
   try {
@@ -73,6 +73,24 @@ export async function proxy(request: NextRequest) {
   // Protect dashboard routes
   if (pathname.startsWith('/dashboard') && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Protect admin routes with explicit allowlist.
+  if (pathname.startsWith('/admin')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    const rawAllowlist = process.env.ADMIN_EMAIL_ALLOWLIST ?? ''
+    const allowlist = rawAllowlist
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean)
+
+    const currentEmail = user.email?.toLowerCase() ?? ''
+    if (allowlist.length === 0 || !allowlist.includes(currentEmail)) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   // Redirect authenticated users away from auth pages
