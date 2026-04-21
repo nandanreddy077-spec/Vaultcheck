@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-let _client: ReturnType<typeof createClient> | null = null
+let _client: any = null
 
 export function getServiceClient() {
   if (_client) return _client

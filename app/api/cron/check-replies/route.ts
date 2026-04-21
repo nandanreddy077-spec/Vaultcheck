@@ -12,6 +12,10 @@ interface GmailConfig {
   password: string
 }
 
+interface SentEmailRow {
+  outreach_leads: { email?: string | null } | null
+}
+
 function getGmailAccounts(): GmailConfig[] {
   const accounts: GmailConfig[] = []
   if (process.env.GMAIL_A_USER) accounts.push({ user: process.env.GMAIL_A_USER, password: process.env.GMAIL_A_APP_PASSWORD! })
@@ -36,7 +40,7 @@ function extractEmailAddress(fromHeader: string): string | null {
 }
 
 async function checkRepliesForAccount(account: GmailConfig): Promise<string[]> {
-  const db = getServiceClient()
+  const db: any = getServiceClient()
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
@@ -48,14 +52,15 @@ async function checkRepliesForAccount(account: GmailConfig): Promise<string[]> {
     .eq('gmail_account', account.user)
     .gte('sent_at', thirtyDaysAgo.toISOString())
 
-  if (!sentEmails?.length) return []
+  const sentEmailRows = (sentEmails ?? []) as SentEmailRow[]
+  if (!sentEmailRows.length) return []
 
   // Build list of lead emails we've contacted
   const leadEmails = new Set(
-    sentEmails
-      .map((r) => (r.outreach_leads as { email: string } | null)?.email)
+    sentEmailRows
+      .map((r) => r.outreach_leads?.email)
       .filter(Boolean)
-      .map((email) => email!.toLowerCase())
+      .map((email) => (email as string).toLowerCase())
   )
 
   let connection: imaps.ImapSimple | null = null
@@ -116,7 +121,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const db = getServiceClient()
+  const db: any = getServiceClient()
 
   const { data: run } = await db
     .from('agent_runs')
@@ -190,7 +195,7 @@ export async function POST(req: Request) {
 
   if (!email) return NextResponse.json({ error: 'email required' }, { status: 400 })
 
-  const db = getServiceClient()
+  const db: any = getServiceClient()
 
   const { data: lead } = await db
     .from('outreach_leads')
