@@ -15,10 +15,10 @@ const steps = [
   },
   {
     number: 2,
-    title: 'Connect QuickBooks',
-    description: 'Link your client\'s QuickBooks Online account so we can sync vendor and invoice data.',
-    action: null, // dynamic — depends on client
-    actionLabel: 'Connect QBO',
+    title: 'Connect QuickBooks or Xero',
+    description: 'Link your client\'s QuickBooks Online or Xero account so we can sync vendor and invoice data. You can connect both.',
+    action: null,
+    actionLabel: 'Connect',
     icon: Link2,
   },
   {
@@ -41,9 +41,9 @@ export default function OnboardingPage() {
     fetch('/api/clients')
       .then(r => r.json())
       .then(data => {
-        const clients = data.clients || []
+        const clients = Array.isArray(data) ? data : data.clients || []
         setClientCount(clients.length)
-        setHasQbo(clients.some((c: { qboRealmId: string | null }) => c.qboRealmId))
+        setHasQbo(clients.some((c: { qboRealmId: string | null; xeroTenantId: string | null }) => c.qboRealmId || c.xeroTenantId))
         return fetch('/api/alerts?status=open')
       })
       .then(r => r.json())
@@ -134,7 +134,7 @@ export default function OnboardingPage() {
                     )}
                     {isCurrent && !step.action && clientCount > 0 && (
                       <p className="text-sm text-blue-600 mt-3">
-                        Go to a client page and click &quot;Connect QuickBooks&quot;
+                        Go to a client page and click &quot;Connect QuickBooks&quot; or &quot;Connect Xero&quot;
                       </p>
                     )}
                   </div>

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth'
+import { captureException } from '@/lib/monitoring'
 import { prisma } from '@/lib/prisma'
 import { sendAlertEmail } from '@/lib/notifications/resend'
+import { enforceRateLimit } from '@/lib/rate-limit'
 
 // GET — list pending invitations for this firm
 export async function GET() {
@@ -24,6 +26,14 @@ export async function POST(req: NextRequest) {
   if (!authorized || !dbUser) {
     return NextResponse.json({ error: error || 'Unauthorized' }, { status: 401 })
   }
+
+  const rateLimitResponse = await enforceRateLimit({
+    req,
+    preset: 'auth',
+    scope: 'team-invitations',
+    identifier: dbUser.id,
+  })
+  if (rateLimitResponse) return rateLimitResponse
 
   const body = (await req.json().catch(() => ({}))) as {
     email?: string
@@ -65,22 +75,35 @@ export async function POST(req: NextRequest) {
 
   // Send invitation email
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-  await sendAlertEmail({
-    to: email,
-    subject: `You're invited to join ${dbUser.firm.name} on Vantirs`,
-    text: [
-      `Hi ${name},`,
-      '',
-      `${dbUser.name} has invited you to join ${dbUser.firm.name} on Vantirs as a ${role}.`,
-      '',
-      `Click the link below to accept your invitation and create your account:`,
-      `${appUrl}/invite/${invitation.id}`,
-      '',
-      `This invitation expires in 7 days.`,
-      '',
-      '— Vantirs',
-    ].join('\n'),
-  })
+  let emailSent = true
+  try {
+    await sendAlertEmail({
+      to: email,
+      subject: `You're invited to join ${dbUser.firm.name} on Vantirs`,
+      text: [
+        `Hi ${name},`,
+        '',
+        `${dbUser.name} has invited you to join ${dbUser.firm.name} on Vantirs as a ${role}.`,
+        '',
+        `Click the link below to accept your invitation and create your account:`,
+        `${appUrl}/invite/${invitation.id}`,
+        '',
+        `This invitation expires in 7 days.`,
+        '',
+        '— Vantirs',
+      ].join('\n'),
+    })
+  } catch (err) {
+    emailSent = false
+    captureException(err, {
+      tags: { route: 'api/invitations', service: 'resend' },
+      extra: { invitationId: invitation.id, email },
+    })
+  }
 
-  return NextResponse.json({ invitation }, { status: 201 })
+  if (!process.env.RESEND_API_KEY) {
+    emailSent = false
+  }
+
+  return NextResponse.json({ invitation, emailSent }, { status: 201 })
 }

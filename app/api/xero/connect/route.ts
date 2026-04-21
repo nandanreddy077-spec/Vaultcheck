@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
-import { QBO_AUTH_URL, QBO_SCOPES } from '@/lib/qbo/client'
+import { createXeroOAuthClient } from '@/lib/xero/client'
 import { captureException } from '@/lib/monitoring'
 import { prisma } from '@/lib/prisma'
 import { enforceRateLimit } from '@/lib/rate-limit'
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const rateLimitResponse = await enforceRateLimit({
       req,
       preset: 'oauth',
-      scope: 'qbo-connect',
+      scope: 'xero-connect',
       identifier: dbUser.id,
     })
     if (rateLimitResponse) return rateLimitResponse
@@ -30,7 +30,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'clientId required' }, { status: 400 })
     }
 
-    // Prevent cross-tenant OAuth connections.
     const client = await prisma.client.findFirst({
       where: { id: clientId, firmId: dbUser.firmId },
       select: { id: true },
@@ -39,35 +38,27 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 })
     }
 
-    const qboClientId = process.env.QBO_CLIENT_ID
-    const qboRedirectUri = process.env.QBO_REDIRECT_URI
-    if (!qboClientId || !qboRedirectUri) {
-      return NextResponse.json({ error: 'QuickBooks integration is not configured.' }, { status: 503 })
+    if (!process.env.XERO_CLIENT_ID || !process.env.XERO_REDIRECT_URI || !process.env.XERO_CLIENT_SECRET) {
+      return NextResponse.json({ error: 'Xero integration is not configured.' }, { status: 503 })
     }
 
     const state = crypto.randomBytes(16).toString('hex')
-
-    const params = new URLSearchParams({
-      client_id: qboClientId,
-      scope: QBO_SCOPES,
-      redirect_uri: qboRedirectUri,
-      response_type: 'code',
-      state: `${state}:${clientId}:${dbUser.firmId}`,
-    })
-
-    const response = NextResponse.redirect(`${QBO_AUTH_URL}?${params}`)
-    response.cookies.set('qbo_state', state, {
+    const oauthState = `${state}:${clientId}:${dbUser.firmId}`
+    const xero = await createXeroOAuthClient(oauthState)
+    const consentUrl = await xero.buildConsentUrl()
+    const response = NextResponse.redirect(consentUrl)
+    response.cookies.set('xero_state', state, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 600, // 10 minutes
+      maxAge: 600,
       sameSite: 'lax',
     })
 
     return response
   } catch (err) {
     captureException(err, {
-      tags: { route: 'api/qbo/connect', service: 'qbo' },
+      tags: { route: 'api/xero/connect', service: 'xero' },
     })
-    return NextResponse.json({ error: 'Failed to start QuickBooks connection.' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to start Xero connection.' }, { status: 500 })
   }
 }

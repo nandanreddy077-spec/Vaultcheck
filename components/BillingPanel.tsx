@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { CheckCircle, Tag, Zap } from 'lucide-react'
 import { parseJsonResponse } from '@/lib/parse-json-response'
 
-type Plan = 'pilot' | 'solo' | 'starter' | 'growth' | 'scale' | 'enterprise'
+type Plan = 'pilot' | 'solo' | 'starter' | 'growth' | 'scale' | 'whitelabel' | 'enterprise'
+
+const ENTERPRISE_SALES_URL = 'https://calendly.com/nandan-vantirs/30min'
 type FirmPlan = Plan | 'trial' | string
 
 type CheckoutPayload = {
@@ -134,22 +136,31 @@ const UPGRADE_PLANS: Array<{
   clients: number
   features: string[]
   popular?: boolean
+  salesHref?: string
 }> = [
   {
-    id: 'starter',
-    name: 'Starter',
-    price: '$79',
+    id: 'solo',
+    name: 'Solo',
+    price: '$39',
     period: '/mo',
-    clients: 10,
-    features: ['Up to 10 clients', 'Email alerts', 'Vendor fingerprinting'],
+    clients: 5,
+    features: ['Up to 5 clients', 'Email alerts', 'Vendor fingerprinting'],
+  },
+  {
+    id: 'starter',
+    name: 'Pro',
+    price: '$99',
+    period: '/mo',
+    clients: 15,
+    features: ['Up to 15 clients', 'Everything in Solo', 'Alert queue'],
   },
   {
     id: 'growth',
-    name: 'Growth',
-    price: '$149',
+    name: 'Business',
+    price: '$199',
     period: '/mo',
-    clients: 25,
-    features: ['Up to 25 clients', 'Slack alerts', 'API access'],
+    clients: 35,
+    features: ['Up to 35 clients', 'Slack alerts', 'API access', 'Priority support'],
     popular: true,
   },
   {
@@ -158,7 +169,15 @@ const UPGRADE_PLANS: Array<{
     price: '$299',
     period: '/mo',
     clients: 50,
-    features: ['Up to 50 clients', 'Custom rules', 'SLA guarantee'],
+    features: ['Up to 50 clients', 'Custom rules', 'Dedicated onboarding', 'SLA'],
+  },
+  {
+    id: 'whitelabel',
+    name: 'White-label',
+    price: '$499',
+    period: '/mo',
+    clients: 75,
+    features: ['Up to 75 clients', 'White-label reports', 'All Scale features'],
   },
   {
     id: 'enterprise',
@@ -166,7 +185,8 @@ const UPGRADE_PLANS: Array<{
     price: 'Custom',
     period: '',
     clients: 9999,
-    features: ['Unlimited clients', 'White-label', 'Dedicated support'],
+    features: ['Unlimited clients', 'Security review', 'Custom terms & integrations'],
+    salesHref: ENTERPRISE_SALES_URL,
   },
 ]
 
@@ -174,18 +194,14 @@ const PLAN_LABELS: Record<string, string> = {
   trial: 'Trial · 3 clients, 30 days',
   pilot: 'Outreach Partner',
   solo: 'Solo',
-  starter: 'Starter',
-  growth: 'Growth',
+  starter: 'Pro',
+  growth: 'Business',
   scale: 'Scale',
+  whitelabel: 'White-label',
   enterprise: 'Enterprise',
 }
 
-export default function BillingPanel({
-  currentPlan,
-}: {
-  currentPlan: FirmPlan
-  pilotAvailable: boolean
-}) {
+export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan }) {
   const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [coupon, setCoupon] = useState('')
@@ -285,23 +301,19 @@ export default function BillingPanel({
       {/* Upgrade plan cards */}
       <div>
         <p className="text-sm font-semibold text-[#0b1c30] mb-3">Upgrade your plan</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {UPGRADE_PLANS.map(plan => {
             const isCurrent = plan.id === currentPlan
-            return (
-              <button
-                key={plan.id}
-                type="button"
-                disabled={loadingPlan !== null || isCurrent}
-                onClick={() => startCheckout(plan.id)}
-                className={`relative flex flex-col items-start rounded-xl p-4 text-left transition ring-1 ${
-                  plan.popular
-                    ? 'bg-[#003ec7] text-white ring-[#003ec7] hover:bg-[#0032a3]'
-                    : isCurrent
-                    ? 'bg-[#eff4ff] text-[#003ec7] ring-[#003ec7]/30 cursor-default'
-                    : 'bg-white text-[#0b1c30] ring-[#c3c5d9]/30 hover:ring-[#003ec7]/40 hover:shadow-sm'
-                } disabled:opacity-60`}
-              >
+            const cardClass = `relative flex flex-col items-start rounded-xl p-4 text-left transition ring-1 ${
+              plan.popular
+                ? 'bg-[#003ec7] text-white ring-[#003ec7] hover:bg-[#0032a3]'
+                : isCurrent
+                  ? 'bg-[#eff4ff] text-[#003ec7] ring-[#003ec7]/30 cursor-default'
+                  : 'bg-white text-[#0b1c30] ring-[#c3c5d9]/30 hover:ring-[#003ec7]/40 hover:shadow-sm'
+            }`
+
+            const inner = (
+              <>
                 {plan.popular && !isCurrent && (
                   <span className="absolute -top-2 right-3 rounded-full bg-emerald-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
                     Popular
@@ -339,6 +351,32 @@ export default function BillingPanel({
                 {loadingPlan === plan.id && (
                   <span className="mt-2 text-[10px] opacity-70 animate-pulse">Processing…</span>
                 )}
+              </>
+            )
+
+            if (plan.salesHref) {
+              return (
+                <a
+                  key={plan.id}
+                  href={plan.salesHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${cardClass} ${isCurrent ? 'pointer-events-none opacity-60' : 'cursor-pointer'}`}
+                >
+                  {inner}
+                </a>
+              )
+            }
+
+            return (
+              <button
+                key={plan.id}
+                type="button"
+                disabled={loadingPlan !== null || isCurrent}
+                onClick={() => startCheckout(plan.id)}
+                className={`${cardClass} disabled:opacity-60`}
+              >
+                {inner}
               </button>
             )
           })}
@@ -356,8 +394,8 @@ export default function BillingPanel({
           </div>
           <p className="text-sm text-blue-100 mb-4 leading-relaxed">
             Have a partner code? Activate the{' '}
-            <strong className="text-white">Scale plan (50 clients)</strong> free for 3 months.{' '}
-            <span className="line-through text-blue-300 text-xs">$99/mo value</span>
+            <strong className="text-white">Scale plan (50 clients)</strong> free for 3 months — same features as a paid
+            Scale subscription during the trial.
           </p>
           <div className="flex gap-2">
             <input

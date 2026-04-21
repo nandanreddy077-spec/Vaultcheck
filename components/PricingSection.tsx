@@ -6,13 +6,13 @@ import Link from 'next/link'
 
 const PLANS = [
   {
-    id: 'starter',
-    name: 'Starter',
-    monthlyPrice: 79,
-    clients: 10,
-    description: 'For firms getting started',
+    id: 'solo',
+    name: 'Solo',
+    monthlyPrice: 39,
+    clients: 5,
+    description: 'Solo CPAs and small practices',
     features: [
-      'Up to 10 client entities',
+      'Up to 5 client entities',
       'Vendor fingerprinting',
       'Email alerts',
       'Alert queue',
@@ -22,14 +22,30 @@ const PLANS = [
     highlight: false,
   },
   {
-    id: 'growth',
-    name: 'Growth',
-    monthlyPrice: 149,
-    clients: 25,
-    description: 'Most popular for established firms',
+    id: 'starter',
+    name: 'Pro',
+    monthlyPrice: 99,
+    clients: 15,
+    description: 'Growing firms',
     features: [
-      'Up to 25 client entities',
-      'Everything in Starter',
+      'Up to 15 client entities',
+      'Everything in Solo',
+      'Multi-client dashboard',
+      'Email alerts & review queue',
+    ],
+    cta: 'Get started',
+    ctaHref: '/signup',
+    highlight: false,
+  },
+  {
+    id: 'growth',
+    name: 'Business',
+    monthlyPrice: 199,
+    clients: 35,
+    description: 'Established firms',
+    features: [
+      'Up to 35 client entities',
+      'Everything in Pro',
       'Slack alerts',
       'API access',
       'Priority support',
@@ -43,13 +59,29 @@ const PLANS = [
     name: 'Scale',
     monthlyPrice: 299,
     clients: 50,
-    description: 'For high-volume firms',
+    description: 'High-volume and multi-office firms',
     features: [
       'Up to 50 client entities',
-      'Everything in Growth',
+      'Everything in Business',
       'Custom detection rules',
       'Dedicated onboarding',
-      'SLA guarantee',
+      'SLA-backed support',
+    ],
+    cta: 'Get started',
+    ctaHref: '/signup',
+    highlight: false,
+  },
+  {
+    id: 'whitelabel',
+    name: 'White-label',
+    monthlyPrice: 499,
+    clients: 75,
+    description: 'CFO firms, platforms & QB consultants',
+    features: [
+      'Up to 75 client entities',
+      'Everything in Scale',
+      'White-label reports & branding',
+      'Partner-ready API access',
     ],
     cta: 'Get started',
     ctaHref: '/signup',
@@ -60,12 +92,12 @@ const PLANS = [
     name: 'Enterprise',
     monthlyPrice: null,
     clients: null,
-    description: 'Unlimited clients, custom contract',
+    description: 'Unlimited scale, security review, custom terms',
     features: [
       'Unlimited client entities',
-      'Everything in Scale',
-      'White-label reports',
-      'Custom integrations',
+      'Everything in White-label',
+      'Custom integrations & SSO',
+      'Security review & DPAs',
       'Dedicated account manager',
     ],
     cta: 'Book a call',
@@ -93,15 +125,16 @@ export default function PricingSection() {
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7] mb-2">Pricing</p>
           <h2 className="font-manrope text-3xl font-bold text-[#0b1c30] md:text-4xl">
-            Simple, flat monthly pricing
+            Simple tiers that scale with your firm
           </h2>
           <p className="mt-3 text-slate-600">
-            One firm subscription — covers all your clients. No per-seat surprises.
+            One subscription covers your clients. Heavy verification volume? Add-on packs are available — contact us after you&apos;re live.
           </p>
 
           {/* Monthly / Annual toggle */}
           <div className="mt-6 inline-flex items-center gap-1 rounded-full bg-white p-1 shadow-sm ring-1 ring-[#c3c5d9]/20">
             <button
+              type="button"
               onClick={() => setAnnual(false)}
               className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
                 !annual ? 'bg-[#003ec7] text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
@@ -110,6 +143,7 @@ export default function PricingSection() {
               Monthly
             </button>
             <button
+              type="button"
               onClick={() => setAnnual(true)}
               className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
                 annual ? 'bg-[#003ec7] text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
@@ -119,10 +153,13 @@ export default function PricingSection() {
               <span className="font-bold text-emerald-500">-20%</span>
             </button>
           </div>
+          <p className="mt-3 text-xs text-slate-500">
+            Annual billing saves 20% vs. paying monthly — same features, predictable renewals for your finance team.
+          </p>
         </div>
 
         {/* Plan cards */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {PLANS.map(plan => {
             const price = plan.monthlyPrice
               ? annual
@@ -213,8 +250,7 @@ export default function PricingSection() {
               <p className="mt-1.5 text-sm leading-relaxed text-blue-100">
                 Have a partner code? Activate the{' '}
                 <strong className="text-white">Scale plan (50 clients)</strong> free for 3 months.{' '}
-                <span className="line-through text-blue-300">$99/mo value</span>
-                {' '}· All Scale features included · No credit card needed for trial period.
+                Same features as a paid Scale subscription during the trial — no credit card required for the partner period.
               </p>
               <div className="mt-5 flex gap-2">
                 <input
@@ -226,6 +262,7 @@ export default function PricingSection() {
                   className="flex-1 rounded-xl bg-white/10 px-4 py-2.5 text-sm text-white placeholder-blue-300 outline-none ring-1 ring-white/20 focus:ring-white/50"
                 />
                 <button
+                  type="button"
                   onClick={claimCoupon}
                   disabled={!coupon.trim()}
                   className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[#003ec7] transition hover:bg-blue-50 disabled:opacity-50"

@@ -4,7 +4,9 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import ConnectQBOButton from '@/components/ConnectQBOButton'
+import ConnectXeroButton from '@/components/ConnectXeroButton'
 import SyncButton from '@/components/SyncButton'
+import XeroSyncButton from '@/components/XeroSyncButton'
 
 function riskBadgeClass(score: number): string {
   if (score <= 15) return 'risk-badge-low'
@@ -48,7 +50,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   if (!client) notFound()
 
   const isQBOConnected = !!client.qboRealmId && !!client.qboAccessToken
+  const isXeroConnected = !!client.xeroTenantId && !!client.xeroAccessToken
   const qboConnectUrl = `/api/qbo/connect?clientId=${client.id}`
+  const xeroConnectUrl = `/api/xero/connect?clientId=${client.id}`
 
   return (
     <div className="p-10">
@@ -58,15 +62,39 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </Link>
         <div className="flex-1">
           <h1 className="text-4xl font-semibold text-[#0b1c30]">{client.name}</h1>
-          <p className="text-sm text-slate-500 mt-2">
-            {isQBOConnected ? `QuickBooks connected · Realm ${client.qboRealmId}` : 'QuickBooks not connected'}
-          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+            <p className="text-sm text-slate-500">
+              {isQBOConnected ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                  QuickBooks connected · Realm {client.qboRealmId}
+                </span>
+              ) : (
+                'QuickBooks not connected'
+              )}
+            </p>
+            <p className="text-sm text-slate-500">
+              {isXeroConnected ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                  Xero connected · Tenant {client.xeroTenantId?.slice(0, 8)}…
+                </span>
+              ) : (
+                'Xero not connected'
+              )}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {isQBOConnected ? (
             <SyncButton clientId={client.id} />
           ) : (
             <ConnectQBOButton href={qboConnectUrl} />
+          )}
+          {isXeroConnected ? (
+            <XeroSyncButton clientId={client.id} />
+          ) : (
+            <ConnectXeroButton href={xeroConnectUrl} />
           )}
         </div>
       </div>
@@ -89,7 +117,17 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </div>
         <div className="surface-panel p-5">
           <p className="text-[11px] text-slate-500 uppercase tracking-[0.08em]">Sync Status</p>
-          <p className="text-3xl font-semibold text-[#0b1c30] mt-1 capitalize">{client.syncStatus}</p>
+          <div className="mt-1 space-y-1">
+            {isQBOConnected && (
+              <p className="text-sm font-medium text-[#0b1c30] capitalize">QBO: {client.syncStatus}</p>
+            )}
+            {isXeroConnected && (
+              <p className="text-sm font-medium text-[#0b1c30] capitalize">Xero: {client.xeroSyncStatus}</p>
+            )}
+            {!isQBOConnected && !isXeroConnected && (
+              <p className="text-3xl font-semibold text-[#0b1c30] capitalize">{client.syncStatus}</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -102,7 +140,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           <div className="space-y-3 px-4 pb-4 max-h-96 overflow-y-auto">
             {client.invoices.length === 0 ? (
               <p className="px-6 py-8 text-sm text-slate-400 text-center">
-                {isQBOConnected ? 'No invoices synced yet. Run a sync.' : 'Connect QuickBooks to import invoices.'}
+                {isQBOConnected || isXeroConnected
+                  ? 'No invoices synced yet. Run a sync.'
+                  : 'Connect QuickBooks or Xero to import invoices.'}
               </p>
             ) : (
               client.invoices.map(inv => (
@@ -178,7 +218,16 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             client.vendors.slice(0, 10).map(vendor => (
               <Link key={vendor.id} href={`/dashboard/vendors/${vendor.id}`} className="px-4 py-4 rounded-xl bg-[#eff4ff] hover:bg-[#e5eeff] flex items-center gap-4 transition-colors">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#0b1c30]">{vendor.displayName}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-[#0b1c30]">{vendor.displayName}</p>
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                      vendor.platform === 'xero'
+                        ? 'bg-[#13B5EA]/10 text-[#13B5EA]'
+                        : 'bg-[#2CA01C]/10 text-[#2CA01C]'
+                    }`}>
+                      {vendor.platform === 'xero' ? 'Xero' : 'QBO'}
+                    </span>
+                  </div>
                   {vendor.email && (
                     <p className="text-xs text-slate-500">{vendor.email}</p>
                   )}

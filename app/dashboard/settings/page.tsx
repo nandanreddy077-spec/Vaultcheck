@@ -15,9 +15,6 @@ export default async function SettingsPage() {
     orderBy: { createdAt: 'asc' },
   })
 
-  const pilotCount = await prisma.firm.count({ where: { plan: 'pilot' } })
-  const pilotAvailable = pilotCount < 10
-
   return (
     <div className="p-10 max-w-6xl">
       <div className="mb-8">
@@ -56,7 +53,7 @@ export default async function SettingsPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
         <div className="surface-panel p-0 overflow-hidden">
-          <BillingPanel currentPlan={dbUser.firm.plan} pilotAvailable={pilotAvailable} />
+          <BillingPanel currentPlan={dbUser.firm.plan} />
         </div>
         <div className="surface-panel p-0 overflow-hidden">
           <SlackWebhookPanel initialUrl={dbUser.firm.slackWebhookUrl} />

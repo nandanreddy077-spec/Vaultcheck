@@ -15,7 +15,7 @@ model Firm {
   id               String   @id @default(cuid())
   name             String
   email            String   @unique
-  plan             String   @default("trial") // trial, pilot, solo, starter, growth, scale, enterprise
+  plan             String   @default("trial") // trial, pilot, solo, starter, growth, scale, whitelabel, enterprise
   trialStartedAt   DateTime  @default(now()) // used to enforce 30-day trial limit
   pilotExpiresAt   DateTime? // set when pilot plan is activated via coupon; null = no expiry (paid plans)
   slackWebhookUrl String?
@@ -48,12 +48,20 @@ model Client {
   id              String    @id @default(cuid())
   name            String
   firmId          String
+  // QuickBooks Online
   qboRealmId      String?   @unique
   qboAccessToken  String?
   qboRefreshToken String?
   qboTokenExpiry  DateTime?
   lastSyncAt      DateTime?
   syncStatus      String    @default("pending") // pending, syncing, synced, error
+  // Xero
+  xeroTenantId      String?   @unique
+  xeroAccessToken   String?
+  xeroRefreshToken  String?
+  xeroTokenExpiry   DateTime?
+  xeroLastSyncAt    DateTime?
+  xeroSyncStatus    String    @default("pending") // pending, syncing, synced, error
   isActive        Boolean   @default(true)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -71,7 +79,9 @@ model Client {
 model Vendor {
   id            String    @id @default(cuid())
   clientId      String
-  qboVendorId   String
+  qboVendorId   String?
+  xeroContactId String?
+  platform      String    @default("quickbooks") // "quickbooks" | "xero"
   displayName   String
   companyName   String?
   email         String?
@@ -90,6 +100,7 @@ model Vendor {
   invoices    Invoice[]
 
   @@unique([clientId, qboVendorId])
+  @@unique([clientId, xeroContactId])
   @@index([clientId])
 }
 
@@ -122,6 +133,9 @@ model Invoice {
   vendorId        String?
   // QuickBooks Bill ID. Treated as unique so we can idempotently upsert during sync.
   qboBillId       String?  @unique
+  // Xero Bill (ACCPAY invoice) ID. Same idempotent upsert pattern.
+  xeroBillId      String?  @unique
+  platform        String?  // "quickbooks" | "xero"
   invoiceNumber   String?
   amount          Float
   currency        String    @default("USD")

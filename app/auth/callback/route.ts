@@ -7,7 +7,9 @@ import { getSupabaseUrl } from '@/lib/supabase/url'
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const code = searchParams.get('code')
-  const next = searchParams.get('next') || '/dashboard'
+  const nextRaw = searchParams.get('next') || '/dashboard'
+  // Prevent open redirects: only allow relative paths starting with /
+  const next = (nextRaw.startsWith('/') && !nextRaw.startsWith('//')) ? nextRaw : '/dashboard'
   const inviteId = searchParams.get('inviteId')
 
   if (!code) {

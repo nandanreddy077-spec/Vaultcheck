@@ -55,7 +55,8 @@ export default async function ClientsPage() {
           <thead className="bg-[#eff4ff]">
             <tr>
               <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Client</th>
-              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">QBO Status</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Platform</th>
+              <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Sync Status</th>
               <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Vendors</th>
               <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Invoices</th>
               <th className="px-6 py-4 text-left text-[11px] font-medium text-slate-500 uppercase tracking-[0.08em]">Open Alerts</th>
@@ -66,7 +67,7 @@ export default async function ClientsPage() {
           <tbody>
             {clients.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
+                <td colSpan={8} className="px-6 py-12 text-center text-sm text-slate-400">
                   No clients yet.{' '}
                   <Link href="/dashboard/clients/new" className="text-[#003ec7] hover:text-[#0052ff]">
                     Add your first client
@@ -84,12 +85,44 @@ export default async function ClientsPage() {
                         {client.qboRealmId && (
                           <p className="text-xs text-slate-400">QBO: {client.qboRealmId}</p>
                         )}
+                        {client.xeroTenantId && (
+                          <p className="text-xs text-slate-400">Xero: {client.xeroTenantId.slice(0, 8)}…</p>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {syncIcons[client.syncStatus] || syncIcons.pending}
-                        <span className="text-sm text-slate-600 capitalize">{client.syncStatus}</span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {client.qboRealmId && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#2CA01C]/10 text-[#2CA01C]">QBO</span>
+                        )}
+                        {client.xeroTenantId && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#13B5EA]/10 text-[#13B5EA]">Xero</span>
+                        )}
+                        {!client.qboRealmId && !client.xeroTenantId && (
+                          <span className="text-xs text-slate-400">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        {client.qboRealmId && (
+                          <div className="flex items-center gap-2">
+                            {syncIcons[client.syncStatus] || syncIcons.pending}
+                            <span className="text-xs text-slate-600 capitalize">QBO: {client.syncStatus}</span>
+                          </div>
+                        )}
+                        {client.xeroTenantId && (
+                          <div className="flex items-center gap-2">
+                            {syncIcons[client.xeroSyncStatus] || syncIcons.pending}
+                            <span className="text-xs text-slate-600 capitalize">Xero: {client.xeroSyncStatus}</span>
+                          </div>
+                        )}
+                        {!client.qboRealmId && !client.xeroTenantId && (
+                          <div className="flex items-center gap-2">
+                            {syncIcons.pending}
+                            <span className="text-sm text-slate-600 capitalize">{client.syncStatus}</span>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">{client._count.vendors}</td>

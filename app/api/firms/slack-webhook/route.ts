@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireRole } from '@/lib/auth'
+import { captureException } from '@/lib/monitoring'
 
 export async function POST(req: NextRequest) {
   const { authorized, dbUser, error } = await requireRole(['admin', 'staff'])
@@ -11,16 +12,11 @@ export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => ({}))) as { slackWebhookUrl?: unknown }
   const raw = typeof body.slackWebhookUrl === 'string' ? body.slackWebhookUrl.trim() : ''
 
-  const slackWebhookUrl = raw
-    ? (() => {
-        // Slack incoming webhooks look like:
-        // https://hooks.slack.com/services/<TEAM_ID>/<CHANNEL_ID>/<TOKEN>
-        if (!raw.startsWith('https://hooks.slack.com/services/')) {
-          throw new Error('Invalid Slack webhook URL format.')
-        }
-        return raw
-      })()
-    : null
+  if (raw && !raw.startsWith('https://hooks.slack.com/services/')) {
+    return NextResponse.json({ error: 'Invalid Slack webhook URL format.' }, { status: 400 })
+  }
+
+  const slackWebhookUrl = raw || null
 
   try {
     await prisma.firm.update({
@@ -31,6 +27,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to save Slack webhook.'
+    captureException(err, {
+      tags: { route: 'api/firms/slack-webhook', service: 'slack' },
+      extra: { firmId: dbUser.firmId },
+    })
     return NextResponse.json({ error: message }, { status: 400 })
   }
 }

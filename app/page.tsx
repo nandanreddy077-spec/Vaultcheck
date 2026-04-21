@@ -150,23 +150,16 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Social proof strip — trust bar */}
+        {/* Trust bar — verifiable claims only (no fabricated metrics) */}
         <section className="border-y border-transparent bg-[#eff4ff] py-10 md:py-12">
           <div className="mx-auto max-w-7xl px-6 text-center md:px-8">
-            <h2 className="mb-6 font-manrope text-lg font-bold leading-snug text-[#0b1c30] md:text-xl">
-              Trusted by accounting firms protecting client payments
+            <h2 className="mb-4 font-manrope text-lg font-bold leading-snug text-[#0b1c30] md:text-xl">
+              Built for accounting firms protecting client payments
             </h2>
-            <div className="mb-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-sm font-semibold text-[#0b1c30] md:text-base">
-              <span>$2.4M+ in suspicious payments flagged</span>
-              <span className="text-slate-400" aria-hidden>
-                ·
-              </span>
-              <span>1,200+ vendors fingerprinted</span>
-              <span className="text-slate-400" aria-hidden>
-                ·
-              </span>
-              <span>98% alert accuracy</span>
-            </div>
+            <p className="mx-auto mb-8 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-base">
+              Vendor fingerprinting, invoice anomaly signals, and alerts tied to your own QuickBooks history — so your
+              team can review risk before funds leave the account.
+            </p>
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
               {['SOC 2 Ready', '256-bit encryption', 'QuickBooks Certified'].map(label => (
                 <span
@@ -389,6 +382,21 @@ export default function LandingPage() {
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Product</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                <li>
+                  <a href="/vendor-fraud-detection-software" className="hover:text-[#003ec7]">
+                    Vendor fraud detection
+                  </a>
+                </li>
+                <li>
+                  <a href="/invoice-fraud-detection" className="hover:text-[#003ec7]">
+                    Invoice fraud detection
+                  </a>
+                </li>
+                <li>
+                  <a href="/accounts-payable-fraud-prevention" className="hover:text-[#003ec7]">
+                    AP fraud prevention
+                  </a>
+                </li>
                 <li>
                   <a href="/quickbooks-fraud-prevention" className="hover:text-[#003ec7]">
                     Platform
