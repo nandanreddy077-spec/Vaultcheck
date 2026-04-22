@@ -5,7 +5,7 @@ import { getServiceClient } from './supabase'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const CALENDLY_URL = process.env.CALENDLY_URL ?? 'https://calendly.com/nandan-vantirs/15min'
+const CALENDLY_URL = process.env.CALENDLY_URL ?? 'https://calendly.com/nandan-vantirs/30min'
 
 export async function generateAutoResponse(
   replyBody: string,
