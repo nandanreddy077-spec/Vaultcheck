@@ -7,7 +7,7 @@ interface GmailAccount {
   label: 'A' | 'B'
 }
 
-function getAccounts(): GmailAccount[] {
+export function getAccounts(): GmailAccount[] {
   const accounts: GmailAccount[] = []
   if (process.env.GMAIL_A_USER && process.env.GMAIL_A_APP_PASSWORD) {
     accounts.push({ user: process.env.GMAIL_A_USER, password: process.env.GMAIL_A_APP_PASSWORD, label: 'A' })

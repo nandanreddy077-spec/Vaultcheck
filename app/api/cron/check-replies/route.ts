@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/agent/supabase'
+import { analyzeReply } from '@/lib/agent/reply-handler'
+import { sendAutoResponse } from '@/lib/agent/auto-responder'
+import { getAccounts } from '@/lib/agent/email-sender'
 import imaps from 'imap-simple'
 
 function verifyCron(req: Request) {
@@ -10,125 +13,80 @@ function verifyCron(req: Request) {
 interface GmailConfig {
   user: string
   password: string
-}
-
-interface SentEmailRow {
-  outreach_leads: { email?: string | null } | null
+  label: 'A' | 'B'
 }
 
 function getGmailAccounts(): GmailConfig[] {
-  const accounts: GmailConfig[] = []
-  if (process.env.GMAIL_A_USER) accounts.push({ user: process.env.GMAIL_A_USER, password: process.env.GMAIL_A_APP_PASSWORD! })
-  if (process.env.GMAIL_B_USER) accounts.push({ user: process.env.GMAIL_B_USER, password: process.env.GMAIL_B_APP_PASSWORD! })
-  return accounts
+  return getAccounts() as GmailConfig[]
 }
 
 function formatImapDate(date: Date): string {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = months[date.getMonth()]
-  const year = date.getFullYear()
-  return `${day}-${month}-${year}`
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return `${String(date.getDate()).padStart(2,'0')}-${months[date.getMonth()]}-${date.getFullYear()}`
 }
 
 function extractEmailAddress(fromHeader: string): string | null {
   const match = fromHeader.match(/<([^>]+)>/)
   if (match?.[1]) return match[1].trim().toLowerCase()
-
-  const plainEmail = fromHeader.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)
-  return plainEmail?.[0]?.toLowerCase() ?? null
+  const plain = fromHeader.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)
+  return plain?.[0]?.toLowerCase() ?? null
 }
 
-async function checkRepliesForAccount(account: GmailConfig): Promise<string[]> {
-  const db: any = getServiceClient()
+interface InboundMessage {
+  fromEmail: string
+  subject: string
+  body: string
+  messageId: string
+}
+
+async function fetchInboundReplies(account: GmailConfig, leadEmails: Set<string>): Promise<InboundMessage[]> {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  // Get all active leads we've emailed from this account
-  const { data: sentEmails } = await db
-    .from('outreach_emails')
-    .select('outreach_leads(id, email, first_name)')
-    .eq('status', 'sent')
-    .eq('gmail_account', account.user)
-    .gte('sent_at', thirtyDaysAgo.toISOString())
-
-  const sentEmailRows = (sentEmails ?? []) as SentEmailRow[]
-  if (!sentEmailRows.length) return []
-
-  // Build list of lead emails we've contacted
-  const leadEmails = new Set(
-    sentEmailRows
-      .map((r) => r.outreach_leads?.email)
-      .filter(Boolean)
-      .map((email) => (email as string).toLowerCase())
-  )
-
   let connection: imaps.ImapSimple | null = null
+  const results: InboundMessage[] = []
 
   try {
     connection = await imaps.connect({
-      imap: {
-        user: account.user,
-        password: account.password,
-        host: 'imap.gmail.com',
-        port: 993,
-        tls: true,
-        authTimeout: 15000,
-      },
+      imap: { user: account.user, password: account.password, host: 'imap.gmail.com', port: 993, tls: true, authTimeout: 15000 },
     })
-
     await connection.openBox('INBOX')
 
     const messages = await connection.search(
       [['SINCE', formatImapDate(thirtyDaysAgo)]],
-      {
-        bodies: ['HEADER.FIELDS (FROM)'],
-        markSeen: false,
-      }
+      { bodies: ['HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)', 'TEXT'], markSeen: false }
     )
 
-    const replied = new Set<string>()
-
     for (const message of messages) {
-      const headerPart = message.parts.find((part) =>
-        part.which?.toUpperCase().includes('HEADER.FIELDS (FROM)')
-      )
-      if (!headerPart || !headerPart.body) continue
+      const headerPart = message.parts.find(p => p.which?.toUpperCase().includes('HEADER'))
+      const bodyPart = message.parts.find(p => p.which === 'TEXT')
+      if (!headerPart?.body) continue
 
-      const body = headerPart.body as { from?: string[] | string }
-      const fromRaw = Array.isArray(body.from) ? body.from[0] : body.from
+      const headers = headerPart.body as Record<string, string[] | string>
+      const fromRaw = Array.isArray(headers.from) ? headers.from[0] : headers.from
       if (!fromRaw) continue
 
       const fromEmail = extractEmailAddress(fromRaw)
-      if (!fromEmail) continue
+      if (!fromEmail || !leadEmails.has(fromEmail)) continue
 
-      if (leadEmails.has(fromEmail)) replied.add(fromEmail)
+      const subject = Array.isArray(headers.subject) ? headers.subject[0] : headers.subject ?? ''
+      const messageId = Array.isArray(headers['message-id']) ? headers['message-id'][0] : headers['message-id'] ?? ''
+      const bodyText = typeof bodyPart?.body === 'string' ? bodyPart.body.slice(0, 2000) : ''
+
+      results.push({ fromEmail, subject, body: bodyText, messageId })
     }
-
-    console.log(
-      `[check-replies] Account ${account.user}: checked ${messages.length} inbound messages, found ${replied.size} replies`
-    )
-    return Array.from(replied)
   } finally {
-    if (connection) {
-      await connection.end()
-    }
+    if (connection) await connection.end()
   }
+
+  return results
 }
 
 export async function GET(req: Request) {
-  if (!verifyCron(req)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  if (!verifyCron(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db: any = getServiceClient()
-
-  const { data: run } = await db
-    .from('agent_runs')
-    .insert({ run_type: 'check-replies', status: 'running' })
-    .select()
-    .single()
-
+  const db = getServiceClient() as ReturnType<typeof getServiceClient>
+  const { data: run } = await db.from('agent_runs').insert({ run_type: 'check-replies', status: 'running' }).select().single()
   const runId = run?.id
   let repliesFound = 0
 
@@ -136,85 +94,120 @@ export async function GET(req: Request) {
     const accounts = getGmailAccounts()
 
     for (const account of accounts) {
-      const repliedEmails = await checkRepliesForAccount(account)
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-      for (const email of repliedEmails) {
-        const { data: lead } = await db
-          .from('outreach_leads')
-          .select('id, status')
-          .eq('email', email)
+      // Get leads we've emailed from this account
+      const { data: sentEmails } = await db
+        .from('outreach_emails')
+        .select('outreach_leads(id, email, first_name, last_name, company_name, city, state, sequence_step, status, funnel_stage)')
+        .eq('status', 'sent')
+        .eq('gmail_account', account.user)
+        .gte('sent_at', thirtyDaysAgo.toISOString())
+
+      const leadMap = new Map<string, { id: string; first_name: string; last_name: string; company_name: string; city: string; state: string; sequence_step: number; status: string; funnel_stage: string }>()
+      for (const row of sentEmails ?? []) {
+        const l = row.outreach_leads as { id: string; email: string; first_name: string; last_name: string; company_name: string; city: string; state: string; sequence_step: number; status: string; funnel_stage: string } | null
+        if (l?.email) leadMap.set(l.email.toLowerCase(), l)
+      }
+
+      if (leadMap.size === 0) continue
+
+      const inbound = await fetchInboundReplies(account, new Set(leadMap.keys()))
+
+      for (const msg of inbound) {
+        const lead = leadMap.get(msg.fromEmail)
+        if (!lead || lead.status === 'replied' || lead.funnel_stage === 'lost') continue
+
+        // Check if already processed this message
+        const { data: existing } = await db
+          .from('outreach_conversations')
+          .select('id')
+          .eq('lead_id', lead.id)
+          .eq('gmail_message_id', msg.messageId)
           .single()
+        if (existing) continue
 
-        if (lead && lead.status !== 'replied') {
-          // Mark lead as replied
-          await db
-            .from('outreach_leads')
-            .update({ status: 'replied', replied_at: new Date().toISOString() })
-            .eq('id', lead.id)
+        // Analyze the reply with Claude
+        const analysis = await analyzeReply(msg.body, {
+          first_name: lead.first_name,
+          company_name: lead.company_name,
+          sequence_step: lead.sequence_step,
+        })
 
-          // Cancel all future scheduled emails for this lead
-          await db
-            .from('outreach_emails')
-            .update({ status: 'cancelled' })
-            .eq('lead_id', lead.id)
-            .eq('status', 'scheduled')
+        // Save inbound conversation
+        const { data: conv } = await db.from('outreach_conversations').insert({
+          lead_id: lead.id,
+          direction: 'inbound',
+          subject: msg.subject,
+          body: msg.body,
+          intent: analysis.intent,
+          intent_confidence: analysis.confidence,
+          gmail_message_id: msg.messageId,
+          gmail_account: account.user,
+          auto_replied: false,
+        }).select().single()
 
-          repliesFound++
+        // Stop the sequence regardless of intent
+        await db.from('outreach_emails').update({ status: 'cancelled' }).eq('lead_id', lead.id).eq('status', 'scheduled')
+        await db.from('outreach_leads').update({ status: 'replied', replied_at: new Date().toISOString() }).eq('id', lead.id)
+
+        // Act on intent
+        if (analysis.suggested_action === 'mark_lost') {
+          await db.from('outreach_leads').update({ funnel_stage: 'lost', lost_reason: analysis.summary }).eq('id', lead.id)
+
+        } else if (analysis.suggested_action === 'reschedule') {
+          // OOO — do nothing, sequence already stopped, human follows up
+          await db.from('outreach_leads').update({ funnel_stage: 'cold', notes: 'OOO — reschedule' }).eq('id', lead.id)
+
+        } else if (['auto_reply', 'send_calendly'].includes(analysis.suggested_action) && conv?.id) {
+          // AI auto-responds
+          await sendAutoResponse({
+            leadId: lead.id,
+            toEmail: msg.fromEmail,
+            toFirstName: lead.first_name,
+            subject: msg.subject,
+            replyBody: msg.body,
+            analysis,
+            lead: { first_name: lead.first_name, company_name: lead.company_name, city: lead.city, state: lead.state },
+            gmailAccount: account,
+            conversationId: conv.id,
+          })
+          await db.from('outreach_leads').update({ funnel_stage: 'engaged' }).eq('id', lead.id)
+
+        } else {
+          // notify_human — flag for manual review
+          await db.from('outreach_leads').update({ funnel_stage: 'replied', notes: `Needs human review: ${analysis.summary}` }).eq('id', lead.id)
         }
+
+        repliesFound++
+        console.log(`[check-replies] ${msg.fromEmail} → ${analysis.intent} → ${analysis.suggested_action}`)
       }
     }
 
-    // Also mark as replied any leads that emailed us back (manual fallback)
-    // Check outreach_leads where status='active' and replied_at is set
-    await db
-      .from('agent_runs')
-      .update({ status: 'success', replies_found: repliesFound, finished_at: new Date().toISOString() })
-      .eq('id', runId)
-
+    await db.from('agent_runs').update({ status: 'success', replies_found: repliesFound, finished_at: new Date().toISOString() }).eq('id', runId)
     return NextResponse.json({ ok: true, repliesFound })
+
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    await db
-      .from('agent_runs')
-      .update({ status: 'error', error: message, finished_at: new Date().toISOString() })
-      .eq('id', runId)
-
+    await db.from('agent_runs').update({ status: 'error', error: message, finished_at: new Date().toISOString() }).eq('id', runId)
     console.error('[check-replies]', message)
     return NextResponse.json({ ok: false, error: message }, { status: 500 })
   }
 }
 
-// Webhook endpoint to manually mark a lead as replied (call this from Gmail filter → Zapier/n8n)
+// Manual webhook — mark lead replied (from Zapier/n8n Gmail filter)
 export async function POST(req: Request) {
   const body = await req.json()
-  const { email, secret } = body
+  if (body.secret !== process.env.CRON_SECRET) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!body.email) return NextResponse.json({ error: 'email required' }, { status: 400 })
 
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  if (!email) return NextResponse.json({ error: 'email required' }, { status: 400 })
-
-  const db: any = getServiceClient()
-
-  const { data: lead } = await db
-    .from('outreach_leads')
-    .select('id')
-    .eq('email', email)
-    .single()
-
+  const db = getServiceClient()
+  const { data: lead } = await db.from('outreach_leads').select('id').eq('email', body.email).single()
   if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
-  await db
-    .from('outreach_leads')
-    .update({ status: 'replied', replied_at: new Date().toISOString() })
-    .eq('id', lead.id)
-
-  await db
-    .from('outreach_emails')
-    .update({ status: 'cancelled' })
-    .eq('lead_id', lead.id)
-    .eq('status', 'scheduled')
+  await db.from('outreach_leads').update({ status: 'replied', replied_at: new Date().toISOString(), funnel_stage: 'replied' }).eq('id', lead.id)
+  await db.from('outreach_emails').update({ status: 'cancelled' }).eq('lead_id', lead.id).eq('status', 'scheduled')
 
   return NextResponse.json({ ok: true })
 }
