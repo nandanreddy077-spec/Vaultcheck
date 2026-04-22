@@ -1,0 +1,42 @@
+name: Vantirs Outreach Agent
+
+on:
+  schedule:
+    # Source leads — 2am UTC daily
+    - cron: '0 2 * * *'
+    # Send emails — every 30min, 9am-5pm UTC (Mon-Fri)
+    - cron: '*/30 9-17 * * 1-5'
+    # Check replies — every 2 hours
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # allow manual trigger from GitHub UI
+
+jobs:
+  source-leads:
+    if: github.event.schedule == '0 2 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger source-leads
+        run: |
+          curl -f -s "https://www.vantirs.com/api/cron/source-leads" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            | tee /dev/stderr | grep -q '"ok":true'
+
+  send-emails:
+    if: github.event.schedule == '*/30 9-17 * * 1-5' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger send-emails
+        run: |
+          curl -f -s "https://www.vantirs.com/api/cron/send-emails" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            | tee /dev/stderr | grep -q '"ok":true'
+
+  check-replies:
+    if: github.event.schedule == '0 */2 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger check-replies
+        run: |
+          curl -f -s "https://www.vantirs.com/api/cron/check-replies" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            | tee /dev/stderr | grep -q '"ok":true'

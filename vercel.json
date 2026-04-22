@@ -4,19 +4,5 @@
   "regions": ["iad1"],
   "env": {
     "NEXT_TELEMETRY_DISABLED": "1"
-  },
-  "crons": [
-    {
-      "path": "/api/cron/source-leads",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/send-emails",
-      "schedule": "*/30 9-17 * * *"
-    },
-    {
-      "path": "/api/cron/check-replies",
-      "schedule": "0 */2 * * *"
-    }
-  ]
+  }
 }
