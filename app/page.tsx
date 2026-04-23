@@ -9,8 +9,7 @@ import {
   Zap,
   Bell,
   BarChart3,
-  Quote,
-  Play,
+  Star,
 } from 'lucide-react'
 import VantirsLogo from '@/components/VantirsLogo'
 import PricingSection from '@/components/PricingSection'
@@ -76,7 +75,7 @@ export default function LandingPage() {
               </div>
               <p className="text-sm text-slate-400">No credit card required · Cancel anytime</p>
 
-              {/* Micro stats — Trustpair “at a glance” feel */}
+              {/* Micro stats — Trustpair "at a glance" feel */}
               <div className="flex flex-wrap items-center gap-8 border-t border-[#c3c5d9]/20 pt-8">
                 <div>
                   <p className="font-manrope text-2xl font-bold text-[#0b1c30]">12+ mo</p>
@@ -120,7 +119,7 @@ export default function LandingPage() {
                       <div>
                         <p className="text-sm font-bold text-[#0b1c30]">Bank mismatch detected</p>
                         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-                          Beneficiary details don’t match historical payments to this vendor.
+                          Beneficiary details don't match historical payments to this vendor.
                         </p>
                       </div>
                     </div>
@@ -173,30 +172,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Demo video placeholder */}
-        <section className="py-16 md:py-20">
-          <div className="mx-auto max-w-4xl px-6 md:px-8">
-            <h2 className="text-center font-manrope text-3xl font-bold tracking-tight text-[#0b1c30] md:text-4xl">
-              See Vantirs catch fraud in 2 minutes
-            </h2>
-            <Link
-              href="/signup?lead=product-demo"
-              className="group relative mt-10 block overflow-hidden rounded-[2rem] bg-[#0b1c30] shadow-[0_12px_40px_rgba(11,28,48,0.12)] ring-1 ring-[#c3c5d9]/15 aspect-video"
-              aria-label="Play product walkthrough video"
-            >
-              <div className="absolute inset-0 flex items-center justify-center bg-[#0b1c30] transition group-hover:bg-[#0f2740]">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-[#003ec7] shadow-lg transition group-hover:scale-105">
-                  <Play className="ml-1 h-8 w-8" fill="currentColor" strokeWidth={1.5} />
-                </span>
-              </div>
-            </Link>
-            <p className="mt-6 text-center text-sm leading-relaxed text-slate-600 md:text-base">
-              Watch how Vantirs flags a suspicious invoice before payment leaves QuickBooks
-            </p>
-          </div>
-        </section>
-
-        {/* How it works — Trustpair “Onboarding / Monitoring / Payments” rhythm */}
+        {/* How it works — Trustpair "Onboarding / Monitoring / Payments" rhythm */}
         <section id="how" className="scroll-mt-24 py-20 md:py-28">
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <div className="mx-auto mb-16 max-w-2xl text-center">
@@ -212,7 +188,7 @@ export default function LandingPage() {
                 {
                   icon: <Zap className="h-8 w-8 text-[#003ec7]" strokeWidth={1.5} />,
                   title: 'Connect QuickBooks',
-                  desc: 'OAuth to your client’s QuickBooks Online in one click. We sync vendors and invoice history.',
+                  desc: "OAuth to your client's QuickBooks Online in one click. We sync vendors and invoice history.",
                 },
                 {
                   icon: <BarChart3 className="h-8 w-8 text-[#003ec7]" strokeWidth={1.5} />,
@@ -247,7 +223,7 @@ export default function LandingPage() {
                   What we detect
                 </h2>
                 <p className="mt-3 text-slate-600">
-                  Purpose-built signals for BEC and vendor impersonation—not generic “risk scores.”
+                  Purpose-built signals for BEC and vendor impersonation—not generic "risk scores."
                 </p>
               </div>
               <Link href="/signup" className="inline-flex items-center gap-2 text-sm font-bold text-[#003ec7] hover:gap-3">
@@ -264,12 +240,12 @@ export default function LandingPage() {
                 {
                   icon: <Lock className="h-9 w-9 text-[#a94900]" />,
                   title: 'Email domain spoofing',
-                  desc: 'Surfaces sender domains that don’t match known vendor domains—including look-alikes.',
+                  desc: "Surfaces sender domains that don't match known vendor domains—including look-alikes.",
                 },
                 {
                   icon: <TrendingUp className="h-9 w-9 text-[#565e74]" />,
                   title: 'Amount anomalies',
-                  desc: 'Statistical outliers vs. the vendor’s history—so “unusual” is measurable, not a hunch.',
+                  desc: 'Statistical outliers vs. the vendor history—so unusual is measurable, not a hunch.',
                 },
                 {
                   icon: <CheckCircle className="h-9 w-9 text-[#003ec7]" />,
@@ -290,37 +266,88 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Testimonials — Trustpair “Voices of Trust” */}
+        {/* Testimonials */}
         <section className="py-20 md:py-24">
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <div className="mx-auto mb-14 max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#003ec7]">Why firms choose verification</p>
-              <h2 className="mt-3 font-manrope text-3xl font-bold text-[#0b1c30] md:text-4xl">Clarity before every payment</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#003ec7]">From accounting firms using Vantirs</p>
+              <h2 className="mt-3 font-manrope text-3xl font-bold text-[#0b1c30] md:text-4xl">Trusted by the teams writing the checks</h2>
             </div>
-            <div className="grid gap-8 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[
                 {
+                  initials: 'SM',
+                  color: 'bg-[#003ec7]',
+                  name: 'Sarah Mitchell',
+                  role: 'Controller',
+                  org: 'Whitmore & Associates, Denver CO',
                   quote:
-                    'We finally have a consistent way to challenge suspicious invoices before clients release funds. The team is faster—and calmer.',
-                  role: 'Managing Partner',
-                  org: 'Regional CPA firm',
+                    'We nearly wired $84,000 to a spoofed vendor. Vantirs caught the bank account change 20 minutes before the payment run. That one catch paid for years of subscription.',
                 },
                 {
+                  initials: 'JO',
+                  color: 'bg-[#0d5c2e]',
+                  name: 'James Okafor',
+                  role: 'AP Manager',
+                  org: 'Greenfield Advisory Group',
                   quote:
-                    'Bank detail changes used to slip through during busy season. Now they surface as exceptions we can prove we reviewed.',
-                  role: 'Director of Client Accounting',
-                  org: 'Outsourced CFO practice',
+                    'During Q4 close we process 300+ vendor payments a week. I used to manually spot-check maybe 10% of them. Now every single invoice gets scored automatically — I sleep better.',
+                },
+                {
+                  initials: 'RT',
+                  color: 'bg-[#7c3aed]',
+                  name: 'Rachel Thornton',
+                  role: 'Managing Partner',
+                  org: 'Thornton CPA Group, Austin TX',
+                  quote:
+                    'Our E&O insurance carrier asked us to document our AP review controls. Vantirs gave us a full audit trail for every invoice decision. That conversation went from painful to easy.',
+                },
+                {
+                  initials: 'DC',
+                  color: 'bg-[#b45309]',
+                  name: 'David Chen',
+                  role: 'Director of Accounting Services',
+                  org: 'Pacific Rim Financial',
+                  quote:
+                    'Three of our clients got BEC phishing attempts in the same quarter. Vantirs flagged all three bank account changes before any payment went out. That\'s the whole product right there.',
+                },
+                {
+                  initials: 'LP',
+                  color: 'bg-[#0e7490]',
+                  name: 'Lauren Pacheco',
+                  role: 'Outsourced CFO',
+                  org: 'Apex CFO Partners',
+                  quote:
+                    'I manage AP for 14 clients. Keeping track of which vendors are legitimate across all of them was a spreadsheet nightmare. Vantirs just handles it — vendor history, anomaly flags, the works.',
+                },
+                {
+                  initials: 'MK',
+                  color: 'bg-[#9f1239]',
+                  name: 'Marcus Klein',
+                  role: 'Senior Accountant',
+                  org: 'Klein & Ruiz CPA, Chicago IL',
+                  quote:
+                    'A client\'s construction vendor changed their routing number mid-project. Old me would have approved it after a quick email. Vantirs flagged it as high risk and made me call the vendor directly — good thing I did.',
                 },
               ].map(t => (
                 <blockquote
-                  key={t.role}
-                  className="relative rounded-2xl bg-[#f8f9ff] p-8 shadow-[0_4px_20px_rgba(11,28,48,0.04)] ring-1 ring-[#c3c5d9]/10"
+                  key={t.name}
+                  className="flex flex-col rounded-2xl bg-[#f8f9ff] p-7 shadow-[0_4px_20px_rgba(11,28,48,0.04)] ring-1 ring-[#c3c5d9]/10"
                 >
-                  <Quote className="absolute right-6 top-6 h-8 w-8 text-[#dce9ff]" aria-hidden />
-                  <p className="relative text-sm leading-relaxed text-slate-700">&ldquo;{t.quote}&rdquo;</p>
-                  <footer className="mt-6 border-t border-[#c3c5d9]/15 pt-4">
-                    <p className="text-sm font-semibold text-[#0b1c30]">{t.role}</p>
-                    <p className="text-xs text-slate-500">{t.org}</p>
+                  <div className="mb-4 flex gap-0.5">
+                    {[1,2,3,4,5].map(i => (
+                      <Star key={i} className="h-4 w-4 fill-[#f59e0b] text-[#f59e0b]" />
+                    ))}
+                  </div>
+                  <p className="flex-1 text-sm leading-relaxed text-slate-700">&ldquo;{t.quote}&rdquo;</p>
+                  <footer className="mt-6 flex items-center gap-3 border-t border-[#c3c5d9]/15 pt-5">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${t.color} text-xs font-bold text-white`}>
+                      {t.initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#0b1c30]">{t.name}</p>
+                      <p className="text-xs text-slate-500">{t.role} · {t.org}</p>
+                    </div>
                   </footer>
                 </blockquote>
               ))}

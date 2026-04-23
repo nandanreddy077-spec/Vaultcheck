@@ -157,6 +157,7 @@ model Invoice {
 
   @@index([clientId, status])
   @@index([vendorId])
+  @@index([vendorId, createdAt])
   @@index([createdAt])
 }
 

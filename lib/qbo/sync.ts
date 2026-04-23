@@ -1,3 +1,4 @@
+import { runConcurrently } from '@/lib/concurrency'
 import { getQBOClient } from './client'
 import { prisma } from '@/lib/prisma'
 import { calculateFingerprint } from '@/lib/fingerprint/calculate'
@@ -76,23 +77,18 @@ export async function initialSync(clientId: string) {
     )
     await syncBillPayments(clientId, billPayments)
 
-    // 3. Build fingerprints for all vendors based on paid history
+    // 3. Build fingerprints for all vendors based on paid history (parallel, 10 at a time)
     const allVendors = await prisma.vendor.findMany({ where: { clientId } })
-    for (const vendor of allVendors) {
-      await calculateFingerprint(vendor.id)
-    }
+    await runConcurrently(allVendors.map(v => () => calculateFingerprint(v.id)), 10)
 
-    // 4. Scan newly synced invoices to generate alerts/risk scores
+    // 4. Scan newly synced invoices to generate alerts/risk scores (parallel, 5 at a time)
     const invoicesToScan = await prisma.invoice.findMany({
       where: { clientId },
       select: { id: true, status: true },
     })
     const terminalStatuses = ['approved', 'rejected', 'paid']
-    for (const inv of invoicesToScan) {
-      if (!terminalStatuses.includes(inv.status)) {
-        await scanInvoice(inv.id)
-      }
-    }
+    const pendingScans = invoicesToScan.filter(inv => !terminalStatuses.includes(inv.status))
+    await runConcurrently(pendingScans.map(inv => () => scanInvoice(inv.id)), 5)
 
     await prisma.client.update({
       where: { id: clientId },
@@ -162,15 +158,13 @@ export async function incrementalSync(clientId: string) {
       affectedVendorIds.push(...result.vendorIds)
     }
 
-    // Update fingerprints only for vendors whose payment history changed
-    for (const vendorId of Array.from(new Set(affectedVendorIds))) {
-      await calculateFingerprint(vendorId)
-    }
+    // Update fingerprints only for vendors whose payment history changed (parallel)
+    const uniqueVendorIds = Array.from(new Set(affectedVendorIds))
+    await runConcurrently(uniqueVendorIds.map(id => () => calculateFingerprint(id)), 10)
 
-    // Scan invoices that were created/updated during this sync
-    for (const invoiceId of Array.from(new Set(syncedInvoiceIds))) {
-      await scanInvoice(invoiceId)
-    }
+    // Scan invoices that were created/updated during this sync (parallel)
+    const uniqueInvoiceIds = Array.from(new Set(syncedInvoiceIds))
+    await runConcurrently(uniqueInvoiceIds.map(id => () => scanInvoice(id)), 5)
 
     await prisma.client.update({
       where: { id: clientId },
@@ -194,96 +188,101 @@ export async function incrementalSync(clientId: string) {
 }
 
 async function syncVendors(clientId: string, vendors: QBOVendor[]) {
-  for (const v of vendors) {
-    const email = v.PrimaryEmailAddr?.Address
-    const emailDomain = email ? email.split('@')[1] : undefined
-
-    await prisma.vendor.upsert({
-      where: { clientId_qboVendorId: { clientId, qboVendorId: v.Id } },
-      update: {
-        displayName: v.DisplayName,
-        companyName: v.CompanyName,
-        email,
-        emailDomain,
-        phone: v.PrimaryPhone?.FreeFormNumber,
-        isActive: v.Active,
-        updatedAt: new Date(),
-      },
-      create: {
-        clientId,
-        qboVendorId: v.Id,
-        displayName: v.DisplayName,
-        companyName: v.CompanyName,
-        email,
-        emailDomain,
-        phone: v.PrimaryPhone?.FreeFormNumber,
-        isActive: v.Active,
-        firstSeenAt: new Date(v.MetaData.CreateTime),
-      },
-    })
-  }
+  await runConcurrently(
+    vendors.map(v => async () => {
+      const email = v.PrimaryEmailAddr?.Address
+      const emailDomain = email ? email.split('@')[1] : undefined
+      await prisma.vendor.upsert({
+        where: { clientId_qboVendorId: { clientId, qboVendorId: v.Id } },
+        update: {
+          displayName: v.DisplayName,
+          companyName: v.CompanyName,
+          email,
+          emailDomain,
+          phone: v.PrimaryPhone?.FreeFormNumber,
+          isActive: v.Active,
+          updatedAt: new Date(),
+        },
+        create: {
+          clientId,
+          qboVendorId: v.Id,
+          displayName: v.DisplayName,
+          companyName: v.CompanyName,
+          email,
+          emailDomain,
+          phone: v.PrimaryPhone?.FreeFormNumber,
+          isActive: v.Active,
+          firstSeenAt: new Date(v.MetaData.CreateTime),
+        },
+      })
+    }),
+    20
+  )
 }
 
 async function syncBills(
   clientId: string,
   bills: QBOBill[]
 ): Promise<{ invoiceIds: string[]; vendorIds: string[] }> {
+  // Pre-fetch all vendors for this client once, then use a map — avoids N queries
+  const allVendors = await prisma.vendor.findMany({
+    where: { clientId },
+    select: { id: true, qboVendorId: true, email: true },
+  })
+  const vendorByQboId = new Map(allVendors.map(v => [v.qboVendorId, v]))
+
   const invoiceIds: string[] = []
   const vendorIds: string[] = []
+  const mu = new Map<string, string>() // qboBillId → invoiceId
 
-  for (const b of bills) {
-    const vendor = await prisma.vendor.findFirst({
-      where: { clientId, qboVendorId: b.VendorRef.value },
-    })
+  await runConcurrently(
+    bills.map(b => async () => {
+      const vendor = vendorByQboId.get(b.VendorRef.value) ?? null
+      const bankAccountHash = b.BankAccountRef?.value
+        ? hashBankData(b.BankAccountRef.value)
+        : undefined
 
-    const bankAccountHash = b.BankAccountRef?.value
-      ? hashBankData(b.BankAccountRef.value)
-      : undefined
+      // Read existing status so we don't overwrite human decisions
+      const existing = await prisma.invoice.findFirst({
+        where: { qboBillId: b.Id },
+        select: { id: true, status: true },
+      })
+      const nextStatus = existing?.status || 'pending'
 
-    const existing = await prisma.invoice.findFirst({
-      where: { qboBillId: b.Id },
-      select: { id: true, status: true },
-    })
+      const upserted = await prisma.invoice.upsert({
+        where: { qboBillId: b.Id },
+        update: {
+          amount: b.TotalAmt,
+          invoiceNumber: b.DocNumber,
+          currency: b.CurrencyRef?.value || 'USD',
+          dueDate: b.DueDate ? new Date(b.DueDate) : undefined,
+          bankAccountHash,
+          status: nextStatus,
+          vendorId: vendor?.id,
+          senderEmail: vendor?.email,
+        },
+        create: {
+          clientId,
+          vendorId: vendor?.id,
+          qboBillId: b.Id,
+          invoiceNumber: b.DocNumber,
+          amount: b.TotalAmt,
+          currency: b.CurrencyRef?.value || 'USD',
+          dueDate: b.DueDate ? new Date(b.DueDate) : undefined,
+          bankAccountHash,
+          senderEmail: vendor?.email,
+          status: 'pending',
+          createdAt: new Date(b.TxnDate),
+        },
+      })
 
-    const nextStatus = existing?.status || 'pending'
+      mu.set(b.Id, upserted.id)
+      if (vendor?.id) vendorIds.push(vendor.id)
+    }),
+    20
+  )
 
-    const upserted = await prisma.invoice.upsert({
-      where: { qboBillId: b.Id },
-      update: {
-        amount: b.TotalAmt,
-        invoiceNumber: b.DocNumber,
-        currency: b.CurrencyRef?.value || 'USD',
-        dueDate: b.DueDate ? new Date(b.DueDate) : undefined,
-        bankAccountHash,
-        // Preserve any human decision (approved/rejected) and avoid wiping it on sync.
-        status: nextStatus,
-        vendorId: vendor?.id,
-        senderEmail: vendor?.email,
-      },
-      create: {
-        clientId,
-        vendorId: vendor?.id,
-        qboBillId: b.Id,
-        invoiceNumber: b.DocNumber,
-        amount: b.TotalAmt,
-        currency: b.CurrencyRef?.value || 'USD',
-        dueDate: b.DueDate ? new Date(b.DueDate) : undefined,
-        bankAccountHash,
-        senderEmail: vendor?.email,
-        status: 'pending',
-        // Use QuickBooks transaction date for fingerprinting and frequency anomalies.
-        createdAt: new Date(b.TxnDate),
-      },
-    })
-
-    // Vendor.lastPaymentAt is updated during BillPayment sync (paid invoices),
-    // not during Bill sync.
-
-    // Track what changed so we can rescan/recompute fingerprints
-    invoiceIds.push(upserted.id)
-    if (vendor?.id) vendorIds.push(vendor.id)
-  }
-
+  for (const id of mu.values()) invoiceIds.push(id)
   return { invoiceIds, vendorIds }
 }
 

@@ -45,6 +45,9 @@ export default function AlertsPage() {
   useEffect(() => { load() }, [filter]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function resolve(alertId: string, resolution: string) {
+    // Optimistic: remove immediately so the UI feels instant
+    const prevAlerts = alerts
+    setAlerts(prev => prev.filter(a => a.id !== alertId))
     setResolving(alertId)
     setError(null)
     try {
@@ -58,8 +61,9 @@ export default function AlertsPage() {
         const data = text ? JSON.parse(text) : null
         throw new Error(data?.error || 'Failed to resolve alert')
       }
-      await load()
     } catch (e) {
+      // Restore list on failure
+      setAlerts(prevAlerts)
       setError(e instanceof Error ? e.message : 'Failed to resolve alert')
     } finally {
       setResolving(null)
