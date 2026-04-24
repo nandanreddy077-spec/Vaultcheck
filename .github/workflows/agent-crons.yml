@@ -8,6 +8,8 @@ on:
     - cron: '*/30 9-17 * * 1-5'
     # Check replies — every 2 hours
     - cron: '0 */2 * * *'
+    # Continuous validation rescan — 3am UTC daily
+    - cron: '0 3 * * *'
   workflow_dispatch: # allow manual trigger from GitHub UI
 
 jobs:
@@ -40,3 +42,13 @@ jobs:
           curl -f -s "https://www.vantirs.com/api/cron/check-replies" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | tee /dev/stderr | grep -q '"ok":true'
+
+  rescan-invoices:
+    if: github.event.schedule == '0 3 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Continuous validation — rescan open invoices
+        run: |
+          curl -f -s -X POST "https://www.vantirs.com/api/cron/rescan" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            | tee /dev/stderr

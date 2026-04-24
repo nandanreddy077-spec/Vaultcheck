@@ -199,6 +199,29 @@ model Invitation {
   @@index([firmId, status])
 }
 
+// ─── Shared Threat Intelligence ─────────────────────────────────────────────
+// When any firm confirms a vendor as fraud, the signal is shared across all
+// Vantirs clients — so Vendor X flagged by Firm A warns Firm B automatically.
+
+model GlobalThreatFlag {
+  id           String   @id @default(cuid())
+  // Normalized vendor identifiers — any non-null match triggers a warning
+  vendorName   String?  // lowercased display name
+  emailDomain  String?  // e.g. "acme-invoices.com"
+  bankHash     String?  // hash of the fraudulent bank account
+  // Source
+  flaggedByFirmId String
+  reason          String  // "bank_fraud" | "impersonation" | "bec" | "other"
+  notes           String?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  @@index([emailDomain])
+  @@index([bankHash])
+  @@index([vendorName])
+  @@index([active])
+}
+
 model AuditLog {
   id         String   @id @default(cuid())
   firmId     String
