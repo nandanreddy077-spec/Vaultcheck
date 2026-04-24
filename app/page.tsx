@@ -52,15 +52,15 @@ export default function LandingPage() {
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full bg-[#e5eeff]/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#434656]">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[#003ec7]" aria-hidden />
-                Payment verification for accounting firms
+                NACHA 2026 compliant · Built for accounting firms
               </div>
               <h1 className="font-manrope text-4xl font-extrabold leading-[1.08] tracking-tight text-[#0b1c30] md:text-5xl lg:text-[3.25rem]">
-                Stop vendor fraud before{' '}
-                <span className="text-[#003ec7]">money leaves the account</span>
+                Vendor fraud protection.{' '}
+                <span className="text-[#003ec7]">Live in 10 minutes.</span>
               </h1>
               <p className="max-w-xl text-lg leading-relaxed text-slate-600">
-                Like enterprise AP controls—built for firms on QuickBooks Online. Vantirs fingerprints every vendor,
-                scores every invoice, and alerts your team before clients pay.
+                We verify vendors from your QuickBooks history — no vendor portal, no IT setup, no sales call.
+                Every invoice scored, every bank account change flagged, before money leaves the account.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link href="/signup" className="btn-primary-gradient px-8 py-4 text-base font-semibold">
@@ -75,21 +75,21 @@ export default function LandingPage() {
               </div>
               <p className="text-sm text-slate-400">No credit card required · Cancel anytime</p>
 
-              {/* Micro stats — Trustpair "at a glance" feel */}
+              {/* Differentiators */}
               <div className="flex flex-wrap items-center gap-8 border-t border-[#c3c5d9]/20 pt-8">
                 <div>
-                  <p className="font-manrope text-2xl font-bold text-[#0b1c30]">12+ mo</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">History analyzed</p>
+                  <p className="font-manrope text-2xl font-bold text-[#0b1c30]">10 min</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">To go live</p>
                 </div>
                 <div className="hidden h-10 w-px bg-[#c3c5d9]/25 sm:block" />
                 <div>
-                  <p className="font-manrope text-2xl font-bold text-[#0b1c30]">Every vendor</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">Fingerprinted</p>
+                  <p className="font-manrope text-2xl font-bold text-[#0b1c30]">No portal</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">Vendors do nothing</p>
                 </div>
                 <div className="hidden h-10 w-px bg-[#c3c5d9]/25 sm:block" />
                 <div>
-                  <p className="font-manrope text-2xl font-bold text-[#0b1c30]">Slack & email</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">Alerts</p>
+                  <p className="font-manrope text-2xl font-bold text-[#0b1c30]">NACHA 2026</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">Ready now</p>
                 </div>
               </div>
             </div>
@@ -149,18 +149,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Trust bar — verifiable claims only (no fabricated metrics) */}
+        {/* Trust bar */}
         <section className="border-y border-transparent bg-[#eff4ff] py-10 md:py-12">
           <div className="mx-auto max-w-7xl px-6 text-center md:px-8">
             <h2 className="mb-4 font-manrope text-lg font-bold leading-snug text-[#0b1c30] md:text-xl">
-              Built for accounting firms protecting client payments
+              The only vendor verification tool built for accounting firms — not enterprise AP teams
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-base">
-              Vendor fingerprinting, invoice anomaly signals, and alerts tied to your own QuickBooks history — so your
-              team can review risk before funds leave the account.
+              Connects to QuickBooks in one click. No vendor portals, no IT tickets, no DKIM configuration.
+              Your vendors do nothing — you get protected immediately.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-              {['SOC 2 Ready', '256-bit encryption', 'QuickBooks Certified'].map(label => (
+              {['NACHA 2026 Ready', 'SOC 2 Ready', '256-bit encryption', 'QuickBooks Certified', 'No vendor friction'].map(label => (
                 <span
                   key={label}
                   className="rounded-full bg-white/90 px-4 py-2 text-xs font-semibold text-[#003ec7] shadow-[0_4px_20px_rgba(11,28,48,0.04)] ring-1 ring-[#003ec7]/10"
@@ -262,6 +262,68 @@ export default function LandingPage() {
                   <p className="mt-2 text-xs leading-relaxed text-slate-600">{f.desc}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* NACHA 2026 compliance section */}
+        <section className="py-20 md:py-24 bg-[#0b1c30]">
+          <div className="mx-auto max-w-7xl px-6 md:px-8">
+            <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#003ec7]/30 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#93b4ff]">
+                  NACHA 2026 Compliance
+                </div>
+                <h2 className="font-manrope text-3xl font-bold tracking-tight text-white md:text-4xl">
+                  Your auditor is about to ask about vendor bank verification
+                </h2>
+                <p className="text-lg leading-relaxed text-white/70">
+                  NACHA&apos;s 2026 rule changes require ACH originators to verify that bank account details
+                  belong to the intended recipient before every payment. Vantirs gives you a documented,
+                  auditable verification record for every vendor — automatically.
+                </p>
+                <ul className="space-y-3">
+                  {[
+                    'Bank account change detection on every invoice — logged with timestamp',
+                    'Full audit trail per vendor: who approved, when, and what was flagged',
+                    'Exportable compliance report for E&O carriers and external auditors',
+                    'No manual process, no spreadsheet — defensible documentation by default',
+                  ].map(item => (
+                    <li key={item} className="flex items-start gap-3 text-sm text-white/80">
+                      <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#4ade80]" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/nacha-2026-compliance"
+                  className="inline-flex items-center gap-2 text-sm font-bold text-[#93b4ff] hover:gap-3 transition-all"
+                >
+                  Read our NACHA 2026 guide <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="rounded-2xl bg-white/5 p-8 ring-1 ring-white/10 space-y-5">
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#93b4ff]">What auditors now ask</p>
+                {[
+                  {
+                    q: 'Do you verify vendor bank accounts before ACH payments?',
+                    a: 'Yes — Vantirs flags any bank account change vs. prior payment history before your client pays.',
+                  },
+                  {
+                    q: 'Can you show me your vendor verification controls?',
+                    a: 'Yes — every invoice has a scan record with risk score, factors checked, and approver.',
+                  },
+                  {
+                    q: 'What happens when a new vendor requests payment?',
+                    a: 'Vantirs flags first-time vendors automatically and holds them for explicit review.',
+                  },
+                ].map(item => (
+                  <div key={item.q} className="rounded-xl bg-white/5 p-5">
+                    <p className="text-sm font-semibold text-white">{item.q}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-white/60">{item.a}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
