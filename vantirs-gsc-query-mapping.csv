@@ -1,0 +1,45 @@
+URL,Query,Impressions,Clicks,Avg Position,Notes
+/blog/bec-scam-accounts-payable-case-study,BEC scam accounts payable,420,12,18.4,Primary keyword — case study intent
+/blog/bec-scam-accounts-payable-case-study,BEC scam accounts payable case study,310,9,14.2,Exact target keyword
+/blog/bec-scam-accounts-payable-case-study,business email compromise accounts payable,280,7,22.1,Semantic variant — high volume
+/blog/bec-scam-accounts-payable-case-study,BEC attack finance team,195,5,28.7,Semantic variant
+/blog/bec-scam-accounts-payable-case-study,BEC wire transfer fraud,170,4,31.2,Related — transactional overlap
+/blog/bec-scam-accounts-payable-case-study,accounts payable wire fraud case study,145,3,19.8,Long-tail — informational
+/blog/bec-scam-accounts-payable-case-study,how BEC scam works AP,120,2,35.6,Long-tail — informational
+/blog/bec-scam-accounts-payable-case-study,invoice fraud $500k,88,1,41.2,Triggered by dollar figure in H1
+/blog/bec-scam-accounts-payable-case-study,vendor email compromise case study,72,1,44.8,Related — VEC variant
+/blog/accounts-payable-fraud-schemes-2026,accounts payable fraud schemes 2026,510,14,12.3,Exact target keyword
+/blog/accounts-payable-fraud-schemes-2026,accounts payable fraud 2026,440,11,15.7,Primary keyword — no "schemes"
+/blog/accounts-payable-fraud-schemes-2026,AP fraud schemes,380,9,18.2,Shortened variant
+/blog/accounts-payable-fraud-schemes-2026,accounts payable fraud examples,310,7,21.4,Semantic — informational
+/blog/accounts-payable-fraud-schemes-2026,types of AP fraud,265,6,24.8,Informational — general
+/blog/accounts-payable-fraud-schemes-2026,synthetic vendor fraud,198,4,33.1,Scheme-specific — triggers from section H2
+/blog/accounts-payable-fraud-schemes-2026,AI invoice fraud 2026,175,3,29.6,Overlap with AI post — cannibalization risk
+/blog/accounts-payable-fraud-schemes-2026,ghost vendor fraud detection,142,2,37.8,Scheme-specific
+/blog/accounts-payable-fraud-schemes-2026,insider fraud accounts payable,118,2,42.1,Scheme-specific
+/blog/vendor-bank-account-change-fraud,vendor bank account change fraud,620,18,9.8,Exact target keyword — strongest in set
+/blog/vendor-bank-account-change-fraud,bank account change request scam,490,14,12.4,Semantic variant — high volume
+/blog/vendor-bank-account-change-fraud,vendor payment diversion fraud,380,10,16.2,Semantic variant
+/blog/vendor-bank-account-change-fraud,AP bank account verification,310,8,19.7,Related — commercial investigation
+/blog/vendor-bank-account-change-fraud,how to verify vendor bank details,270,7,22.3,Informational — process query
+/blog/vendor-bank-account-change-fraud,spoofed domain vendor fraud,195,4,31.4,Attack pattern from post
+/blog/vendor-bank-account-change-fraud,vendor email compromise bank change,155,3,36.9,Related — VEC overlap
+/blog/vendor-bank-account-change-fraud,prevent fraudulent wire transfer,138,2,39.2,Informational/transactional mix
+/blog/ai-generated-fake-invoice-detection,AI generated fake invoice detection,480,13,11.6,Exact target keyword
+/blog/ai-generated-fake-invoice-detection,fake invoice AI detection,420,11,14.8,Primary variant — shorter form
+/blog/ai-generated-fake-invoice-detection,AI invoice fraud prevention,355,9,17.3,Commercial investigation
+/blog/ai-generated-fake-invoice-detection,detect fake invoices accounts payable,295,7,20.9,Long-tail — informational
+/blog/ai-generated-fake-invoice-detection,AI-generated invoice scam,240,6,24.1,Semantic variant
+/blog/ai-generated-fake-invoice-detection,how to spot AI fake invoice,205,5,27.8,How-to — informational
+/blog/ai-generated-fake-invoice-detection,generative AI invoice fraud,170,4,32.4,Tech-forward variant
+/blog/ai-generated-fake-invoice-detection,FraudGPT fake invoice,112,2,41.7,Trending — AI fraud tool specific
+/blog/ai-generated-fake-invoice-detection,AI invoice forgery detection,98,1,45.2,Long-tail variant
+/blog/cfo-payment-fraud-risk-checklist,payment fraud risk checklist CFO,540,16,10.2,Exact target keyword
+/blog/cfo-payment-fraud-risk-checklist,CFO payment fraud checklist,470,13,13.5,Primary variant — brand-role query
+/blog/cfo-payment-fraud-risk-checklist,payment fraud controls checklist,395,10,16.8,Semantic variant
+/blog/cfo-payment-fraud-risk-checklist,accounts payable fraud controls checklist,320,8,20.1,Long-tail — AP team search
+/blog/cfo-payment-fraud-risk-checklist,invoice fraud internal controls,265,6,23.7,Related — audit/compliance angle
+/blog/cfo-payment-fraud-risk-checklist,payment fraud prevention checklist,228,5,26.4,General variant
+/blog/cfo-payment-fraud-risk-checklist,AP fraud checklist 20 controls,185,4,30.8,Specific to post's "20 controls" hook
+/blog/cfo-payment-fraud-risk-checklist,how to prevent payment fraud CFO,152,3,35.2,How-to variant — informational
+/blog/cfo-payment-fraud-risk-checklist,fraud risk assessment accounts payable,118,2,40.6,Related — audit/compliance

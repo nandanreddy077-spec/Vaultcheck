@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "Vantirs Dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/nandanreddyavanaganti/Vaultcheck && npm run dev"],
       "port": 3000,
       "autoPort": false
     },
