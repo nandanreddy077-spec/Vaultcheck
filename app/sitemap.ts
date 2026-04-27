@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { getSiteUrl } from '@/lib/site-url'
+import { getProgrammaticPaths } from '@/lib/programmatic-seo'
 
 const FALLBACK_SITE_URL = 'https://www.vantirs.com'
 
@@ -90,7 +91,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   try {
     const base = getSiteUrl() || FALLBACK_SITE_URL
     const now = new Date()
-    const uniquePaths = Array.from(new Set(paths))
+    const programmaticPaths = getProgrammaticPaths()
+    const uniquePaths = Array.from(new Set([...paths, ...programmaticPaths]))
 
     return uniquePaths.map(path => ({
       url: new URL(path === '/' ? '/' : path, base).toString(),
