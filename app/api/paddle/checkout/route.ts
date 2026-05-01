@@ -18,23 +18,23 @@ function planToPriceAndMaxClients(plan: Plan): { priceId: string; maxClients: nu
       break
     case 'pilot':
       priceId = process.env.PADDLE_PRICE_PILOT
-      maxClients = 20
+      maxClients = 50
       break
     case 'starter':
       priceId = process.env.PADDLE_PRICE_STARTER
-      maxClients = 15
+      maxClients = 25
       break
     case 'growth':
       priceId = process.env.PADDLE_PRICE_GROWTH
-      maxClients = 35
+      maxClients = 75
       break
     case 'scale':
       priceId = process.env.PADDLE_PRICE_SCALE
-      maxClients = 50
+      maxClients = 200
       break
     case 'whitelabel':
       priceId = process.env.PADDLE_PRICE_WHITELABEL
-      maxClients = 75
+      maxClients = 200
       break
     case 'enterprise':
       priceId = process.env.PADDLE_PRICE_ENTERPRISE

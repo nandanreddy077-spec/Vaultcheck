@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/agent/supabase'
+import { verifyCronAuthorization } from '@/lib/cron-auth'
 import {
   getSendCounts,
   pickAvailableAccount,
@@ -8,14 +9,12 @@ import {
   delay,
 } from '@/lib/agent/email-sender'
 
-function verifyCron(req: Request) {
-  const auth = req.headers.get('authorization')
-  return auth === `Bearer ${process.env.CRON_SECRET}`
-}
-
 export async function GET(req: Request) {
-  if (!verifyCron(req)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const cronAuth = verifyCronAuthorization(req)
+  if (cronAuth !== 'ok') {
+    const status = cronAuth === 'misconfigured' ? 503 : 401
+    const error = cronAuth === 'misconfigured' ? 'Server misconfigured' : 'Unauthorized'
+    return NextResponse.json({ error }, { status })
   }
 
   const db: any = getServiceClient()

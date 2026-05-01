@@ -3,12 +3,8 @@ import { getServiceClient } from '@/lib/agent/supabase'
 import { analyzeReply } from '@/lib/agent/reply-handler'
 import { sendAutoResponse } from '@/lib/agent/auto-responder'
 import { getAccounts } from '@/lib/agent/email-sender'
+import { verifyCronAuthorization } from '@/lib/cron-auth'
 import imaps from 'imap-simple'
-
-function verifyCron(req: Request) {
-  const auth = req.headers.get('authorization')
-  return auth === `Bearer ${process.env.CRON_SECRET}`
-}
 
 interface GmailConfig {
   user: string
@@ -83,7 +79,12 @@ async function fetchInboundReplies(account: GmailConfig, leadEmails: Set<string>
 }
 
 export async function GET(req: Request) {
-  if (!verifyCron(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const cronAuth = verifyCronAuthorization(req)
+  if (cronAuth !== 'ok') {
+    const status = cronAuth === 'misconfigured' ? 503 : 401
+    const error = cronAuth === 'misconfigured' ? 'Server misconfigured' : 'Unauthorized'
+    return NextResponse.json({ error }, { status })
+  }
 
   const db = getServiceClient() as ReturnType<typeof getServiceClient>
   const { data: run } = await db.from('agent_runs').insert({ run_type: 'check-replies', status: 'running' }).select().single()
@@ -199,7 +200,12 @@ export async function GET(req: Request) {
 // Manual webhook — mark lead replied (from Zapier/n8n Gmail filter)
 export async function POST(req: Request) {
   const body = await req.json()
-  if (body.secret !== process.env.CRON_SECRET) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!process.env.CRON_SECRET) {
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 503 })
+  }
+  if (body.secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   if (!body.email) return NextResponse.json({ error: 'email required' }, { status: 400 })
 
   const db = getServiceClient()

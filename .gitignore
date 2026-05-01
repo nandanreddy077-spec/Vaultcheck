@@ -38,3 +38,13 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# LibreOffice/Excel temp lock files
+.~lock.*#
+
+# Spreadsheets with lead data — keep out of version control
+*.xlsx
+*.csv
+
+# Claude Code worktrees
+.claude/worktrees/

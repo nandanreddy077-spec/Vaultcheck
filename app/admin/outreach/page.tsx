@@ -1,12 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-const db = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface Stats {
   total_leads: number
@@ -47,36 +41,27 @@ export default function OutreachDashboard() {
   const [runs, setRuns] = useState<RunLog[]>([])
   const [emails, setEmails] = useState<RecentEmail[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
-      const [leadsRes, emailsRes, runsRes, todayEmailsRes] = await Promise.all([
-        db.from('outreach_leads').select('status'),
-        db.from('outreach_emails')
-          .select('*, outreach_leads(first_name, last_name, company_name, email)')
-          .order('created_at', { ascending: false })
-          .limit(20),
-        db.from('agent_runs').select('*').order('started_at', { ascending: false }).limit(10),
-        db.from('outreach_emails').select('id').eq('status', 'sent').gte('sent_at', new Date().toISOString().split('T')[0]),
-      ])
+      try {
+        const res = await fetch('/api/admin/outreach/summary', { cache: 'no-store' })
+        const data = await res.json()
 
-      const leads = leadsRes.data ?? []
-      const scheduled = (emailsRes.data ?? []).filter((e: RecentEmail) => e.status === 'scheduled').length
+        if (!res.ok) {
+          throw new Error(data?.error || `Failed to load outreach summary (${res.status})`)
+        }
 
-      setStats({
-        total_leads: leads.length,
-        active_leads: leads.filter((l: { status: string }) => l.status === 'active').length,
-        replied_leads: leads.filter((l: { status: string }) => l.status === 'replied').length,
-        emails_sent_today: todayEmailsRes.data?.length ?? 0,
-        emails_scheduled: scheduled,
-        qualified_rate: leads.length > 0
-          ? Math.round((leads.filter((l: { status: string }) => ['active', 'replied'].includes(l.status)).length / leads.length) * 100)
-          : 0,
-      })
-
-      setRuns(runsRes.data ?? [])
-      setEmails(emailsRes.data ?? [])
-      setLoading(false)
+        setStats(data.stats ?? null)
+        setRuns(data.runs ?? [])
+        setEmails(data.emails ?? [])
+        setLoadError(null)
+      } catch (error) {
+        setLoadError(error instanceof Error ? error.message : 'Failed to load outreach summary')
+      } finally {
+        setLoading(false)
+      }
     }
 
     load()
@@ -99,6 +84,12 @@ export default function OutreachDashboard() {
           <h1 className="text-2xl font-bold text-white">Outreach Agent</h1>
           <p className="text-gray-400 text-sm mt-1">Vantirs 24/7 automated prospecting</p>
         </div>
+
+        {loadError && (
+          <div className="rounded-lg border border-red-700 bg-red-900/30 px-4 py-3 text-sm text-red-200">
+            {loadError}
+          </div>
+        )}
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

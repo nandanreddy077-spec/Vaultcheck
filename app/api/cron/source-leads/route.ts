@@ -3,18 +3,17 @@ import { fetchLeadsFromApollo, saveLeadsToDb } from '@/lib/agent/apollo'
 import { detectPainSignals } from '@/lib/agent/pain-detector'
 import { generateEmail, SEQUENCE_DELAYS_DAYS } from '@/lib/agent/email-generator'
 import { getServiceClient } from '@/lib/agent/supabase'
+import { verifyCronAuthorization } from '@/lib/cron-auth'
 import { addDays } from 'date-fns'
 
 const DAILY_LIMIT = parseInt(process.env.DAILY_LEAD_LIMIT ?? '20')
 
-function verifyCron(req: Request) {
-  const auth = req.headers.get('authorization')
-  return auth === `Bearer ${process.env.CRON_SECRET}`
-}
-
 export async function GET(req: Request) {
-  if (!verifyCron(req)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const cronAuth = verifyCronAuthorization(req)
+  if (cronAuth !== 'ok') {
+    const status = cronAuth === 'misconfigured' ? 503 : 401
+    const error = cronAuth === 'misconfigured' ? 'Server misconfigured' : 'Unauthorized'
+    return NextResponse.json({ error }, { status })
   }
 
   const db: any = getServiceClient()

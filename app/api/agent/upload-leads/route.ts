@@ -2,15 +2,18 @@ import { NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/agent/supabase'
 import { detectPainSignals } from '@/lib/agent/pain-detector'
 import { generateEmail, SEQUENCE_DELAYS_DAYS } from '@/lib/agent/email-generator'
+import { verifyCronAuthorization } from '@/lib/cron-auth'
 import { addDays } from 'date-fns'
 
 // POST /api/agent/upload-leads
 // Body: JSON array of leads
 // Auth: Authorization: Bearer CRON_SECRET
 export async function POST(req: Request) {
-  const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const cronAuth = verifyCronAuthorization(req)
+  if (cronAuth !== 'ok') {
+    const status = cronAuth === 'misconfigured' ? 503 : 401
+    const error = cronAuth === 'misconfigured' ? 'Server misconfigured' : 'Unauthorized'
+    return NextResponse.json({ error }, { status })
   }
 
   const body = await req.json()
