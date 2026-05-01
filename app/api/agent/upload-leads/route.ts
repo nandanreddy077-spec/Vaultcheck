@@ -96,7 +96,7 @@ export async function POST(req: Request) {
         painSignals
       )
       const sendAt = addDays(new Date(), SEQUENCE_DELAYS_DAYS[step])
-      sendAt.setHours(10, 0, 0, 0)
+      sendAt.setUTCHours(10, 0, 0, 0)
       await db.from('outreach_emails').insert({
         lead_id: saved_lead.id, step, subject: email.subject, body: email.body,
         psychology_angle: email.psychology_angle, status: 'scheduled', scheduled_at: sendAt.toISOString(),

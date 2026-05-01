@@ -86,7 +86,7 @@ export async function GET(req: Request) {
 
       const sendAt = addDays(new Date(), SEQUENCE_DELAYS_DAYS[1])
       // Schedule during business hours (10am local-ish)
-      sendAt.setHours(10, 0, 0, 0)
+      sendAt.setUTCHours(10, 0, 0, 0)
 
       await db.from('outreach_emails').insert({
         lead_id: lead.id,
@@ -106,7 +106,7 @@ export async function GET(req: Request) {
           painSignals
         )
         const stepDate = addDays(new Date(), SEQUENCE_DELAYS_DAYS[step])
-        stepDate.setHours(10, 0, 0, 0)
+        stepDate.setUTCHours(10, 0, 0, 0)
 
         await db.from('outreach_emails').insert({
           lead_id: lead.id,

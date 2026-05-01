@@ -180,6 +180,7 @@ model Alert {
   client  Client  @relation(fields: [clientId], references: [id])
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 
+  @@unique([invoiceId, type])
   @@index([clientId, status])
   @@index([severity])
 }
