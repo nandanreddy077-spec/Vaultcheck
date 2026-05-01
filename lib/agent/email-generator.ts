@@ -12,11 +12,11 @@ export interface GeneratedEmail {
 }
 
 const ANGLE_INSTRUCTIONS: Record<PsychAngle, string> = {
-  loss_aversion: `Use loss aversion psychology. Frame around what they stand to lose, not what they gain. One fake invoice from a construction GC can cost them a client relationship worth $30k/yr — not just the $5k invoice. Make the threat feel specific and imminent, not generic. Never use the word "unfortunately".`,
+  loss_aversion: `Use loss aversion + NACHA 2026 compliance urgency. The NACHA Phase 2 deadline is June 22, 2026 — every firm that originates ACH payments for clients (including bookkeepers and virtual CFOs) now legally needs documented, risk-based fraud monitoring or faces fines and corrective action plans. Frame around two things they stand to lose: (1) a client relationship when a fake vendor bank change goes through on their watch, and (2) NACHA compliance exposure if they have no documented controls. Make the deadline feel real and specific — "June 22" not "soon". Never use the word "unfortunately".`,
 
-  social_proof: `Use social proof. Reference that other accountants in their region (mention their state or a nearby major city) are already using this. Specificity beats volume — "3 CPA firms in Texas" beats "hundreds of firms". Keep it believable, not braggy.`,
+  social_proof: `Use social proof. Reference that other bookkeeping and virtual CFO firms in their region (mention their state or a nearby major city) are already using this to stay NACHA 2026 compliant. Specificity beats volume — "3 outsourced CFO firms in Texas" beats "hundreds of firms". Keep it believable, not braggy.`,
 
-  reciprocity: `Use reciprocity. Lead with giving — offer a free BEC fraud prevention checklist (5 questions they should ask every new vendor before paying). Ask for nothing in return except 2 minutes. The ask (a call) comes at the end, almost as an afterthought.`,
+  reciprocity: `Use reciprocity. Lead with giving — offer a free vendor payment verification checklist (5 questions every bookkeeping firm should ask before processing a vendor bank change). Mention it was built specifically for the NACHA 2026 ACH monitoring requirement. Ask for nothing in return except 2 minutes. The ask (a call) comes at the end, almost as an afterthought.`,
 
   bump: `This is a follow-up bump. 1-2 sentences max. Casual. No pitch. Just checking if the first email landed. Sound like a human who actually cares, not a bot. Don't re-pitch.`,
 
@@ -64,6 +64,7 @@ RULES (non-negotiable):
 6. No bullet points. Plain prose only.
 7. Sign off as: "— Nandan, Vantirs"
 8. Subject line: max 8 words, no clickbait, sounds like it came from a real person
+9. End the body (after the sign-off) with exactly this line on its own: "To opt out, reply with 'unsubscribe' and I'll remove you immediately."
 
 Respond ONLY with JSON (no markdown):
 {

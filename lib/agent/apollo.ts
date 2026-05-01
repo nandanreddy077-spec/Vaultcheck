@@ -23,25 +23,27 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   const apiKey = process.env.APOLLO_API_KEY
   if (!apiKey) throw new Error('APOLLO_API_KEY not set')
 
-  // Target: accounting leaders likely to serve construction/real-estate clients.
-  // Apollo validates many filters strictly, so keep this payload conservative.
+  // ICP: owners/operators of virtual CFO and outsourced bookkeeping firms, 5-20 employees,
+  // actively managing AP for SMB clients (construction, real estate, healthcare) in QBO.
+  // Exclude tax-only CPAs — they don't process AP and won't convert.
   const payload = {
     page: 1,
     per_page: Math.min(Math.max(limit, 1), 100),
     person_titles: [
-      'QuickBooks ProAdvisor',
-      'Certified QuickBooks ProAdvisor',
+      'Virtual CFO',
+      'Outsourced CFO',
+      'Fractional CFO',
+      'Controller',
+      'Bookkeeper',
+      'Accounting Manager',
       'Owner',
-      'Partner',
       'Managing Partner',
       'Principal',
-      'CPA',
-      'Controller',
-      'Accounting Manager',
     ],
     person_locations: ['United States'],
     contact_email_status: ['verified'],
-    q_keywords: 'accounting bookkeeping cpa quickbooks construction real estate',
+    organization_num_employees_ranges: ['1,20'],
+    q_keywords: 'bookkeeping virtual cfo outsourced accounting quickbooks construction real estate healthcare',
     sort_by_field: 'last_activity_date',
     sort_ascending: false,
   }
