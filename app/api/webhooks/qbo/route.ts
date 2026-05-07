@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import crypto from 'crypto'
 import { captureException } from '@/lib/monitoring'
 import { prisma } from '@/lib/prisma'
-import { enqueueQboSync } from '@/lib/queue/qbo'
+import { incrementalSync } from '@/lib/qbo/sync'
 import { enforceRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 
 function timingSafeEqual(a: string, b: string) {
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         }>)
       : []
 
-    let enqueued = 0
+    const clientIdsToSync: string[] = []
 
     for (const n of notifications) {
       const realmId = n.realmId
@@ -80,11 +80,21 @@ export async function POST(req: NextRequest) {
         entities.includes('Bill') || entities.includes('BillPayment') || entities.includes('Vendor')
       if (!isRelevant) continue
 
-      await enqueueQboSync({ clientId: client.id, type: 'incremental' })
-      enqueued += 1
+      clientIdsToSync.push(client.id)
     }
 
-    return NextResponse.json({ ok: true, enqueued })
+    // Run syncs after responding so QBO gets a fast 200 and doesn't retry.
+    after(async () => {
+      for (const clientId of clientIdsToSync) {
+        try {
+          await incrementalSync(clientId)
+        } catch (err) {
+          captureException(err, { tags: { route: 'api/webhooks/qbo', clientId } })
+        }
+      }
+    })
+
+    return NextResponse.json({ ok: true, syncing: clientIdsToSync.length })
   } catch (err) {
     captureException(err, {
       tags: { route: 'api/webhooks/qbo', service: 'qbo' },

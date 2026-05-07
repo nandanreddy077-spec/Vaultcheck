@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     await prisma.firm.update({
       where: { id: dbUser.firmId },
-      data: { plan: 'pilot', maxClients: 50, pilotExpiresAt },
+      data: { plan: 'pilot', maxClients: 200, pilotExpiresAt },
     })
 
     await prisma.auditLog.create({
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         action: 'plan.outreach_coupon_redeemed',
         entityType: 'firm',
         entityId: dbUser.firmId,
-        details: { plan: 'pilot', maxClients: 50, pilotExpiresAt: pilotExpiresAt.toISOString() },
+        details: { plan: 'pilot', maxClients: 200, pilotExpiresAt: pilotExpiresAt.toISOString() },
       },
     })
 

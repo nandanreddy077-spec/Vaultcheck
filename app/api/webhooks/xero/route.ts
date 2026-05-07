@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import crypto from 'crypto'
 import { captureException } from '@/lib/monitoring'
 import { prisma } from '@/lib/prisma'
-import { enqueueXeroSync } from '@/lib/queue/xero'
+import { incrementalSync } from '@/lib/xero/sync'
 import { enforceRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, { status: 200 })
     }
 
-    let enqueued = 0
+    const clientIdsToSync: string[] = []
 
     for (const event of events) {
       const tenantId = event.tenantId
@@ -73,11 +73,21 @@ export async function POST(req: NextRequest) {
         category === 'PURCHASE_ORDER'
       if (!isRelevant) continue
 
-      await enqueueXeroSync({ clientId: client.id, type: 'incremental' })
-      enqueued += 1
+      clientIdsToSync.push(client.id)
     }
 
-    return NextResponse.json({ ok: true, enqueued })
+    // Run syncs after responding so Xero gets a fast 200 and doesn't retry.
+    after(async () => {
+      for (const clientId of clientIdsToSync) {
+        try {
+          await incrementalSync(clientId)
+        } catch (err) {
+          captureException(err, { tags: { route: 'api/webhooks/xero', clientId } })
+        }
+      }
+    })
+
+    return NextResponse.json({ ok: true, syncing: clientIdsToSync.length })
   } catch (err) {
     captureException(err, {
       tags: { route: 'api/webhooks/xero', service: 'xero' },

@@ -7,12 +7,9 @@ import { enforceRateLimit } from '@/lib/rate-limit'
 
 function planFromPaddlePriceId(priceId: string | undefined): PlanFromPrice | undefined {
   if (!priceId) return undefined
-  if (priceId === process.env.PADDLE_PRICE_SOLO) return { plan: 'solo', maxClients: 5 }
-  if (priceId === process.env.PADDLE_PRICE_PILOT) return { plan: 'pilot', maxClients: 20 }
-  if (priceId === process.env.PADDLE_PRICE_STARTER) return { plan: 'starter', maxClients: 15 }
-  if (priceId === process.env.PADDLE_PRICE_GROWTH) return { plan: 'growth', maxClients: 35 }
-  if (priceId === process.env.PADDLE_PRICE_SCALE) return { plan: 'scale', maxClients: 50 }
-  if (priceId === process.env.PADDLE_PRICE_WHITELABEL) return { plan: 'whitelabel', maxClients: 75 }
+  if (priceId === process.env.PADDLE_PRICE_STARTER) return { plan: 'starter', maxClients: 25 }
+  if (priceId === process.env.PADDLE_PRICE_GROWTH) return { plan: 'growth', maxClients: 75 }
+  if (priceId === process.env.PADDLE_PRICE_SCALE) return { plan: 'scale', maxClients: 200 }
   if (priceId === process.env.PADDLE_PRICE_ENTERPRISE) return { plan: 'enterprise', maxClients: 9999 }
   return undefined
 }

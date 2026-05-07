@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { CheckCircle, Tag, Zap } from 'lucide-react'
 import { parseJsonResponse } from '@/lib/parse-json-response'
 
-type Plan = 'pilot' | 'solo' | 'starter' | 'growth' | 'scale' | 'whitelabel' | 'enterprise'
+type Plan = 'starter' | 'growth' | 'scale' | 'enterprise'
 
 const ENTERPRISE_SALES_URL = 'https://calendly.com/nandan-vantirs/30min'
-type FirmPlan = Plan | 'trial' | string
+type FirmPlan = Plan | 'trial' | 'pilot' | string
 
 type CheckoutPayload = {
   priceId: string
@@ -133,71 +133,53 @@ const UPGRADE_PLANS: Array<{
   name: string
   price: string
   period: string
-  clients: number
+  clients: number | null
   features: string[]
   popular?: boolean
   salesHref?: string
 }> = [
   {
-    id: 'solo',
-    name: 'Solo',
-    price: '$39',
-    period: '/mo',
-    clients: 5,
-    features: ['Up to 5 clients', 'Email alerts', 'Vendor fingerprinting'],
-  },
-  {
     id: 'starter',
-    name: 'Pro',
-    price: '$99',
+    name: 'Starter',
+    price: '$79',
     period: '/mo',
-    clients: 15,
-    features: ['Up to 15 clients', 'Everything in Solo', 'Alert queue'],
+    clients: 25,
+    features: ['Up to 25 clients', 'Vendor fingerprinting', 'Email alerts & alert queue', 'NACHA 2026 audit trail'],
   },
   {
     id: 'growth',
-    name: 'Business',
+    name: 'Growth',
     price: '$199',
     period: '/mo',
-    clients: 35,
-    features: ['Up to 35 clients', 'Slack alerts', 'API access', 'Priority support'],
+    clients: 75,
+    features: ['Up to 75 clients', 'Everything in Starter', 'Slack alerts (real-time)', 'Custom detection rules', 'Priority support'],
     popular: true,
   },
   {
     id: 'scale',
     name: 'Scale',
-    price: '$299',
+    price: '$349',
     period: '/mo',
-    clients: 50,
-    features: ['Up to 50 clients', 'Custom rules', 'Dedicated onboarding', 'SLA'],
-  },
-  {
-    id: 'whitelabel',
-    name: 'White-label',
-    price: '$499',
-    period: '/mo',
-    clients: 75,
-    features: ['Up to 75 clients', 'White-label reports', 'All Scale features'],
+    clients: 200,
+    features: ['Up to 200 clients', 'Everything in Growth', 'White-label reports', 'Dedicated onboarding', 'SLA-backed support'],
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
     price: 'Custom',
     period: '',
-    clients: 9999,
-    features: ['Unlimited clients', 'Security review', 'Custom terms & integrations'],
+    clients: null,
+    features: ['Unlimited clients', 'Custom integrations & SSO', 'Security review & DPAs', 'Dedicated account manager'],
     salesHref: ENTERPRISE_SALES_URL,
   },
 ]
 
 const PLAN_LABELS: Record<string, string> = {
   trial: 'Trial · 3 clients, 30 days',
-  pilot: 'Outreach Partner',
-  solo: 'Solo',
-  starter: 'Pro',
-  growth: 'Business',
-  scale: 'Scale',
-  whitelabel: 'White-label',
+  pilot: 'Scale — Partner (complimentary)',
+  starter: 'Starter · 25 clients',
+  growth: 'Growth · 75 clients',
+  scale: 'Scale · 200 clients',
   enterprise: 'Enterprise',
 }
 
@@ -226,9 +208,7 @@ export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan })
       const paddle = await getPaddleClient()
       paddle.Checkout.open({
         items: [{ priceId: data.priceId, quantity: 1 }],
-        customer: {
-          id: data.customerId,
-        },
+        customer: { id: data.customerId },
         customData: data.customData,
         settings: {
           displayMode: 'overlay',
@@ -263,7 +243,7 @@ export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan })
       } else {
         setCouponMsg({
           type: 'success',
-          text: 'Partner plan activated! You now have access to 50 clients — refreshing…',
+          text: 'Partner plan activated! You now have Scale-tier access (200 clients) — refreshing…',
         })
         setTimeout(() => window.location.reload(), 2000)
       }
@@ -301,7 +281,7 @@ export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan })
       {/* Upgrade plan cards */}
       <div>
         <p className="text-sm font-semibold text-[#0b1c30] mb-3">Upgrade your plan</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {UPGRADE_PLANS.map(plan => {
             const isCurrent = plan.id === currentPlan
             const cardClass = `relative flex flex-col items-start rounded-xl p-4 text-left transition ring-1 ${
@@ -331,7 +311,7 @@ export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan })
                   <span className="text-xs font-normal opacity-70">{plan.period}</span>
                 </span>
                 <span className={`text-[10px] mt-0.5 mb-2 ${plan.popular ? 'text-blue-200' : 'text-slate-500'}`}>
-                  {plan.clients < 9999 ? `${plan.clients} clients` : 'Unlimited clients'}
+                  {plan.clients !== null ? `${plan.clients} clients` : 'Unlimited clients'}
                 </span>
 
                 <ul className="space-y-0.5 w-full">
@@ -381,10 +361,11 @@ export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan })
             )
           })}
         </div>
+        <p className="mt-2 text-[10px] text-slate-400">Annual billing saves 20% — contact us to switch.</p>
       </div>
 
-      {/* Partner coupon section — hidden if already on outreach plan */}
-      {currentPlan !== 'pilot' && (
+      {/* Partner coupon — hidden if already on partner or paid plan */}
+      {currentPlan === 'trial' && (
         <div className="rounded-xl bg-gradient-to-br from-[#0b1c30] to-[#003ec7] p-5 text-white">
           <div className="flex items-center gap-2 mb-2">
             <Tag className="h-4 w-4 text-blue-200" />
@@ -394,8 +375,7 @@ export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan })
           </div>
           <p className="text-sm text-blue-100 mb-4 leading-relaxed">
             Have a partner code? Activate the{' '}
-            <strong className="text-white">Scale plan (50 clients)</strong> free for 3 months — same features as a paid
-            Scale subscription during the trial.
+            <strong className="text-white">Scale plan (200 clients)</strong> free for 3 months — same features as a paid Scale subscription, no credit card required.
           </p>
           <div className="flex gap-2">
             <input
@@ -430,7 +410,7 @@ export default function BillingPanel({ currentPlan }: { currentPlan: FirmPlan })
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800 flex items-start gap-2">
           <CheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" />
           <span>
-            You&apos;re on the <strong>Outreach Partner plan</strong> — up to 50 clients, all Scale features, no charge.
+            You&apos;re on the <strong>Scale — Partner plan</strong> — up to 200 clients, all Scale features, no charge during the partner period.
           </span>
         </div>
       )}

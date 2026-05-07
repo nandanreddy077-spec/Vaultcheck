@@ -5,36 +5,24 @@ import { prisma } from '@/lib/prisma'
 import { getPaddle } from '@/lib/paddle'
 import { enforceRateLimit } from '@/lib/rate-limit'
 
-type Plan = 'pilot' | 'solo' | 'starter' | 'growth' | 'scale' | 'whitelabel' | 'enterprise'
+type Plan = 'starter' | 'growth' | 'scale' | 'enterprise'
 
 function planToPriceAndMaxClients(plan: Plan): { priceId: string; maxClients: number } {
   let priceId: string | undefined
   let maxClients: number
 
   switch (plan) {
-    case 'solo':
-      priceId = process.env.PADDLE_PRICE_SOLO
-      maxClients = 5
-      break
-    case 'pilot':
-      priceId = process.env.PADDLE_PRICE_PILOT
-      maxClients = 20
-      break
     case 'starter':
       priceId = process.env.PADDLE_PRICE_STARTER
-      maxClients = 15
+      maxClients = 25
       break
     case 'growth':
       priceId = process.env.PADDLE_PRICE_GROWTH
-      maxClients = 35
+      maxClients = 75
       break
     case 'scale':
       priceId = process.env.PADDLE_PRICE_SCALE
-      maxClients = 50
-      break
-    case 'whitelabel':
-      priceId = process.env.PADDLE_PRICE_WHITELABEL
-      maxClients = 75
+      maxClients = 200
       break
     case 'enterprise':
       priceId = process.env.PADDLE_PRICE_ENTERPRISE
@@ -43,7 +31,7 @@ function planToPriceAndMaxClients(plan: Plan): { priceId: string; maxClients: nu
   }
 
   if (!priceId) {
-    throw new Error(`Missing Paddle price env for plan=${plan}`)
+    throw new Error(`PLAN_UNAVAILABLE:${plan}`)
   }
   return { priceId, maxClients }
 }
@@ -101,7 +89,7 @@ export async function POST(req: NextRequest) {
 
     const body = (await req.json().catch(() => ({}))) as { plan?: string }
     const plan = body.plan as Plan | undefined
-    if (!plan || !['pilot', 'solo', 'starter', 'growth', 'scale', 'whitelabel', 'enterprise'].includes(plan)) {
+    if (!plan || !['starter', 'growth', 'scale', 'enterprise'].includes(plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
@@ -110,13 +98,6 @@ export async function POST(req: NextRequest) {
       select: { id: true, name: true, email: true, paddleCustomerId: true, plan: true },
     })
     if (!firm) return NextResponse.json({ error: 'Firm not found' }, { status: 404 })
-
-    if (plan === 'pilot' && firm.plan !== 'pilot') {
-      const pilotCount = await prisma.firm.count({ where: { plan: 'pilot' } })
-      if (pilotCount >= 10) {
-        return NextResponse.json({ error: 'Pilot offer is limited to the first 10 firms.' }, { status: 403 })
-      }
-    }
 
     const { priceId, maxClients } = planToPriceAndMaxClients(plan)
     const paddleCustomerId = await ensurePaddleCustomerId({
@@ -147,7 +128,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          message.includes('PADDLE_API_KEY') || message.includes('Paddle price env')
+          message.startsWith('PLAN_UNAVAILABLE:')
+            ? 'This plan is not available yet. Please contact us to get set up.'
+            : message.includes('PADDLE_API_KEY')
             ? 'Billing is not configured yet. Add PADDLE_API_KEY and PADDLE_PRICE_* price IDs in your environment, or contact support.'
             : message,
       },
