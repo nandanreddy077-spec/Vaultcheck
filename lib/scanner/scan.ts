@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { createAlert } from '@/lib/alerts/create'
+import { checkThreatIntel } from '@/lib/threat-intel/check'
 import type { Prisma } from '@prisma/client'
 
 export interface RiskFactor {
@@ -178,7 +179,24 @@ export async function scanInvoice(invoiceId: string): Promise<ScanResult> {
     }
   }
 
-  // ── Check 7: Low confidence penalty (weight: 0-10) ───────────────────────────
+  // ── Check 7: Global threat intelligence (weight: 40) ────────────────────────
+  // If this vendor's email domain or bank hash was confirmed as fraud by any
+  // other Vantirs firm, treat it as a critical signal immediately.
+  const threatMatches = await checkThreatIntel({
+    emailDomain: invoice.vendor?.emailDomain ?? null,
+    bankHash: invoice.bankAccountHash ?? null,
+    vendorName: invoice.vendor?.displayName ?? null,
+  })
+  if (threatMatches.length > 0) {
+    riskFactors.push({
+      factor: 'global_threat_flag',
+      weight: 40,
+      detail: `This vendor matches ${threatMatches.length} known fraud signal(s) reported by other firms: ${threatMatches.map(m => m.matchedOn).join(', ')}.`,
+    })
+    totalScore += 40
+  }
+
+  // ── Check 8: Low confidence penalty (weight: 0-10) ───────────────────────────
   if (fingerprint && fingerprint.confidenceScore < 0.5) {
     const penalty = Math.round((1 - fingerprint.confidenceScore) * 10)
     riskFactors.push({

@@ -1,89 +1,63 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle, Tag } from 'lucide-react'
+import { CheckCircle, Tag, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 
 const PLANS = [
   {
-    id: 'solo',
-    name: 'Solo',
-    monthlyPrice: 39,
-    clients: 5,
-    description: 'Solo CPAs and small practices',
-    features: [
-      'Up to 5 client entities',
-      'Vendor fingerprinting',
-      'Email alerts',
-      'Alert queue',
-    ],
-    cta: 'Get started',
-    ctaHref: '/signup',
-    highlight: false,
-  },
-  {
     id: 'starter',
-    name: 'Pro',
-    monthlyPrice: 99,
-    clients: 15,
-    description: 'Growing firms',
+    name: 'Starter',
+    monthlyPrice: 79,
+    clients: 25,
+    description: '1–5 person bookkeeping practices',
+    persona: 'For small practices taking on AP work',
     features: [
-      'Up to 15 client entities',
-      'Everything in Solo',
+      'Up to 25 client entities',
+      'Vendor fingerprinting',
+      'Email alerts & alert queue',
       'Multi-client dashboard',
-      'Email alerts & review queue',
+      'NACHA 2026 audit trail',
     ],
-    cta: 'Get started',
+    cta: 'Start free trial',
     ctaHref: '/signup',
     highlight: false,
   },
   {
     id: 'growth',
-    name: 'Business',
+    name: 'Growth',
     monthlyPrice: 199,
-    clients: 35,
-    description: 'Established firms',
+    clients: 75,
+    description: 'CAS firms managing client AP',
+    persona: 'For 6–20 person firms with active AP volume',
     features: [
-      'Up to 35 client entities',
-      'Everything in Pro',
-      'Slack alerts',
+      'Up to 75 client entities',
+      'Everything in Starter',
+      'Slack alerts (real-time)',
       'API access',
       'Priority support',
+      'Custom detection rules',
     ],
-    cta: 'Get started',
+    cta: 'Start free trial',
     ctaHref: '/signup',
     highlight: true,
   },
   {
     id: 'scale',
     name: 'Scale',
-    monthlyPrice: 299,
-    clients: 50,
-    description: 'High-volume and multi-office firms',
+    monthlyPrice: 349,
+    clients: 200,
+    description: 'Multi-office & outsourced CFO firms',
+    persona: 'For large practices and controller-layer providers',
     features: [
-      'Up to 50 client entities',
-      'Everything in Business',
-      'Custom detection rules',
+      'Up to 200 client entities',
+      'Everything in Growth',
+      'White-label reports & branding',
       'Dedicated onboarding',
       'SLA-backed support',
+      'Partner-ready API',
     ],
-    cta: 'Get started',
-    ctaHref: '/signup',
-    highlight: false,
-  },
-  {
-    id: 'whitelabel',
-    name: 'White-label',
-    monthlyPrice: 499,
-    clients: 75,
-    description: 'CFO firms, platforms & QB consultants',
-    features: [
-      'Up to 75 client entities',
-      'Everything in Scale',
-      'White-label reports & branding',
-      'Partner-ready API access',
-    ],
-    cta: 'Get started',
+    cta: 'Start free trial',
     ctaHref: '/signup',
     highlight: false,
   },
@@ -92,10 +66,11 @@ const PLANS = [
     name: 'Enterprise',
     monthlyPrice: null,
     clients: null,
-    description: 'Unlimited scale, security review, custom terms',
+    description: 'Unlimited scale, custom integrations, security review',
+    persona: 'For platforms, networks & large independent firms',
     features: [
       'Unlimited client entities',
-      'Everything in White-label',
+      'Everything in Scale',
       'Custom integrations & SSO',
       'Security review & DPAs',
       'Dedicated account manager',
@@ -106,9 +81,17 @@ const PLANS = [
   },
 ]
 
+// Days until NACHA Phase 2 deadline: June 22, 2026
+function daysUntilNacha(): number {
+  const deadline = new Date('2026-06-22T00:00:00')
+  const now = new Date()
+  return Math.max(0, Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+}
+
 export default function PricingSection() {
   const [annual, setAnnual] = useState(false)
   const [coupon, setCoupon] = useState('')
+  const nachadays = daysUntilNacha()
 
   function claimCoupon() {
     const code = coupon.trim()
@@ -121,6 +104,24 @@ export default function PricingSection() {
     <section className="bg-[#eff4ff] py-20 md:py-24" id="pricing">
       <div className="mx-auto max-w-7xl px-6 md:px-8">
 
+        {/* NACHA 2026 urgency banner */}
+        {nachadays > 0 && (
+          <div className="mb-10 mx-auto max-w-3xl rounded-xl bg-amber-50 border border-amber-200 px-5 py-4 flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+            <div>
+              <p className="text-sm font-semibold text-amber-900">
+                NACHA Phase 2 deadline: <span className="text-amber-700">{nachadays} days away</span> (June 22, 2026)
+              </p>
+              <p className="mt-0.5 text-xs text-amber-700 leading-relaxed">
+                Every ACH originator — including accounting firms submitting vendor payments for clients — must now have documented, risk-based fraud monitoring. Vantirs generates the audit trail automatically.{' '}
+                <a href="/nacha-2026-vendor-payment-compliance" className="underline font-medium hover:text-amber-900">
+                  What this means for your firm →
+                </a>
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7] mb-2">Pricing</p>
@@ -128,11 +129,22 @@ export default function PricingSection() {
             Simple tiers that scale with your firm
           </h2>
           <p className="mt-3 text-slate-600">
-            One subscription covers your clients. Heavy verification volume? Add-on packs are available — contact us after you&apos;re live.
+            One subscription covers all your clients. Per-client pricing — the way accounting firms think.
           </p>
 
+          {/* Guarantee badge — prominent above plans */}
+          <a
+            href="/guarantee"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#003ec7] shadow-sm ring-1 ring-[#003ec7]/15 hover:bg-[#eff4ff] transition-colors"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Protected by our $10,000 Fraud Guarantee — see terms
+          </a>
+
           {/* Monthly / Annual toggle */}
-          <div className="mt-6 inline-flex items-center gap-1 rounded-full bg-white p-1 shadow-sm ring-1 ring-[#c3c5d9]/20">
+          <div className="mt-5 inline-flex items-center gap-1 rounded-full bg-white p-1 shadow-sm ring-1 ring-[#c3c5d9]/20">
             <button
               type="button"
               onClick={() => setAnnual(false)}
@@ -154,12 +166,12 @@ export default function PricingSection() {
             </button>
           </div>
           <p className="mt-3 text-xs text-slate-500">
-            Annual billing saves 20% vs. paying monthly — same features, predictable renewals for your finance team.
+            Annual billing saves 20% vs. paying monthly — predictable renewals for your finance team.
           </p>
         </div>
 
         {/* Plan cards */}
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {PLANS.map(plan => {
             const price = plan.monthlyPrice
               ? annual
@@ -183,7 +195,8 @@ export default function PricingSection() {
                 )}
 
                 <h3 className="font-manrope text-lg font-bold text-[#0b1c30]">{plan.name}</h3>
-                <p className="mt-0.5 text-xs text-slate-500">{plan.description}</p>
+                <p className="mt-0.5 text-xs font-medium text-slate-700">{plan.description}</p>
+                <p className="mt-0.5 text-[11px] text-slate-400 italic">{plan.persona}</p>
 
                 <div className="mt-4">
                   {price !== null ? (
@@ -201,12 +214,11 @@ export default function PricingSection() {
                   )}
                 </div>
 
-                {plan.clients && (
+                {plan.clients ? (
                   <p className="mt-1 mb-4 text-xs font-semibold text-[#003ec7]">
-                    Up to {plan.clients} clients
+                    Up to {plan.clients} clients · ${plan.monthlyPrice ? (plan.monthlyPrice / plan.clients).toFixed(2) : '—'}/client
                   </p>
-                )}
-                {!plan.clients && (
+                ) : (
                   <p className="mt-1 mb-4 text-xs font-semibold text-[#003ec7]">Unlimited clients</p>
                 )}
 
@@ -234,8 +246,27 @@ export default function PricingSection() {
           })}
         </div>
 
+        {/* Who is this for — ICP clarity row */}
+        <div className="mt-10 mx-auto max-w-4xl rounded-2xl bg-white ring-1 ring-[#c3c5d9]/20 p-6 shadow-[0_4px_20px_rgba(11,28,48,0.06)]">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7] mb-4">Who uses Vantirs</p>
+          <div className="grid gap-6 sm:grid-cols-3 text-sm">
+            <div>
+              <p className="font-semibold text-[#0b1c30]">Bookkeeping & CAS firms</p>
+              <p className="mt-1 text-xs text-slate-500">Managing vendor payments for 30–200 QBO clients. You run weekly payment batches — Vantirs screens every invoice before it hits your approval queue.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-[#0b1c30]">Outsourced CFO providers</p>
+              <p className="mt-1 text-xs text-slate-500">Controller-level services for 10–50 clients. You need board-ready fraud documentation and a defensible approval workflow — not a spreadsheet.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-[#0b1c30]">QB consultants & platforms</p>
+              <p className="mt-1 text-xs text-slate-500">Want to add fraud protection to your service offering? Scale and Enterprise include white-label reports you can put your own brand on.</p>
+            </div>
+          </div>
+        </div>
+
         {/* Partner / outreach plan */}
-        <div className="mt-8 mx-auto max-w-2xl rounded-2xl bg-gradient-to-br from-[#0b1c30] to-[#003ec7] p-8 text-white shadow-[0_12px_40px_rgba(0,62,199,0.22)]">
+        <div className="mt-6 mx-auto max-w-2xl rounded-2xl bg-gradient-to-br from-[#0b1c30] to-[#003ec7] p-8 text-white shadow-[0_12px_40px_rgba(0,62,199,0.22)]">
           <div className="flex items-start gap-4">
             <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
               <Tag className="h-5 w-5 text-white" />
@@ -249,7 +280,7 @@ export default function PricingSection() {
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-blue-100">
                 Have a partner code? Activate the{' '}
-                <strong className="text-white">Scale plan (50 clients)</strong> free for 3 months.{' '}
+                <strong className="text-white">Scale plan (200 clients)</strong> free for 3 months.{' '}
                 Same features as a paid Scale subscription during the trial — no credit card required for the partner period.
               </p>
               <div className="mt-5 flex gap-2">
@@ -277,9 +308,11 @@ export default function PricingSection() {
           </div>
         </div>
 
-        <p className="mt-8 text-center text-sm text-slate-400">
-          All plans start with <strong className="text-slate-600">3 clients free for 30 days</strong> · No credit card required · Cancel anytime
-        </p>
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <p className="text-center text-sm text-slate-400">
+            All plans start with <strong className="text-slate-600">3 clients free for 30 days</strong> · No credit card required · Cancel anytime
+          </p>
+        </div>
       </div>
     </section>
   )

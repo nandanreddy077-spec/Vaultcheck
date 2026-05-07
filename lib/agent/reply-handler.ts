@@ -38,8 +38,8 @@ Classify this reply and decide what the AI agent should do next. Respond ONLY wi
 
 Rules:
 - positive = they're interested, want to learn more, open to a call → suggested_action: send_calendly
-- objection = pushback but not a hard no → suggested_action: auto_reply
-- question = genuine question about the product → suggested_action: auto_reply
+- objection = pushback but not a hard no → suggested_action: notify_human (Nandan should handle objections personally)
+- question = genuine question about the product → suggested_action: notify_human (Nandan should answer product questions personally)
 - not_interested = clear no → suggested_action: mark_lost
 - out_of_office = OOO auto-reply → suggested_action: reschedule
 - other = unclear → suggested_action: notify_human`

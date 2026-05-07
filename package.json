@@ -7,6 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "worker": "tsx workers/index.ts",
+    "worker:build": "prisma generate",
     "worker:qbo": "tsx workers/qbo-worker.tsx",
     "worker:xero": "tsx workers/xero-worker.ts",
     "enqueue:qbo-sync": "tsx scripts/enqueue-qbo-sync.ts",

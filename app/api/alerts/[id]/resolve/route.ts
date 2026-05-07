@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { createThreatFlag } from '@/lib/threat-intel/flag'
 
 export async function POST(
   req: NextRequest,
@@ -67,10 +68,28 @@ export async function POST(
         id: updated.invoiceId,
         client: { firmId: dbUser.firmId },
       },
-      select: { id: true },
+      select: {
+        id: true,
+        bankAccountHash: true,
+        senderEmail: true,
+        vendor: { select: { displayName: true, emailDomain: true } },
+      },
     })
 
     if (invoice) {
+      // If confirmed fraud, share the signal with the global threat intelligence layer
+      // so other Vantirs clients with the same vendor are warned automatically.
+      if (shouldReject) {
+        await createThreatFlag({
+          firmId: dbUser.firmId,
+          vendorName: invoice.vendor?.displayName,
+          emailDomain: invoice.vendor?.emailDomain,
+          bankHash: invoice.bankAccountHash,
+          reason: 'bank_fraud',
+          notes: `Confirmed fraud — alert ${id}`,
+        })
+      }
+
       await prisma.invoice.update({
         where: { id: invoice.id },
         data: {

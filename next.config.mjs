@@ -3,6 +3,11 @@ import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+// When running in a git worktree, node_modules lives in the parent project dir.
+// Expand turbopack.root so it can resolve packages from there.
+const projectRoot = /worktrees\//.test(__dirname)
+  ? __dirname.replace(/\/\.claude\/worktrees\/[^/]+$/, '')
+  : __dirname
 
 /** Same rules as lib/supabase/normalize-supabase-url.ts — fixes `//project.supabase.co` in Vercel env. */
 function normalizePublicUrl(raw) {
@@ -20,7 +25,7 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {
-    root: __dirname,
+    root: projectRoot,
   },
   env: {
     ...(supabaseUrl && { NEXT_PUBLIC_SUPABASE_URL: normalizePublicUrl(supabaseUrl) }),
