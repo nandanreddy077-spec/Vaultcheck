@@ -82,7 +82,7 @@ export async function GET(req: Request) {
 
       const sendAt = addDays(new Date(), SEQUENCE_DELAYS_DAYS[1])
       // Schedule during business hours (10am local-ish)
-      sendAt.setUTCHours(10, 0, 0, 0)
+      sendAt.setUTCHours(14, 0, 0, 0) // 10am EDT (UTC-4) — US prime time
 
       await db.from('outreach_emails').insert({
         lead_id: lead.id,
