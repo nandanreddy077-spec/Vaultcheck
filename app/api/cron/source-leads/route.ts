@@ -35,8 +35,14 @@ export async function GET(req: Request) {
       rawLeads = await fetchLeadsFromApollo(DAILY_LIMIT)
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      if (message.includes('API_INACCESSIBLE') || message.includes('403')) {
-        sourceWarning = 'Apollo API is inaccessible on current plan; continuing with existing queued leads.'
+      if (
+        message.includes('API_INACCESSIBLE') ||
+        message.includes('403') ||
+        message.includes('APOLLO_API_KEY not set')
+      ) {
+        sourceWarning = message.includes('APOLLO_API_KEY not set')
+          ? 'APOLLO_API_KEY not configured — skipping lead fetch, processing existing queued leads.'
+          : 'Apollo API is inaccessible on current plan; continuing with existing queued leads.'
         console.warn('[source-leads]', sourceWarning)
       } else {
         throw error
