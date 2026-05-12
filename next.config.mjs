@@ -33,6 +33,21 @@ const nextConfig = {
     ...(appUrl && { NEXT_PUBLIC_APP_URL: normalizePublicUrl(appUrl) }),
   },
   async headers() {
+    const supabaseHost = supabaseUrl
+      ? new URL(normalizePublicUrl(supabaseUrl)).hostname
+      : ''
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.paddle.com https://*.sentry.io",
+      `connect-src 'self' https://*.supabase.co ${supabaseHost ? `https://${supabaseHost}` : ''} https://api.paddle.com https://sandbox-api.paddle.com https://*.sentry.io https://vitals.vercel-insights.com`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      "font-src 'self' data:",
+      "frame-src https://pay.paddle.com https://sandbox-pay.paddle.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+    ].join('; ')
+
     return [
       {
         source: '/(.*)',
@@ -42,6 +57,7 @@ const nextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'Content-Security-Policy', value: csp },
         ],
       },
     ]
