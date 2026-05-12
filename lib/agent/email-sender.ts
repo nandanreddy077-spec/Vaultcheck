@@ -4,16 +4,27 @@ import { getServiceClient } from './supabase'
 interface GmailAccount {
   user: string
   password: string
+  fromName: string
   label: 'A' | 'B'
 }
 
 export function getAccounts(): GmailAccount[] {
   const accounts: GmailAccount[] = []
   if (process.env.GMAIL_A_USER && process.env.GMAIL_A_APP_PASSWORD) {
-    accounts.push({ user: process.env.GMAIL_A_USER, password: process.env.GMAIL_A_APP_PASSWORD, label: 'A' })
+    accounts.push({
+      user: process.env.GMAIL_A_USER,
+      password: process.env.GMAIL_A_APP_PASSWORD,
+      fromName: process.env.GMAIL_A_FROM_NAME ?? 'Nandan',
+      label: 'A',
+    })
   }
   if (process.env.GMAIL_B_USER && process.env.GMAIL_B_APP_PASSWORD) {
-    accounts.push({ user: process.env.GMAIL_B_USER, password: process.env.GMAIL_B_APP_PASSWORD, label: 'B' })
+    accounts.push({
+      user: process.env.GMAIL_B_USER,
+      password: process.env.GMAIL_B_APP_PASSWORD,
+      fromName: process.env.GMAIL_B_FROM_NAME ?? 'Nandan',
+      label: 'B',
+    })
   }
   if (accounts.length === 0) throw new Error('No Gmail accounts configured')
   return accounts
@@ -75,7 +86,7 @@ export async function sendEmail(opts: {
 
   try {
     const info = await transport.sendMail({
-      from: `Nandan <${opts.account.user}>`,
+      from: `${opts.account.fromName} <${opts.account.user}>`,
       to: opts.to,
       subject: opts.subject,
       text: opts.body,

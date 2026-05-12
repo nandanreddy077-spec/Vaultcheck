@@ -9,6 +9,7 @@ import imaps from 'imap-simple'
 interface GmailConfig {
   user: string
   password: string
+  fromName: string
   label: 'A' | 'B'
 }
 

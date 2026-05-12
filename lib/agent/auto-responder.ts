@@ -57,7 +57,7 @@ export async function sendAutoResponse(opts: {
   replyBody: string
   analysis: ReplyAnalysis
   lead: { first_name: string; company_name: string; city: string; state: string }
-  gmailAccount: { user: string; password: string; label: 'A' | 'B' }
+  gmailAccount: { user: string; password: string; fromName: string; label: 'A' | 'B' }
   conversationId: string
 }): Promise<boolean> {
   const db = getServiceClient()
