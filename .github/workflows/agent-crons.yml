@@ -23,9 +23,10 @@ jobs:
     steps:
       - name: Trigger source-leads
         run: |
-          curl -f -s "https://www.vantirs.com/api/cron/source-leads" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            | tee /dev/stderr | grep -q '"ok":true'
+          RESPONSE=$(curl -s "https://www.vantirs.com/api/cron/source-leads" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"ok":true'
 
   send-emails:
     if: github.event.schedule == '*/30 9-17 * * 1-5' || github.event_name == 'workflow_dispatch'
