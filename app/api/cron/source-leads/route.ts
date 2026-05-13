@@ -6,7 +6,13 @@ import { getServiceClient } from '@/lib/agent/supabase'
 import { verifyCronAuthorization } from '@/lib/cron-auth'
 import { addDays } from 'date-fns'
 
-const DAILY_LIMIT = parseInt(process.env.DAILY_LEAD_LIMIT ?? '20')
+// Allow up to 300s — Apollo enrichment + Claude pain scoring + email generation takes time.
+// On Vercel Pro this is the max for serverless functions.
+export const maxDuration = 300
+
+// Default 10 leads/day — conservative to stay within the 300s budget.
+// Raise DAILY_LEAD_LIMIT env var to 20 once timing is confirmed stable.
+const DAILY_LIMIT = parseInt(process.env.DAILY_LEAD_LIMIT ?? '10')
 
 export async function GET(req: Request) {
   const cronAuth = verifyCronAuthorization(req)

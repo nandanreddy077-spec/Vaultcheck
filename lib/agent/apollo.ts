@@ -76,6 +76,7 @@ async function revealContactEmail(
           Accept: 'application/json',
           'X-Api-Key': apiKey,
         },
+        timeout: 8000, // 8s max per enrichment call
       }
     )
     // Response is { person: {...} } or { match: {...} }
@@ -92,9 +93,11 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   // Step 1 — Search: find candidates matching our ICP (no credits consumed)
   // ICP: owners/operators of virtual CFO and outsourced bookkeeping firms in the US,
   // actively managing AP for SMB clients. Exclude tax-only CPAs.
+  // Note: keep per_page tight (limit * 2) — enrichment takes ~5s/person, so
+  // budget = limit × 8s timeout + overhead must stay well under Vercel's 300s maxDuration.
   const searchPayload = {
     page: 1,
-    per_page: Math.min(limit * 3, 100), // fetch 3x so we have buffer after email filtering
+    per_page: Math.min(limit * 2, 50), // max 50 search candidates for 25 target leads
     person_titles: [
       'Virtual CFO',
       'Outsourced CFO',
@@ -107,7 +110,6 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
       'Principal',
     ],
     person_locations: ['United States'],
-    organization_num_employees_ranges: ['1,20'],
     sort_by_field: '[none]',
     sort_ascending: false,
   }
@@ -144,14 +146,22 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
     throw new Error(`Apollo search returned ${searchRes.data?.people?.length ?? 0} people but none have email. This may be a plan limitation.`)
   }
 
-  // Step 2 — Enrich: reveal emails for candidates (costs 1 credit per person)
+  // Step 2 — Enrich: reveal emails for candidates (costs 1 credit per person).
+  // Budget: each call has an 8s timeout. With limit=20 and ~50% hit rate we'll make
+  // up to 40 calls × 8s = 320s — right at the edge. We add a wall-clock guard to stop
+  // enrichment at 200s so there's still headroom for pain scoring + email generation.
   const results: ApolloLead[] = []
+  const enrichmentDeadline = Date.now() + 200_000 // 200s from now
 
   for (const preview of previews) {
     if (results.length >= limit) break
+    if (Date.now() > enrichmentDeadline) {
+      console.log('[apollo] enrichment deadline reached, stopping early')
+      break
+    }
 
     const enriched = await revealContactEmail(apiKey, preview.id)
-    if (!enriched?.email) continue // no email unlocked (unlikely with has_email=true)
+    if (!enriched?.email) continue // no email unlocked
 
     const org = enriched.organization ?? preview.organization ?? {}
     results.push({
@@ -169,9 +179,6 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
       linkedin_url: enriched.linkedin_url ?? '',
       phone: enriched.phone_numbers?.[0]?.sanitized_number ?? '',
     })
-
-    // Small delay to avoid hitting rate limits
-    await new Promise(r => setTimeout(r, 200))
   }
 
   console.log(`[apollo] enriched ${results.length} leads with emails (used ${results.length} credits)`)
