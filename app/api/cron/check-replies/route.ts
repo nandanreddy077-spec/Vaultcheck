@@ -65,19 +65,33 @@ async function fetchInboundReplies(account: GmailConfig, leadEmails: Set<string>
     )
 
     for (const message of messages) {
-      const headerPart = message.parts.find(p => p.which?.toUpperCase().includes('HEADER'))
-      const bodyPart = message.parts.find(p => p.which === 'TEXT')
-      if (!headerPart?.body) continue
+      // Defensive: some IMAP messages have unexpected MIME structures — skip rather than crash
+      try {
+        if (!Array.isArray(message.parts)) continue
+      } catch {
+        continue
+      }
+
+      let headerPart: (typeof message.parts)[number] | undefined
+      let bodyPart: (typeof message.parts)[number] | undefined
+      try {
+        headerPart = message.parts.find(p => typeof p.which === 'string' && p.which.toUpperCase().includes('HEADER'))
+        bodyPart = message.parts.find(p => p.which === 'TEXT')
+      } catch {
+        continue
+      }
+
+      if (!headerPart?.body || typeof headerPart.body !== 'object') continue
 
       const headers = headerPart.body as Record<string, string[] | string>
       const fromRaw = Array.isArray(headers.from) ? headers.from[0] : headers.from
-      if (!fromRaw) continue
+      if (!fromRaw || typeof fromRaw !== 'string') continue
 
       const fromEmail = extractEmailAddress(fromRaw)
       if (!fromEmail || !leadEmails.has(fromEmail)) continue
 
-      const subject = Array.isArray(headers.subject) ? headers.subject[0] : headers.subject ?? ''
-      const messageId = Array.isArray(headers['message-id']) ? headers['message-id'][0] : headers['message-id'] ?? ''
+      const subject = Array.isArray(headers.subject) ? headers.subject[0] : (headers.subject ?? '')
+      const messageId = Array.isArray(headers['message-id']) ? headers['message-id'][0] : (headers['message-id'] ?? '')
       const bodyText = typeof bodyPart?.body === 'string' ? bodyPart.body.slice(0, 2000) : ''
 
       results.push({ fromEmail, subject, body: bodyText, messageId })
