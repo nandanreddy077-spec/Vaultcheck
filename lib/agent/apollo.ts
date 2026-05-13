@@ -26,9 +26,17 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   // ICP: owners/operators of virtual CFO and outsourced bookkeeping firms, 5-20 employees,
   // actively managing AP for SMB clients (construction, real estate, healthcare) in QBO.
   // Exclude tax-only CPAs — they don't process AP and won't convert.
+  // Apollo API field reference:
+  //   q_keywords           — freeform keyword search across person + org
+  //   person_titles        — title fuzzy-match list
+  //   person_locations     — location list (city, state, or country)
+  //   organization_industries — industry list
+  //   organization_num_employees_ranges — "MIN,MAX" strings e.g. "1,20"
+  //   contact_email_status — 'verified' | 'likely' | 'unavailable' (only on paid email plans)
   const payload = {
     page: 1,
     per_page: Math.min(Math.max(limit, 1), 100),
+    q_keywords: 'bookkeeping accounting CFO controller',
     person_titles: [
       'Virtual CFO',
       'Outsourced CFO',
@@ -38,12 +46,9 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
       'Accounting Manager',
       'Owner',
       'Managing Partner',
-      'Principal',
     ],
     person_locations: ['United States'],
-    // contact_email_status filter removed — basic plan returns email in response body directly;
-    // filtering by 'verified' at query time causes Apollo to return 0 results on entry plans.
-    organization_num_employees_ranges: ['1,20'],
+    organization_industries: ['accounting'],
     sort_by_field: '[none]',
     sort_ascending: false,
   }
@@ -72,7 +77,11 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   }
 
   const rawPeopleCount = res.data?.people?.length ?? 0
-  console.log(`[apollo] raw people from API: ${rawPeopleCount}, pagination: ${JSON.stringify(res.data?.pagination ?? {})}`)
+  console.log(`[apollo] raw people from API: ${rawPeopleCount}, pagination: ${JSON.stringify(res.data?.pagination ?? {})}, top-level keys: ${Object.keys(res.data ?? {}).join(',')}`)
+  if (rawPeopleCount === 0) {
+    // Log the full response so we can debug what Apollo is returning
+    console.log(`[apollo] ZERO RESULTS — full response: ${JSON.stringify(res.data).slice(0, 500)}`)
+  }
 
   const people: ApolloLead[] = (res.data?.people ?? []).map((p: Record<string, unknown>) => {
     const org = (p.organization ?? {}) as Record<string, unknown>
