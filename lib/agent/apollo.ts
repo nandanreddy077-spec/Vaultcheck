@@ -41,7 +41,8 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
       'Principal',
     ],
     person_locations: ['United States'],
-    contact_email_status: ['verified'],
+    // contact_email_status filter removed — basic plan returns email in response body directly;
+    // filtering by 'verified' at query time causes Apollo to return 0 results on entry plans.
     organization_num_employees_ranges: ['1,20'],
     sort_by_field: '[none]',
     sort_ascending: false,
@@ -70,6 +71,9 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
     throw error
   }
 
+  const rawPeopleCount = res.data?.people?.length ?? 0
+  console.log(`[apollo] raw people from API: ${rawPeopleCount}, pagination: ${JSON.stringify(res.data?.pagination ?? {})}`)
+
   const people: ApolloLead[] = (res.data?.people ?? []).map((p: Record<string, unknown>) => {
     const org = (p.organization ?? {}) as Record<string, unknown>
     return {
@@ -87,8 +91,13 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
       linkedin_url: (p.linkedin_url as string) ?? '',
       phone: ((p.phone_numbers as Array<{ sanitized_number: string }>)?.[0]?.sanitized_number) ?? '',
     }
-  }).filter((l: ApolloLead) => l.email && l.first_name)
+  }).filter((l: ApolloLead) => {
+    const keep = !!l.email && !!l.first_name
+    if (!keep) console.log(`[apollo] filtered out: ${l.first_name || '(no name)'} @ ${l.company_name} — email: ${l.email || 'MISSING'}`)
+    return keep
+  })
 
+  console.log(`[apollo] qualified leads after filter: ${people.length}`)
   return people
 }
 
