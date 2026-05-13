@@ -2,14 +2,16 @@ name: Vantirs Outreach Agent
 
 on:
   schedule:
-    # Source leads — 7am UTC daily (12:30am IST / 3am EDT — runs before US wakes up)
+    # Source leads — 7am UTC daily (fetch Apollo leads + save to DB only, fast < 60s)
     - cron: '0 7 * * *'
+    # Qualify leads — 9am UTC daily (pain score + generate emails, runs after source-leads)
+    - cron: '0 9 * * *'
     # Send emails — every 30min, 9am-5pm US Eastern (EDT=UTC-4): 13:00-21:00 UTC (Mon-Fri)
     - cron: '*/30 13-21 * * 1-5'
     # Check replies — every hour during US business hours (13:00-22:00 UTC)
     - cron: '0 13-22 * * 1-5'
-    # Continuous validation rescan — 8am UTC daily (3:30am IST / 4am EDT)
-    - cron: '0 8 * * *'
+    # Continuous validation rescan — 10am UTC daily
+    - cron: '0 10 * * *'
     # QBO incremental sync — every 4 hours
     - cron: '0 */4 * * *'
     # Xero incremental sync — every 4 hours (offset by 1h to avoid overlap)
@@ -20,10 +22,23 @@ jobs:
   source-leads:
     if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
-      - name: Trigger source-leads
+      - name: Fetch Apollo leads and save to DB
         run: |
-          RESPONSE=$(curl -s "https://www.vantirs.com/api/cron/source-leads" \
+          RESPONSE=$(curl -s --max-time 90 "https://www.vantirs.com/api/cron/source-leads" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"ok":true'
+
+  qualify-leads:
+    if: github.event.schedule == '0 9 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Score leads and generate email sequences
+        run: |
+          RESPONSE=$(curl -s --max-time 360 "https://www.vantirs.com/api/cron/qualify-leads" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
           echo "$RESPONSE"
           echo "$RESPONSE" | grep -q '"ok":true'
@@ -49,7 +64,7 @@ jobs:
             | tee /dev/stderr | grep -q '"ok":true'
 
   rescan-invoices:
-    if: github.event.schedule == '0 8 * * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 10 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Continuous validation — rescan open invoices
