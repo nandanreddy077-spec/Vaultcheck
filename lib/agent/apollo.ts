@@ -19,21 +19,17 @@ export interface ApolloLead {
   phone: string
 }
 
-// Apollo's mixed_people/api_search returns preview-mode contacts (no email).
-// To get emails we must call /v1/people/match per person — costs 1 export credit each.
-// With 2520 credits/month and 20 leads/day target (~600/month) this is within budget.
+// Apollo search returns preview-mode (no email). Enrichment via bulk_match
+// reveals emails in batches of 10, costing 1 credit per matched person.
+// With 2520 credits/month and default 10 leads/day (~300/month) we're well within budget.
 
 interface ApolloPreviewPerson {
   id: string
   first_name: string
-  last_name_obfuscated: string
-  title: string
-  has_email: boolean
-  has_city: boolean
-  has_state: boolean
-  has_country: boolean
-  last_refreshed_at: string
-  organization: {
+  last_name_obfuscated?: string
+  title?: string
+  has_email?: boolean
+  organization?: {
     id?: string
     name?: string
     website_url?: string
@@ -47,14 +43,13 @@ interface ApolloEnrichedPerson {
   first_name: string
   last_name: string
   email: string | null
-  email_status: string | null
-  title: string
-  city: string | null
-  state: string | null
-  country: string | null
-  linkedin_url: string | null
-  phone_numbers: Array<{ sanitized_number: string }>
-  organization: {
+  email_status?: string | null
+  title?: string | null
+  city?: string | null
+  state?: string | null
+  linkedin_url?: string | null
+  phone_numbers?: Array<{ sanitized_number: string }>
+  organization?: {
     name?: string
     website_url?: string
     industry?: string
@@ -62,42 +57,47 @@ interface ApolloEnrichedPerson {
   } | null
 }
 
-async function revealContactEmail(
+async function bulkRevealEmails(
   apiKey: string,
-  apolloId: string
-): Promise<ApolloEnrichedPerson | null> {
+  apolloIds: string[]
+): Promise<ApolloEnrichedPerson[]> {
+  if (apolloIds.length === 0) return []
+
+  // Apollo bulk_match accepts details array; each item needs at least one identifier.
+  const details = apolloIds.map(id => ({ id, reveal_personal_emails: true }))
+
   try {
     const res = await axios.post(
-      `${APOLLO_BASE}/people/match`,
-      { id: apolloId, reveal_personal_emails: true, reveal_phone_number: false },
+      `${APOLLO_BASE}/people/bulk_match`,
+      { details, reveal_phone_number: false },
       {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           'X-Api-Key': apiKey,
         },
-        timeout: 8000, // 8s max per enrichment call
+        timeout: 30_000, // 30s for up to 10 people
       }
     )
-    // Response is { person: {...} } or { match: {...} }
-    return (res.data?.person ?? res.data?.match ?? null) as ApolloEnrichedPerson | null
-  } catch {
-    return null
+    // Response: { matches: [...] } where each match is a person object or null
+    const matches = res.data?.matches ?? []
+    return matches.filter(Boolean) as ApolloEnrichedPerson[]
+  } catch (err) {
+    console.warn('[apollo] bulk_match failed:', err instanceof Error ? err.message : String(err))
+    return []
   }
 }
 
-export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
+export async function fetchLeadsFromApollo(limit = 10): Promise<ApolloLead[]> {
   const apiKey = process.env.APOLLO_API_KEY
   if (!apiKey) throw new Error('APOLLO_API_KEY not set')
 
-  // Step 1 — Search: find candidates matching our ICP (no credits consumed)
-  // ICP: owners/operators of virtual CFO and outsourced bookkeeping firms in the US,
-  // actively managing AP for SMB clients. Exclude tax-only CPAs.
-  // Note: keep per_page tight (limit * 2) — enrichment takes ~5s/person, so
-  // budget = limit × 8s timeout + overhead must stay well under Vercel's 300s maxDuration.
+  // Step 1 — Search: find candidates (free, no credits).
+  // Fetch limit * 2 so we have buffer for people whose email doesn't unlock.
+  const per_page = Math.min(limit * 2, 40)
   const searchPayload = {
     page: 1,
-    per_page: Math.min(limit * 2, 50), // max 50 search candidates for 25 target leads
+    per_page,
     person_titles: [
       'Virtual CFO',
       'Outsourced CFO',
@@ -125,6 +125,7 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
           Accept: 'application/json',
           'X-Api-Key': apiKey,
         },
+        timeout: 15_000,
       }
     )
   } catch (error) {
@@ -138,50 +139,56 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   }
 
   const previews: ApolloPreviewPerson[] = (searchRes.data?.people ?? [])
-    .filter((p: ApolloPreviewPerson) => p.has_email && p.first_name)
+    .filter((p: ApolloPreviewPerson) => p.has_email !== false && p.first_name)
 
-  console.log(`[apollo] search returned ${searchRes.data?.people?.length ?? 0} people, ${previews.length} with email`)
+  console.log(`[apollo] search: ${searchRes.data?.people?.length ?? 0} total, ${previews.length} with possible email`)
 
   if (previews.length === 0) {
-    throw new Error(`Apollo search returned ${searchRes.data?.people?.length ?? 0} people but none have email. This may be a plan limitation.`)
+    throw new Error(`Apollo search returned ${searchRes.data?.people?.length ?? 0} people but none have email flag.`)
   }
 
-  // Step 2 — Enrich: reveal emails for candidates (costs 1 credit per person).
-  // Budget: each call has an 8s timeout. With limit=20 and ~50% hit rate we'll make
-  // up to 40 calls × 8s = 320s — right at the edge. We add a wall-clock guard to stop
-  // enrichment at 200s so there's still headroom for pain scoring + email generation.
+  // Step 2 — Enrich in batches of 10 (bulk_match is 1 round-trip vs N individual calls).
+  // Each batch costs up to 10 credits.
+  const BATCH_SIZE = 10
   const results: ApolloLead[] = []
-  const enrichmentDeadline = Date.now() + 200_000 // 200s from now
 
-  for (const preview of previews) {
-    if (results.length >= limit) break
-    if (Date.now() > enrichmentDeadline) {
-      console.log('[apollo] enrichment deadline reached, stopping early')
-      break
+  for (let i = 0; i < previews.length && results.length < limit; i += BATCH_SIZE) {
+    const batch = previews.slice(i, i + BATCH_SIZE)
+    const enriched = await bulkRevealEmails(apiKey, batch.map(p => p.id))
+
+    for (const person of enriched) {
+      if (results.length >= limit) break
+      if (!person.email) continue
+
+      // Find matching preview for org fallback
+      const preview = previews.find(p => p.id === person.id)
+      const org = person.organization ?? preview?.organization ?? {}
+
+      results.push({
+        apollo_id: person.id,
+        first_name: person.first_name,
+        last_name: person.last_name ?? '',
+        email: person.email,
+        title: person.title ?? preview?.title ?? '',
+        company_name: (org as { name?: string }).name ?? '',
+        company_domain: (org as { website_url?: string }).website_url ?? '',
+        city: person.city ?? '',
+        state: person.state ?? '',
+        industry: (org as { industry?: string }).industry ?? '',
+        employee_count: (org as { num_employees?: number }).num_employees ?? 0,
+        linkedin_url: person.linkedin_url ?? '',
+        phone: person.phone_numbers?.[0]?.sanitized_number ?? '',
+      })
     }
 
-    const enriched = await revealContactEmail(apiKey, preview.id)
-    if (!enriched?.email) continue // no email unlocked
-
-    const org = enriched.organization ?? preview.organization ?? {}
-    results.push({
-      apollo_id: enriched.id ?? preview.id,
-      first_name: enriched.first_name ?? preview.first_name,
-      last_name: enriched.last_name ?? '',
-      email: enriched.email,
-      title: enriched.title ?? preview.title ?? '',
-      company_name: (org as { name?: string }).name ?? '',
-      company_domain: (org as { website_url?: string }).website_url ?? '',
-      city: enriched.city ?? '',
-      state: enriched.state ?? '',
-      industry: (org as { industry?: string }).industry ?? '',
-      employee_count: (org as { num_employees?: number }).num_employees ?? 0,
-      linkedin_url: enriched.linkedin_url ?? '',
-      phone: enriched.phone_numbers?.[0]?.sanitized_number ?? '',
-    })
+    console.log(`[apollo] batch ${Math.floor(i / BATCH_SIZE) + 1}: ${enriched.length} enriched, ${results.length}/${limit} collected`)
   }
 
-  console.log(`[apollo] enriched ${results.length} leads with emails (used ${results.length} credits)`)
+  if (results.length === 0) {
+    throw new Error(`Apollo enrichment returned 0 emails from ${previews.length} candidates. Check plan credits.`)
+  }
+
+  console.log(`[apollo] done — ${results.length} leads with emails (used ~${results.length} credits)`)
   return results
 }
 
