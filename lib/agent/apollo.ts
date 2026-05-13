@@ -27,6 +27,7 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   // actively managing AP for SMB clients (construction, real estate, healthcare) in QBO.
   // Exclude tax-only CPAs — they don't process AP and won't convert.
   const payload = {
+    api_key: apiKey,
     page: 1,
     per_page: Math.min(Math.max(limit, 1), 100),
     person_titles: [
@@ -43,8 +44,7 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
     person_locations: ['United States'],
     contact_email_status: ['verified'],
     organization_num_employees_ranges: ['1,20'],
-    q_keywords: 'bookkeeping virtual cfo outsourced accounting quickbooks construction real estate healthcare',
-    sort_by_field: 'last_activity_date',
+    sort_by_field: '[none]',
     sort_ascending: false,
   }
 
@@ -57,7 +57,6 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          'x-api-key': apiKey,
         },
       }
     )
