@@ -50,7 +50,7 @@ Rules:
     messages: [{ role: 'user', content: prompt }],
   })
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
+  const text = message.content[0]?.type === 'text' ? message.content[0].text : '{}'
 
   try {
     const parsed = JSON.parse(text.trim())

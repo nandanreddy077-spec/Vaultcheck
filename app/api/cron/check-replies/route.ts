@@ -142,6 +142,7 @@ export async function GET(req: Request) {
       const inbound = await fetchInboundReplies(account, new Set(leadMap.keys()))
 
       for (const msg of inbound) {
+        try {
         const lead = leadMap.get(msg.fromEmail)
         if (!lead || lead.status === 'replied' || lead.funnel_stage === 'lost') continue
 
@@ -208,6 +209,9 @@ export async function GET(req: Request) {
 
         repliesFound++
         console.log(`[check-replies] ${msg.fromEmail} → ${analysis.intent} → ${analysis.suggested_action}`)
+        } catch (msgErr) {
+          console.error(`[check-replies] error processing message from ${msg.fromEmail}:`, msgErr instanceof Error ? msgErr.message : String(msgErr))
+        }
       }
     }
 

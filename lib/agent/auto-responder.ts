@@ -46,7 +46,7 @@ Rules:
     messages: [{ role: 'user', content: prompt }],
   })
 
-  return message.content[0].type === 'text' ? message.content[0].text.trim() : ''
+  return message.content[0]?.type === 'text' ? message.content[0].text.trim() : ''
 }
 
 export async function sendAutoResponse(opts: {
