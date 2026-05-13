@@ -147,13 +147,30 @@ export async function fetchLeadsFromApollo(limit = 10): Promise<ApolloLead[]> {
     throw new Error(`Apollo search returned ${searchRes.data?.people?.length ?? 0} people but none have email flag.`)
   }
 
+  // Pre-filter: skip Apollo IDs already in the DB to avoid spending credits on duplicates.
+  // This is critical for re-runs — Apollo search returns the same people repeatedly.
+  const db = getServiceClient()
+  const previewIds = previews.map(p => p.id)
+  const { data: existingRows } = await db
+    .from('outreach_leads')
+    .select('apollo_id')
+    .in('apollo_id', previewIds)
+  const existingIds = new Set((existingRows ?? []).map((r: { apollo_id: string }) => r.apollo_id))
+  const newPreviews = previews.filter(p => !existingIds.has(p.id))
+  console.log(`[apollo] dedup: ${previews.length} candidates, ${existingIds.size} already in DB, ${newPreviews.length} new`)
+
+  if (newPreviews.length === 0) {
+    console.log('[apollo] all candidates already in DB — no credits spent')
+    return []
+  }
+
   // Step 2 — Enrich in batches of 10 (bulk_match is 1 round-trip vs N individual calls).
   // Each batch costs up to 10 credits.
   const BATCH_SIZE = 10
   const results: ApolloLead[] = []
 
-  for (let i = 0; i < previews.length && results.length < limit; i += BATCH_SIZE) {
-    const batch = previews.slice(i, i + BATCH_SIZE)
+  for (let i = 0; i < newPreviews.length && results.length < limit; i += BATCH_SIZE) {
+    const batch = newPreviews.slice(i, i + BATCH_SIZE)
     const enriched = await bulkRevealEmails(apiKey, batch.map(p => p.id))
 
     for (const person of enriched) {
@@ -161,7 +178,7 @@ export async function fetchLeadsFromApollo(limit = 10): Promise<ApolloLead[]> {
       if (!person.email) continue
 
       // Find matching preview for org fallback
-      const preview = previews.find(p => p.id === person.id)
+      const preview = newPreviews.find(p => p.id === person.id)
       const org = person.organization ?? preview?.organization ?? {}
 
       results.push({
