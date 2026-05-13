@@ -51,10 +51,16 @@ Score guide:
     messages: [{ role: 'user', content: prompt }],
   })
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
+  const raw = message.content[0].type === 'text' ? message.content[0].text : '{}'
+  const text = raw
+    .trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```\s*$/i, '')
+    .trim()
 
   try {
-    const parsed = JSON.parse(text.trim())
+    const parsed = JSON.parse(text)
     return {
       serves_construction: parsed.serves_construction ?? false,
       serves_real_estate: parsed.serves_real_estate ?? false,

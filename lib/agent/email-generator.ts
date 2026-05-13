@@ -11,18 +11,41 @@ export interface GeneratedEmail {
   psychology_angle: string
 }
 
+function extractJson(text: string): string {
+  // Strip markdown code fences if Claude wraps response
+  return text
+    .trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```\s*$/i, '')
+    .trim()
+}
+
 const ANGLE_INSTRUCTIONS: Record<PsychAngle, string> = {
-  loss_aversion: `Use loss aversion + NACHA 2026 compliance urgency. The NACHA Phase 2 deadline is June 22, 2026 — every firm that originates ACH payments for clients (including bookkeepers and virtual CFOs) now legally needs documented, risk-based fraud monitoring or faces fines and corrective action plans. Frame around two things they stand to lose: (1) a client relationship when a fake vendor bank change goes through on their watch, and (2) NACHA compliance exposure if they have no documented controls. Make the deadline feel real and specific — "June 22" not "soon". Never use the word "unfortunately".`,
+  loss_aversion: `Frame around two real risks they haven't thought about:
+(1) A client's vendor bank change turns out to be a BEC scam — the bookkeeper processes it and now owns the liability conversation. Name a real dollar amount ($50k-$200k typical for SMB AP fraud).
+(2) NACHA Phase 2 goes live June 22, 2026 — firms that originate ACH payments for clients now need documented fraud monitoring controls or face NACHA corrective action. Not "soon" — June 22, 2026.
+Then in ONE sentence: Vantirs auto-verifies vendor bank details against live business registries and flags mismatches before ACH is submitted.
+CTA: not a demo, just "is this something your firm currently has covered?" — let them say no.`,
 
-  social_proof: `Use social proof. Reference that other bookkeeping and virtual CFO firms in their region (mention their state or a nearby major city) are already using this to stay NACHA 2026 compliant. Specificity beats volume — "3 outsourced CFO firms in Texas" beats "hundreds of firms". Keep it believable, not braggy.`,
+  social_proof: `Open with something specific to their geography or client type. E.g. if they're in Texas mention Texas construction firms; if healthcare mention healthcare AP fraud trends.
+1-2 sentences about what similar firms are doing: outsourced CFO and bookkeeping firms are quietly adding Vantirs as their vendor payment checkpoint — not because clients ask, but because one $80k fraud claim changes your E&O situation.
+Then one line: Vantirs takes 90 seconds per vendor change and catches mismatches before the ACH goes out.
+CTA: soft — "curious if it's something you've looked at."`,
 
-  reciprocity: `Use reciprocity. Lead with giving — offer a free vendor payment verification checklist (5 questions every bookkeeping firm should ask before processing a vendor bank change). Mention it was built specifically for the NACHA 2026 ACH monitoring requirement. Ask for nothing in return except 2 minutes. The ask (a call) comes at the end, almost as an afterthought.`,
+  reciprocity: `Lead with free value — no strings attached. Offer them a 5-question vendor payment checklist your team built for the NACHA 2026 ACH monitoring requirement (it's a real thing — firms originating ACH now need documented controls). Tell them you'll send it over, no opt-in required.
+Then very naturally: Vantirs was built around the same verification logic — live registry checks + bank routing validation before each ACH.
+CTA: almost as an afterthought — "happy to send the checklist either way."`,
 
-  bump: `This is a follow-up bump. 1-2 sentences max. Casual. No pitch. Just checking if the first email landed. Sound like a human who actually cares, not a bot. Don't re-pitch.`,
+  bump: `1-2 sentences only. Casual. Reference your first email briefly. Don't re-pitch.
+Sound like a real human checking in, not a sequence. Something like "wanted to make sure this didn't get buried — the NACHA June deadline is getting closer and I know inboxes are brutal."
+No bullet points. No features. Just human.`,
 
-  value: `Share a specific, concrete BEC fraud stat relevant to construction/real estate. Then connect it to their world. No fluff. Re-pitch Vantirs in one sentence at the end.`,
+  value: `Lead with a stat that's specific and real: BEC fraud targeting construction and real estate AP is up 45% since 2023, average loss $130k per incident (FBI IC3 2024 data). Frame it for their world: that's a client relationship, an E&O claim, and a NACHA corrective action plan landing on the same week.
+One sentence on Vantirs: we run a 30-second verification on every vendor bank change before ACH submission — flags mismatches against live state business registries and banking rails.
+CTA: direct — "worth a look before the June 22 NACHA deadline?"`,
 
-  breakup: `This is the last email. Tell them you're closing their file. No hard feelings. Leave the door open warmly. Short. Human. Never desperate.`,
+  breakup: `Short, warm, no hard feelings. Tell them you're removing them from your list and won't reach out again. If they ever run into a vendor payment situation, they know where to find Vantirs. Leave the door fully open. One short paragraph. Very human. Not passive-aggressive.`,
 }
 
 export async function generateEmail(
@@ -38,14 +61,24 @@ export async function generateEmail(
 ): Promise<GeneratedEmail> {
   const angle = getAngleForStep(step)
   const angleInstructions = ANGLE_INSTRUCTIONS[angle]
-  const painContext = painSignals.pain_keywords.length > 0
-    ? `Their clients likely deal with: ${painSignals.pain_keywords.join(', ')}.`
-    : ''
 
-  const prompt = `You are writing a cold outreach email for Vantirs — a payment verification SaaS that prevents fake invoice fraud and BEC attacks for accounting firms managing construction and real estate clients.
+  // Build rich pain context from detection results
+  const painParts: string[] = []
+  if (painSignals.serves_construction) painParts.push('likely serves construction clients')
+  if (painSignals.serves_real_estate) painParts.push('likely serves real estate clients')
+  if (painSignals.high_bec_risk) painParts.push('high BEC risk profile')
+  if (painSignals.pain_keywords.length > 0) painParts.push(`pain triggers: ${painSignals.pain_keywords.join(', ')}`)
+  if (painSignals.reason) painParts.push(`fit reason: ${painSignals.reason}`)
+  const painContext = painParts.length > 0 ? `\nINTELLIGENCE ON THIS LEAD:\n${painParts.map(p => `- ${p}`).join('\n')}` : ''
+
+  const prompt = `You are writing a highly personalized cold email on behalf of Nandan at Vantirs.
+
+WHAT VANTIRS DOES (use this, don't make things up):
+Vantirs is a payment fraud prevention tool for accounting firms. It auto-verifies vendor bank account changes against live state business registries and banking rails before ACH is submitted. Catches fake vendor fraud and BEC bank-change scams in 30–90 seconds. Built specifically for outsourced bookkeeping firms and virtual CFO practices that process AP for construction, real estate, and healthcare clients.
+NACHA 2026 context: NACHA Phase 2 compliance (effective June 22, 2026) requires firms originating ACH payments to have documented, risk-based fraud monitoring. Many bookkeeping and CFO firms don't realize this applies to them.
 
 PROSPECT:
-- First name: ${lead.first_name}
+- Name: ${lead.first_name}
 - Title: ${lead.title}
 - Company: ${lead.company_name}
 - Location: ${lead.city}, ${lead.state}
@@ -53,46 +86,52 @@ ${painContext}
 
 EMAIL STEP: ${step} of 4
 PSYCHOLOGY ANGLE: ${angle}
-INSTRUCTIONS: ${angleInstructions}
+WHAT TO DO: ${angleInstructions}
 
-RULES (non-negotiable):
-1. Sound like a human, not marketing copy
-2. Step 1: max 3 sentences in body. Steps 2-4: even shorter
-3. Use ${lead.first_name}'s first name once at the start only
-4. Mention their specific city or state naturally if it makes the email feel less generic
-5. Never use: "I hope this finds you well", "touch base", "circle back", "synergy", "game-changer", "revolutionary", "excited to share"
-6. No bullet points. Plain prose only.
-7. Sign off as: "— Nandan, Vantirs"
-8. Subject line: max 8 words, no clickbait, sounds like it came from a real person
-9. End the body (after the sign-off) with exactly this line on its own: "To opt out, reply with 'unsubscribe' and I'll remove you immediately."
+NON-NEGOTIABLE RULES:
+1. Sound like one human emailing another — NOT marketing copy, NOT a template
+2. Step 1: max 4 sentences in body. Steps 2-4: shorter.
+3. Use ${lead.first_name}'s first name ONCE at the very start
+4. Reference their company name (${lead.company_name}) or city/state (${lead.city}, ${lead.state}) naturally to make it feel personal
+5. Use the intelligence above — if they serve construction, mention construction; if real estate, mention real estate
+6. NEVER say: "I hope this finds you well", "touch base", "circle back", "synergy", "game-changer", "revolutionary", "excited to share", "just wanted to", "reach out", "checking in to see if"
+7. No bullet points in the email body. Plain prose only.
+8. Sign off as: "— Nandan, Vantirs"
+9. After the sign-off, on its own line: "To opt out, reply 'unsubscribe' and I'll remove you right away."
+10. Subject line: max 7 words, sounds like it came from a real person, NOT clickbait
 
-Respond ONLY with JSON (no markdown):
-{
-  "subject": "...",
-  "body": "..."
-}`
+Output ONLY valid JSON with no markdown, no code fences, no explanation:
+{"subject": "...", "body": "..."}`
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 600,
+    max_tokens: 700,
     messages: [{ role: 'user', content: prompt }],
   })
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
+  const raw = message.content[0].type === 'text' ? message.content[0].text : '{}'
 
   try {
-    const parsed = JSON.parse(text.trim())
+    const parsed = JSON.parse(extractJson(raw))
     return {
       subject: parsed.subject ?? 'Quick question',
       body: parsed.body ?? '',
       psychology_angle: angle,
     }
   } catch {
-    return {
-      subject: 'Quick question for you',
-      body: `${lead.first_name}, had a quick thought about your firm. Worth a 15-min call?\n\n— Nandan, Vantirs`,
-      psychology_angle: angle,
+    // Log the raw response so we can debug parse failures
+    console.error('[email-generator] JSON parse failed. Raw response:', raw.slice(0, 300))
+    // Fallback: still try to extract subject/body manually
+    const subjectMatch = raw.match(/"subject"\s*:\s*"([^"]+)"/)
+    const bodyMatch = raw.match(/"body"\s*:\s*"([\s\S]+?)"(?:\s*[,}])/)
+    if (subjectMatch && bodyMatch) {
+      return {
+        subject: subjectMatch[1],
+        body: bodyMatch[1].replace(/\\n/g, '\n'),
+        psychology_angle: angle,
+      }
     }
+    throw new Error(`Email generation parse failed for step ${step}: ${raw.slice(0, 200)}`)
   }
 }
 
@@ -118,7 +157,7 @@ function pickOpeningAngle(): PsychAngle {
 
 // Schedule helpers — day offsets for each step
 export const SEQUENCE_DELAYS_DAYS: Record<number, number> = {
-  1: 0,   // send immediately
+  1: 0,   // send immediately (same day)
   2: 4,   // day 4
   3: 9,   // day 9
   4: 16,  // day 16
