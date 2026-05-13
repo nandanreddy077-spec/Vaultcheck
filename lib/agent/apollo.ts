@@ -77,10 +77,12 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   }
 
   const rawPeopleCount = res.data?.people?.length ?? 0
-  console.log(`[apollo] raw people from API: ${rawPeopleCount}, pagination: ${JSON.stringify(res.data?.pagination ?? {})}, top-level keys: ${Object.keys(res.data ?? {}).join(',')}`)
+  // Surface Apollo response details so they appear in CI sourceWarning when 0 results
   if (rawPeopleCount === 0) {
-    // Log the full response so we can debug what Apollo is returning
-    console.log(`[apollo] ZERO RESULTS — full response: ${JSON.stringify(res.data).slice(0, 500)}`)
+    const topLevelKeys = Object.keys(res.data ?? {}).join(',')
+    const pagination = JSON.stringify(res.data?.pagination ?? {})
+    const snippet = JSON.stringify(res.data).slice(0, 600)
+    throw new Error(`Apollo returned 0 people. Keys: ${topLevelKeys} | Pagination: ${pagination} | Body: ${snippet}`)
   }
 
   const people: ApolloLead[] = (res.data?.people ?? []).map((p: Record<string, unknown>) => {
