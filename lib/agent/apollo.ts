@@ -19,33 +19,104 @@ export interface ApolloLead {
   phone: string
 }
 
+// Apollo's mixed_people/api_search returns preview-mode contacts (no email).
+// To get emails we must call /v1/people/match per person — costs 1 export credit each.
+// With 2520 credits/month and 20 leads/day target (~600/month) this is within budget.
+
+interface ApolloPreviewPerson {
+  id: string
+  first_name: string
+  last_name_obfuscated: string
+  title: string
+  has_email: boolean
+  has_city: boolean
+  has_state: boolean
+  has_country: boolean
+  last_refreshed_at: string
+  organization: {
+    id?: string
+    name?: string
+    website_url?: string
+    industry?: string
+    num_employees?: number
+  } | null
+}
+
+interface ApolloEnrichedPerson {
+  id: string
+  first_name: string
+  last_name: string
+  email: string | null
+  email_status: string | null
+  title: string
+  city: string | null
+  state: string | null
+  country: string | null
+  linkedin_url: string | null
+  phone_numbers: Array<{ sanitized_number: string }>
+  organization: {
+    name?: string
+    website_url?: string
+    industry?: string
+    num_employees?: number
+  } | null
+}
+
+async function revealContactEmail(
+  apiKey: string,
+  apolloId: string
+): Promise<ApolloEnrichedPerson | null> {
+  try {
+    const res = await axios.post(
+      `${APOLLO_BASE}/people/match`,
+      { id: apolloId, reveal_personal_emails: true, reveal_phone_number: false },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-Api-Key': apiKey,
+        },
+      }
+    )
+    // Response is { person: {...} } or { match: {...} }
+    return (res.data?.person ?? res.data?.match ?? null) as ApolloEnrichedPerson | null
+  } catch {
+    return null
+  }
+}
+
 export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   const apiKey = process.env.APOLLO_API_KEY
   if (!apiKey) throw new Error('APOLLO_API_KEY not set')
 
-  // ICP: owners/operators of virtual CFO and outsourced bookkeeping firms, 5-20 employees,
-  // actively managing AP for SMB clients (construction, real estate, healthcare) in QBO.
-  // Exclude tax-only CPAs — they don't process AP and won't convert.
-  // Apollo API field reference:
-  //   q_keywords           — freeform keyword search across person + org
-  //   person_titles        — title fuzzy-match list
-  //   person_locations     — location list (city, state, or country)
-  //   organization_industries — industry list
-  //   organization_num_employees_ranges — "MIN,MAX" strings e.g. "1,20"
-  //   contact_email_status — 'verified' | 'likely' | 'unavailable' (only on paid email plans)
-  // Minimal query — verify Apollo returns results at all.
-  // Broaden titles and drop industry/location filters that were causing 0 results.
-  const payload = {
+  // Step 1 — Search: find candidates matching our ICP (no credits consumed)
+  // ICP: owners/operators of virtual CFO and outsourced bookkeeping firms in the US,
+  // actively managing AP for SMB clients. Exclude tax-only CPAs.
+  const searchPayload = {
     page: 1,
-    per_page: Math.min(Math.max(limit, 1), 100),
-    q_keywords: 'bookkeeping accounting',
+    per_page: Math.min(limit * 3, 100), // fetch 3x so we have buffer after email filtering
+    person_titles: [
+      'Virtual CFO',
+      'Outsourced CFO',
+      'Fractional CFO',
+      'Controller',
+      'Bookkeeper',
+      'Accounting Manager',
+      'Owner',
+      'Managing Partner',
+      'Principal',
+    ],
+    person_locations: ['United States'],
+    organization_num_employees_ranges: ['1,20'],
+    sort_by_field: '[none]',
+    sort_ascending: false,
   }
 
-  let res
+  let searchRes
   try {
-    res = await axios.post(
+    searchRes = await axios.post(
       `${APOLLO_BASE}/mixed_people/api_search`,
-      payload,
+      searchPayload,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -59,49 +130,52 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
       const details = typeof error.response?.data === 'string'
         ? error.response.data
         : JSON.stringify(error.response?.data ?? {})
-      throw new Error(`Apollo API ${error.response?.status ?? 'error'}: ${details}`)
+      throw new Error(`Apollo search ${error.response?.status ?? 'error'}: ${details}`)
     }
     throw error
   }
 
-  const rawPeopleCount = res.data?.people?.length ?? 0
-  if (rawPeopleCount === 0) {
-    const topLevelKeys = Object.keys(res.data ?? {}).join(',')
-    const snippet = JSON.stringify(res.data).slice(0, 600)
-    throw new Error(`Apollo 0 results. Keys: ${topLevelKeys} | ${snippet}`)
+  const previews: ApolloPreviewPerson[] = (searchRes.data?.people ?? [])
+    .filter((p: ApolloPreviewPerson) => p.has_email && p.first_name)
+
+  console.log(`[apollo] search returned ${searchRes.data?.people?.length ?? 0} people, ${previews.length} with email`)
+
+  if (previews.length === 0) {
+    throw new Error(`Apollo search returned ${searchRes.data?.people?.length ?? 0} people but none have email. This may be a plan limitation.`)
   }
-  // Debug: show first person's keys and email field so we know what Apollo returns
-  const firstPerson = res.data.people[0]
-  const firstPersonKeys = Object.keys(firstPerson).join(',')
-  const firstPersonEmail = firstPerson.email
-  const firstPersonEmailStatus = firstPerson.email_status
-  throw new Error(`DEBUG — Apollo returned ${rawPeopleCount} people. First person keys: ${firstPersonKeys.slice(0,200)} | email: ${firstPersonEmail} | email_status: ${firstPersonEmailStatus}`)
 
-  const people: ApolloLead[] = (res.data?.people ?? []).map((p: Record<string, unknown>) => {
-    const org = (p.organization ?? {}) as Record<string, unknown>
-    return {
-      apollo_id: p.id as string,
-      first_name: (p.first_name as string) ?? '',
-      last_name: (p.last_name as string) ?? '',
-      email: (p.email as string) ?? '',
-      title: (p.title as string) ?? '',
-      company_name: (org.name as string) ?? '',
-      company_domain: (org.website_url as string) ?? '',
-      city: (p.city as string) ?? '',
-      state: (p.state as string) ?? '',
-      industry: (org.industry as string) ?? '',
-      employee_count: (org.num_employees as number) ?? 0,
-      linkedin_url: (p.linkedin_url as string) ?? '',
-      phone: ((p.phone_numbers as Array<{ sanitized_number: string }>)?.[0]?.sanitized_number) ?? '',
-    }
-  }).filter((l: ApolloLead) => {
-    const keep = !!l.email && !!l.first_name
-    if (!keep) console.log(`[apollo] filtered out: ${l.first_name || '(no name)'} @ ${l.company_name} — email: ${l.email || 'MISSING'}`)
-    return keep
-  })
+  // Step 2 — Enrich: reveal emails for candidates (costs 1 credit per person)
+  const results: ApolloLead[] = []
 
-  console.log(`[apollo] qualified leads after filter: ${people.length}`)
-  return people
+  for (const preview of previews) {
+    if (results.length >= limit) break
+
+    const enriched = await revealContactEmail(apiKey, preview.id)
+    if (!enriched?.email) continue // no email unlocked (unlikely with has_email=true)
+
+    const org = enriched.organization ?? preview.organization ?? {}
+    results.push({
+      apollo_id: enriched.id ?? preview.id,
+      first_name: enriched.first_name ?? preview.first_name,
+      last_name: enriched.last_name ?? '',
+      email: enriched.email,
+      title: enriched.title ?? preview.title ?? '',
+      company_name: (org as { name?: string }).name ?? '',
+      company_domain: (org as { website_url?: string }).website_url ?? '',
+      city: enriched.city ?? '',
+      state: enriched.state ?? '',
+      industry: (org as { industry?: string }).industry ?? '',
+      employee_count: (org as { num_employees?: number }).num_employees ?? 0,
+      linkedin_url: enriched.linkedin_url ?? '',
+      phone: enriched.phone_numbers?.[0]?.sanitized_number ?? '',
+    })
+
+    // Small delay to avoid hitting rate limits
+    await new Promise(r => setTimeout(r, 200))
+  }
+
+  console.log(`[apollo] enriched ${results.length} leads with emails (used ${results.length} credits)`)
+  return results
 }
 
 export async function saveLeadsToDb(leads: ApolloLead[]): Promise<{ saved: number; skipped: number }> {
