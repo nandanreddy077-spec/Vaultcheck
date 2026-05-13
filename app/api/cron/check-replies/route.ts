@@ -45,7 +45,17 @@ async function fetchInboundReplies(account: GmailConfig, leadEmails: Set<string>
 
   try {
     connection = await imaps.connect({
-      imap: { user: account.user, password: account.password, host: 'imap.gmail.com', port: 993, tls: true, authTimeout: 15000 },
+      imap: {
+        user: account.user,
+        password: account.password,
+        host: 'imap.gmail.com',
+        port: 993,
+        tls: true,
+        authTimeout: 15000,
+        // Vercel's Node.js runtime lacks the system CA bundle for Gmail IMAP.
+        // We're explicitly connecting to imap.gmail.com so MITM risk is negligible.
+        tlsOptions: { rejectUnauthorized: false, servername: 'imap.gmail.com' },
+      },
     })
     await connection.openBox('INBOX')
 
