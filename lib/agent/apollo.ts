@@ -33,24 +33,12 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   //   organization_industries — industry list
   //   organization_num_employees_ranges — "MIN,MAX" strings e.g. "1,20"
   //   contact_email_status — 'verified' | 'likely' | 'unavailable' (only on paid email plans)
+  // Minimal query — verify Apollo returns results at all.
+  // Broaden titles and drop industry/location filters that were causing 0 results.
   const payload = {
     page: 1,
     per_page: Math.min(Math.max(limit, 1), 100),
-    q_keywords: 'bookkeeping accounting CFO controller',
-    person_titles: [
-      'Virtual CFO',
-      'Outsourced CFO',
-      'Fractional CFO',
-      'Controller',
-      'Bookkeeper',
-      'Accounting Manager',
-      'Owner',
-      'Managing Partner',
-    ],
-    person_locations: ['United States'],
-    organization_industries: ['accounting'],
-    sort_by_field: '[none]',
-    sort_ascending: false,
+    q_keywords: 'bookkeeping accounting',
   }
 
   let res
