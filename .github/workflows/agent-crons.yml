@@ -59,9 +59,10 @@ jobs:
     steps:
       - name: Trigger check-replies
         run: |
-          curl -f -s "https://www.vantirs.com/api/cron/check-replies" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            | tee /dev/stderr | grep -q '"ok":true'
+          RESPONSE=$(curl -s --max-time 120 "https://www.vantirs.com/api/cron/check-replies" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"ok":true'
 
   rescan-invoices:
     if: github.event.schedule == '0 10 * * *' || github.event_name == 'workflow_dispatch'
