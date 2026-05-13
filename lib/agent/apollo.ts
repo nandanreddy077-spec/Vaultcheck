@@ -65,13 +65,17 @@ export async function fetchLeadsFromApollo(limit = 20): Promise<ApolloLead[]> {
   }
 
   const rawPeopleCount = res.data?.people?.length ?? 0
-  // Surface Apollo response details so they appear in CI sourceWarning when 0 results
   if (rawPeopleCount === 0) {
     const topLevelKeys = Object.keys(res.data ?? {}).join(',')
-    const pagination = JSON.stringify(res.data?.pagination ?? {})
     const snippet = JSON.stringify(res.data).slice(0, 600)
-    throw new Error(`Apollo returned 0 people. Keys: ${topLevelKeys} | Pagination: ${pagination} | Body: ${snippet}`)
+    throw new Error(`Apollo 0 results. Keys: ${topLevelKeys} | ${snippet}`)
   }
+  // Debug: show first person's keys and email field so we know what Apollo returns
+  const firstPerson = res.data.people[0]
+  const firstPersonKeys = Object.keys(firstPerson).join(',')
+  const firstPersonEmail = firstPerson.email
+  const firstPersonEmailStatus = firstPerson.email_status
+  throw new Error(`DEBUG — Apollo returned ${rawPeopleCount} people. First person keys: ${firstPersonKeys.slice(0,200)} | email: ${firstPersonEmail} | email_status: ${firstPersonEmailStatus}`)
 
   const people: ApolloLead[] = (res.data?.people ?? []).map((p: Record<string, unknown>) => {
     const org = (p.organization ?? {}) as Record<string, unknown>
