@@ -114,7 +114,7 @@ export default function PricingSection() {
               </p>
               <p className="mt-0.5 text-xs text-amber-700 leading-relaxed">
                 Every ACH originator — including accounting firms submitting vendor payments for clients — must now have documented, risk-based fraud monitoring. Vantirs generates the audit trail automatically.{' '}
-                <a href="/nacha-2026-vendor-payment-compliance" className="underline font-medium hover:text-amber-900">
+                <a href="/nacha-2026-compliance" className="underline font-medium hover:text-amber-900">
                   What this means for your firm →
                 </a>
               </p>
