@@ -159,9 +159,6 @@ export default function JustHadVendorFraudPage() {
                 <Link href="/signup" className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-bold text-[#0b1c30] hover:bg-[#eff4ff] transition">
                   Start free trial <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/guarantee" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition">
-                  See $10K guarantee
-                </Link>
               </div>
               <p className="text-sm text-white/40">No credit card required · Live in 10 minutes</p>
             </div>
