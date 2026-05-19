@@ -88,6 +88,15 @@ async function bulkRevealEmails(
   }
 }
 
+// Rotate Apollo search pages so each daily run fetches a different slice of results.
+// We derive the page from the day-of-year so it advances once per day automatically.
+function getDailyPage(): number {
+  const now = new Date()
+  const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86_400_000)
+  // Cycle through pages 1-50 (Apollo basic plan supports ~1000 results = 25 pages of 40)
+  return (dayOfYear % 25) + 1
+}
+
 export async function fetchLeadsFromApollo(limit = 10): Promise<ApolloLead[]> {
   const apiKey = process.env.APOLLO_API_KEY
   if (!apiKey) throw new Error('APOLLO_API_KEY not set')
@@ -95,8 +104,9 @@ export async function fetchLeadsFromApollo(limit = 10): Promise<ApolloLead[]> {
   // Step 1 — Search: find candidates (free, no credits).
   // Fetch limit * 2 so we have buffer for people whose email doesn't unlock.
   const per_page = Math.min(limit * 2, 40)
+  const page = getDailyPage()
   const searchPayload = {
-    page: 1,
+    page,
     per_page,
     person_titles: [
       'Virtual CFO',
@@ -141,7 +151,7 @@ export async function fetchLeadsFromApollo(limit = 10): Promise<ApolloLead[]> {
   const previews: ApolloPreviewPerson[] = (searchRes.data?.people ?? [])
     .filter((p: ApolloPreviewPerson) => p.has_email !== false && p.first_name)
 
-  console.log(`[apollo] search: ${searchRes.data?.people?.length ?? 0} total, ${previews.length} with possible email`)
+  console.log(`[apollo] search page ${page}: ${searchRes.data?.people?.length ?? 0} total, ${previews.length} with possible email`)
 
   if (previews.length === 0) {
     throw new Error(`Apollo search returned ${searchRes.data?.people?.length ?? 0} people but none have email flag.`)
@@ -224,13 +234,19 @@ export async function saveLeadsToDb(leads: ApolloLead[]): Promise<{ saved: numbe
 
     if (unsub) { skipped++; continue }
 
-    // Upsert — skip if we already have this person
+    // Check if already exists before inserting so we get an accurate saved count.
+    // ignoreDuplicates:true returns no error on conflict, making saved/skipped indistinguishable.
+    const { data: existing } = await db
+      .from('outreach_leads')
+      .select('id')
+      .eq('email', lead.email)
+      .single()
+
+    if (existing) { skipped++; continue }
+
     const { error } = await db
       .from('outreach_leads')
-      .upsert(
-        { ...lead, status: 'new' },
-        { onConflict: 'email', ignoreDuplicates: true }
-      )
+      .insert({ ...lead, status: 'new' })
 
     if (error) { skipped++; continue }
     saved++
