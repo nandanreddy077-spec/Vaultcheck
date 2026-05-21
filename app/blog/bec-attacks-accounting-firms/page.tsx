@@ -4,9 +4,9 @@ import MarketingSeoShell from '@/components/MarketingSeoShell'
 import { BlogPostingJsonLd } from '@/components/JsonLd'
 
 export const metadata: Metadata = {
-  title: 'BEC Attacks Targeting Accounting Firms | Vantirs',
+  title: 'BEC Scam Targeting Accounts Payable at Accounting Firms: 2026 Guide | Vantirs',
   description:
-    'Learn why business email compromise (BEC) targets accounting firms and how to fight back with vendor fingerprinting and contextual invoice fraud alerts.',
+    'BEC scams targeting accounting firm accounts payable surged 26% in Q1 2026. Learn how these attacks work and how to stop them before payment leaves QuickBooks Online.',
   alternates: { canonical: '/blog/bec-attacks-accounting-firms' },
 }
 
@@ -18,7 +18,7 @@ export default function BecAttacksPost() {
         description="Learn why business email compromise (BEC) targets accounting firms and how to fight back with vendor fingerprinting and contextual invoice fraud alerts."
         path="/blog/bec-attacks-accounting-firms"
         datePublished="2026-04-09"
-        dateModified="2026-04-13"
+        dateModified="2026-05-15"
         keywords={[
           'BEC fraud prevention accounting firms',
           'business email compromise accounting firms',
@@ -32,7 +32,7 @@ export default function BecAttacksPost() {
         </h1>
         <p className="mt-3 text-sm text-slate-500">Published Apr 9, 2026 · Updated Apr 13, 2026 · About 5 min read</p>
         <p className="mt-5 text-lg leading-relaxed text-slate-600">
-          Accounting firms handle multiple clients’ money. That makes your vendor payment workflow a high-value target—and BEC scams often ride in disguised as “vendor updates.”
+          BEC attacks surged 26% in March 2026, with 10.7 million incidents in Q1 alone — the highest quarterly total on record. Accounting firms handle multiple clients&apos; money, making your vendor payment workflow a high-value target where BEC scams ride in disguised as routine &ldquo;vendor updates.&rdquo;
         </p>
 
         <section className="mt-10">

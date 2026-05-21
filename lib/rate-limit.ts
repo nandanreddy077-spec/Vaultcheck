@@ -1,6 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 import { NextRequest, NextResponse } from 'next/server'
+import { hasRedisRateLimit, isProductionRuntime } from '@/lib/production-guard'
 
 type RateLimitPreset = 'auth' | 'oauth' | 'checkout' | 'scan' | 'webhook'
 
@@ -46,8 +47,19 @@ export async function enforceRateLimit(opts: {
 }) {
   const redis = getRateLimitRedis()
   if (!redis) {
+    if (isProductionRuntime() && !hasRedisRateLimit()) {
+      return NextResponse.json(
+        {
+          error:
+            'Rate limiting is required in production. Configure UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.',
+        },
+        { status: 503 }
+      )
+    }
     if (process.env.NODE_ENV === 'production') {
-      console.warn(`[rate-limit] Redis not configured — rate limiting DISABLED for scope="${opts.scope}". Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN.`)
+      console.warn(
+        `[rate-limit] Redis not configured — rate limiting DISABLED for scope="${opts.scope}". Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN.`
+      )
     }
     return null
   }

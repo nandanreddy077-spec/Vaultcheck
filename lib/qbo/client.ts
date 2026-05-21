@@ -25,6 +25,8 @@ export async function getQBOClient(clientId: string) {
   return createQBOClient(clientId, accessToken, client.qboRealmId)
 }
 
+const QBO_PAGE_SIZE = 1000
+
 function createQBOClient(clientId: string, accessToken: string, realmId: string) {
   async function query<T>(sql: string): Promise<T[]> {
     const url = `${QBO_BASE}/v3/company/${realmId}/query?query=${encodeURIComponent(sql)}&minorversion=65`
@@ -39,6 +41,24 @@ function createQBOClient(clientId: string, accessToken: string, realmId: string)
     return data.QueryResponse?.[entity] || []
   }
 
+  /** Paginate QBO SQL queries (MAXRESULTS 1000 per page). */
+  async function queryAll<T>(baseSql: string): Promise<T[]> {
+    const stripped = baseSql.replace(/\s+MAXRESULTS\s+\d+/gi, '').trim()
+    const all: T[] = []
+    let start = 1
+
+    while (true) {
+      const pageSql = `${stripped} MAXRESULTS ${QBO_PAGE_SIZE} STARTPOSITION ${start}`
+      const batch = await query<T>(pageSql)
+      if (!batch.length) break
+      all.push(...batch)
+      if (batch.length < QBO_PAGE_SIZE) break
+      start += QBO_PAGE_SIZE
+    }
+
+    return all
+  }
+
   async function cdc(entities: string, changedSince: string) {
     const url = `${QBO_BASE}/v3/company/${realmId}/cdc?entities=${entities}&changedSince=${encodeURIComponent(changedSince)}&minorversion=65`
     const res = await fetchWithRetry(url, {
@@ -50,7 +70,7 @@ function createQBOClient(clientId: string, accessToken: string, realmId: string)
     return res.json()
   }
 
-  return { query, cdc, realmId, clientId }
+  return { query, queryAll, cdc, realmId, clientId }
 }
 
 async function refreshTokens(clientId: string, encryptedRefreshToken: string) {

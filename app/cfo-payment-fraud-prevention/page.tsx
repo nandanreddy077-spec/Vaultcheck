@@ -100,6 +100,14 @@ export default function CfoPaymentFraudPreventionPage() {
           </ul>
         </div>
 
+        <div className="mt-10 rounded-xl border border-[#c3c5d9]/25 bg-[#f8f9ff] px-6 py-4 text-sm text-slate-700">
+          For a deeper look at how AI is being used to forge the invoices your team approves, read our guide on{' '}
+          <Link href="/blog/ai-generated-fake-invoices" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+            AI-generated fake invoice detection
+          </Link>
+          .
+        </div>
+
         <div className="mt-12 flex flex-wrap gap-3">
           <Link href="/for/cfos" className="text-sm font-semibold text-[#003ec7] underline-offset-4 hover:underline">
             CFOs

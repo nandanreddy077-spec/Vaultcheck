@@ -39,11 +39,11 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.paddle.com https://*.sentry.io",
-      `connect-src 'self' https://*.supabase.co ${supabaseHost ? `https://${supabaseHost}` : ''} https://api.paddle.com https://sandbox-api.paddle.com https://*.sentry.io https://vitals.vercel-insights.com`,
+      `connect-src 'self' https://*.supabase.co ${supabaseHost ? `https://${supabaseHost}` : ''} https://api.paddle.com https://sandbox-api.paddle.com https://buy.paddle.com https://sandbox-buy.paddle.com https://*.sentry.io https://vitals.vercel-insights.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "frame-src https://pay.paddle.com https://sandbox-pay.paddle.com",
+      "frame-src https://buy.paddle.com https://sandbox-buy.paddle.com",
       "object-src 'none'",
       "base-uri 'self'",
     ].join('; ')

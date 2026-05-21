@@ -3,37 +3,27 @@ import { requireRole } from '@/lib/auth'
 import { captureException } from '@/lib/monitoring'
 import { prisma } from '@/lib/prisma'
 import { getPaddle } from '@/lib/paddle'
+import { PLAN_LIMITS, type PaidPlan } from '@/lib/plans'
 import { enforceRateLimit } from '@/lib/rate-limit'
 
-type Plan = 'starter' | 'growth' | 'scale' | 'enterprise'
+type CheckoutPlan = 'solo' | 'starter' | 'growth' | 'scale' | 'whitelabel' | 'enterprise'
 
-function planToPriceAndMaxClients(plan: Plan): { priceId: string; maxClients: number } {
-  let priceId: string | undefined
-  let maxClients: number
+const PRICE_ENV: Record<CheckoutPlan, string | undefined> = {
+  solo: process.env.PADDLE_PRICE_SOLO,
+  starter: process.env.PADDLE_PRICE_STARTER,
+  growth: process.env.PADDLE_PRICE_GROWTH,
+  scale: process.env.PADDLE_PRICE_SCALE,
+  whitelabel: process.env.PADDLE_PRICE_WHITELABEL,
+  enterprise: process.env.PADDLE_PRICE_ENTERPRISE,
+}
 
-  switch (plan) {
-    case 'starter':
-      priceId = process.env.PADDLE_PRICE_STARTER
-      maxClients = 25
-      break
-    case 'growth':
-      priceId = process.env.PADDLE_PRICE_GROWTH
-      maxClients = 75
-      break
-    case 'scale':
-      priceId = process.env.PADDLE_PRICE_SCALE
-      maxClients = 200
-      break
-    case 'enterprise':
-      priceId = process.env.PADDLE_PRICE_ENTERPRISE
-      maxClients = 9999
-      break
-  }
-
-  if (!priceId) {
+function planToPriceAndMaxClients(plan: CheckoutPlan): { priceId: string; maxClients: number } {
+  const priceId = PRICE_ENV[plan]
+  const limits = PLAN_LIMITS[plan as PaidPlan]
+  if (!priceId || !limits) {
     throw new Error(`PLAN_UNAVAILABLE:${plan}`)
   }
-  return { priceId, maxClients }
+  return { priceId, maxClients: limits.maxClients }
 }
 
 async function ensurePaddleCustomerId(params: {
@@ -88,8 +78,9 @@ export async function POST(req: NextRequest) {
     if (rateLimitResponse) return rateLimitResponse
 
     const body = (await req.json().catch(() => ({}))) as { plan?: string }
-    const plan = body.plan as Plan | undefined
-    if (!plan || !['starter', 'growth', 'scale', 'enterprise'].includes(plan)) {
+    const plan = body.plan as CheckoutPlan | undefined
+    const validPlans: CheckoutPlan[] = ['solo', 'starter', 'growth', 'scale', 'whitelabel', 'enterprise']
+    if (!plan || !validPlans.includes(plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 

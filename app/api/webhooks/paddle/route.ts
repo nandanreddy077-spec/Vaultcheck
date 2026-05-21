@@ -3,18 +3,8 @@ import { EventName, type SubscriptionNotification } from '@paddle/paddle-node-sd
 import { captureException } from '@/lib/monitoring'
 import { prisma } from '@/lib/prisma'
 import { getPaddle } from '@/lib/paddle'
+import { planFromPaddlePriceId, TRIAL_MAX_CLIENTS } from '@/lib/plans'
 import { enforceRateLimit } from '@/lib/rate-limit'
-
-function planFromPaddlePriceId(priceId: string | undefined): PlanFromPrice | undefined {
-  if (!priceId) return undefined
-  if (priceId === process.env.PADDLE_PRICE_STARTER) return { plan: 'starter', maxClients: 25 }
-  if (priceId === process.env.PADDLE_PRICE_GROWTH) return { plan: 'growth', maxClients: 75 }
-  if (priceId === process.env.PADDLE_PRICE_SCALE) return { plan: 'scale', maxClients: 200 }
-  if (priceId === process.env.PADDLE_PRICE_ENTERPRISE) return { plan: 'enterprise', maxClients: 9999 }
-  return undefined
-}
-
-type PlanFromPrice = { plan: string; maxClients: number }
 
 async function applySubscription(sub: SubscriptionNotification) {
   const firm = await prisma.firm.findFirst({
@@ -33,7 +23,7 @@ async function applySubscription(sub: SubscriptionNotification) {
   if (sub.status === 'canceled') {
     await prisma.firm.update({
       where: { id: firm.id },
-      data: { plan: 'trial', maxClients: 3, paddleSubscriptionId: null },
+      data: { plan: 'trial', maxClients: TRIAL_MAX_CLIENTS, paddleSubscriptionId: null },
     })
     await prisma.auditLog.create({
       data: {

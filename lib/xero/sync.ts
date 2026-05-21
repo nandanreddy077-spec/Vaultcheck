@@ -1,5 +1,5 @@
 import { Contact, Invoice, Payment, Phone, PurchaseOrder } from 'xero-node'
-import { hashBankData } from '@/lib/encryption'
+import { canonicalXeroBankDetails, hashPaymentProfile } from '@/lib/vendor-payment-profile'
 import { calculateFingerprint } from '@/lib/fingerprint/calculate'
 import { runConcurrently } from '@/lib/concurrency'
 import { prisma } from '@/lib/prisma'
@@ -169,6 +169,7 @@ async function syncContacts(clientId: string, contacts: Contact[]) {
       const emailDomain = email ? email.split('@')[1] : undefined
       const phone = defaultPhone(c.phones)
       const isActive = asUpper(c.contactStatus) === 'ACTIVE'
+      const bankAccount = canonicalXeroBankDetails(c.bankAccountDetails)
       await prisma.vendor.upsert({
         where: { clientId_xeroContactId: { clientId, xeroContactId: contactId } },
         update: {
@@ -176,7 +177,7 @@ async function syncContacts(clientId: string, contacts: Contact[]) {
           email,
           emailDomain,
           phone,
-          bankAccount: c.bankAccountDetails || undefined,
+          bankAccount,
           isActive,
           updatedAt: new Date(),
         },
@@ -188,7 +189,7 @@ async function syncContacts(clientId: string, contacts: Contact[]) {
           email,
           emailDomain,
           phone,
-          bankAccount: c.bankAccountDetails || undefined,
+          bankAccount,
           isActive,
           firstSeenAt: toDate(c.updatedDateUTC),
         },
@@ -223,7 +224,7 @@ async function syncBills(
       if (status === 'VOIDED' || status === 'DELETED') return
 
       const vendor = vendorByContactId.get(b.contact?.contactID ?? '') ?? null
-      const vendorBankHash = vendor?.bankAccount ? hashBankData(vendor.bankAccount) : undefined
+      const vendorBankHash = hashPaymentProfile(vendor?.bankAccount ?? undefined)
 
       const existing = await prisma.invoice.findFirst({
         where: { xeroBillId: billId },
@@ -301,7 +302,7 @@ async function syncPurchaseOrders(
         where: { xeroBillId: poExternalId },
         select: { id: true, status: true, bankAccountHash: true },
       })
-      const vendorBankHash = vendor?.bankAccount ? hashBankData(vendor.bankAccount) : undefined
+      const vendorBankHash = hashPaymentProfile(vendor?.bankAccount ?? undefined)
       const isPaidLike = status === 'BILLED'
       const nextStatus = existing?.status ? existing.status : isPaidLike ? 'paid' : 'pending'
 

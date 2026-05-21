@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { captureException, captureMessage } from '@/lib/monitoring'
+import { isProductionRuntime } from '@/lib/production-guard'
 
 export async function sendAlertEmail(opts: {
   to: string
@@ -8,7 +9,9 @@ export async function sendAlertEmail(opts: {
 }) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
-    // In dev/early MVP, allow running without email delivery.
+    if (isProductionRuntime()) {
+      throw new Error('RESEND_API_KEY is required in production for fraud alert delivery.')
+    }
     captureMessage('RESEND_API_KEY missing; skipping alert email send.', {
       level: 'warning',
       tags: { service: 'resend', flow: 'alert-email' },

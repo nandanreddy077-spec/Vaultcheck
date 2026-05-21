@@ -2,11 +2,12 @@ import { runConcurrently } from '@/lib/concurrency'
 import { getQBOClient } from './client'
 import { prisma } from '@/lib/prisma'
 import { calculateFingerprint } from '@/lib/fingerprint/calculate'
-import { hashBankData } from '@/lib/encryption'
+import { hashPaymentProfile } from '@/lib/vendor-payment-profile'
 import { scanInvoice } from '@/lib/scanner/scan'
+import { extractQboVendorPayment, type QboVendorRaw } from './vendor-payment'
+import { rescanOpenInvoicesForVendors } from './rescan-open-invoices'
 
-interface QBOVendor {
-  Id: string
+interface QBOVendor extends QboVendorRaw {
   DisplayName: string
   CompanyName?: string
   PrimaryEmailAddr?: { Address: string }
@@ -24,8 +25,6 @@ interface QBOBill {
   DueDate?: string
   DocNumber?: string
   TxnDate: string
-  PaymentType?: string
-  BankAccountRef?: { value: string }
   MetaData: { CreateTime: string }
 }
 
@@ -58,22 +57,22 @@ export async function initialSync(clientId: string) {
     if (!qbo) throw new Error('QBO client unavailable — check OAuth tokens')
 
     // 1. Sync vendors
-    const vendors = await qbo.query<QBOVendor>('SELECT * FROM Vendor MAXRESULTS 1000')
-    await syncVendors(clientId, vendors)
+    const vendors = await qbo.queryAll<QBOVendor>('SELECT * FROM Vendor')
+    const bankChangedVendorIds = await syncVendors(clientId, vendors)
 
     // 2. Sync bills (last 18 months)
     const since = new Date()
     since.setMonth(since.getMonth() - 18)
     const sinceStr = since.toISOString().split('T')[0]
 
-    const bills = await qbo.query<QBOBill>(
-      `SELECT * FROM Bill WHERE TxnDate >= '${sinceStr}' MAXRESULTS 1000`
+    const bills = await qbo.queryAll<QBOBill>(
+      `SELECT * FROM Bill WHERE TxnDate >= '${sinceStr}'`
     )
     await syncBills(clientId, bills)
 
     // 2b. Sync bill payments so we can mark invoices as "paid"
-    const billPayments = await qbo.query<QBOBillPayment>(
-      `SELECT * FROM BillPayment WHERE TxnDate >= '${sinceStr}' MAXRESULTS 1000`
+    const billPayments = await qbo.queryAll<QBOBillPayment>(
+      `SELECT * FROM BillPayment WHERE TxnDate >= '${sinceStr}'`
     )
     await syncBillPayments(clientId, billPayments)
 
@@ -90,6 +89,10 @@ export async function initialSync(clientId: string) {
     const pendingScans = invoicesToScan.filter(inv => !terminalStatuses.includes(inv.status))
     await runConcurrently(pendingScans.map(inv => () => scanInvoice(inv.id)), 5)
 
+    if (bankChangedVendorIds.length) {
+      await rescanOpenInvoicesForVendors(bankChangedVendorIds)
+    }
+
     await prisma.client.update({
       where: { id: clientId },
       data: { syncStatus: 'synced', lastSyncAt: new Date() },
@@ -98,6 +101,7 @@ export async function initialSync(clientId: string) {
     return {
       success: true,
       vendorCount: vendors.length,
+      bankProfileChanges: bankChangedVendorIds.length,
       billCount: bills.length,
       paymentCount: billPayments.length,
     }
@@ -136,14 +140,18 @@ export async function incrementalSync(clientId: string) {
       queryResponse.find(q => Array.isArray(q.BillPayment))?.BillPayment ?? []
 
     const affectedVendorIds: string[] = []
+    let bankChangedVendorIds: string[] = []
     if (changedVendors.length) {
-      await syncVendors(clientId, changedVendors)
+      bankChangedVendorIds = await syncVendors(clientId, changedVendors)
+      affectedVendorIds.push(...bankChangedVendorIds)
       const qboVendorIds = changedVendors.map(v => v.Id)
       const syncedVendors = await prisma.vendor.findMany({
         where: { clientId, qboVendorId: { in: qboVendorIds } },
         select: { id: true },
       })
-      affectedVendorIds.push(...syncedVendors.map(v => v.id))
+      for (const v of syncedVendors) {
+        if (!affectedVendorIds.includes(v.id)) affectedVendorIds.push(v.id)
+      }
     }
 
     let syncedInvoiceIds: string[] = []
@@ -166,6 +174,10 @@ export async function incrementalSync(clientId: string) {
     const uniqueInvoiceIds = Array.from(new Set(syncedInvoiceIds))
     await runConcurrently(uniqueInvoiceIds.map(id => () => scanInvoice(id)), 5)
 
+    if (bankChangedVendorIds.length) {
+      await rescanOpenInvoicesForVendors(bankChangedVendorIds)
+    }
+
     await prisma.client.update({
       where: { id: clientId },
       data: { lastSyncAt: new Date(), syncStatus: 'synced' },
@@ -177,6 +189,7 @@ export async function incrementalSync(clientId: string) {
       changedBills: changedBills.length,
       scannedInvoices: syncedInvoiceIds.length,
       updatedFingerprints: affectedVendorIds.length,
+      bankProfileChanges: bankChangedVendorIds.length,
     }
   } catch (err) {
     await prisma.client.update({
@@ -187,12 +200,27 @@ export async function incrementalSync(clientId: string) {
   }
 }
 
-async function syncVendors(clientId: string, vendors: QBOVendor[]) {
+async function syncVendors(clientId: string, vendors: QBOVendor[]): Promise<string[]> {
+  const bankChangedVendorIds: string[] = []
+
   await runConcurrently(
     vendors.map(v => async () => {
       const email = v.PrimaryEmailAddr?.Address
-      const emailDomain = email ? email.split('@')[1] : undefined
-      await prisma.vendor.upsert({
+      const emailDomain = email ? email.split('@')[1]?.toLowerCase() : undefined
+      const payment = extractQboVendorPayment(v)
+
+      const existing = await prisma.vendor.findUnique({
+        where: { clientId_qboVendorId: { clientId, qboVendorId: v.Id } },
+        select: { id: true, bankAccount: true },
+      })
+
+      const paymentChanged =
+        !!existing &&
+        !!payment.bankAccount &&
+        !!existing.bankAccount &&
+        existing.bankAccount !== payment.bankAccount
+
+      const upserted = await prisma.vendor.upsert({
         where: { clientId_qboVendorId: { clientId, qboVendorId: v.Id } },
         update: {
           displayName: v.DisplayName,
@@ -200,6 +228,8 @@ async function syncVendors(clientId: string, vendors: QBOVendor[]) {
           email,
           emailDomain,
           phone: v.PrimaryPhone?.FreeFormNumber,
+          bankAccount: payment.bankAccount,
+          routingNumber: payment.routingNumber,
           isActive: v.Active,
           updatedAt: new Date(),
         },
@@ -211,13 +241,19 @@ async function syncVendors(clientId: string, vendors: QBOVendor[]) {
           email,
           emailDomain,
           phone: v.PrimaryPhone?.FreeFormNumber,
+          bankAccount: payment.bankAccount,
+          routingNumber: payment.routingNumber,
           isActive: v.Active,
           firstSeenAt: new Date(v.MetaData.CreateTime),
         },
       })
+
+      if (paymentChanged) bankChangedVendorIds.push(upserted.id)
     }),
     20
   )
+
+  return bankChangedVendorIds
 }
 
 async function syncBills(
@@ -227,7 +263,7 @@ async function syncBills(
   // Pre-fetch all vendors for this client once, then use a map — avoids N queries
   const allVendors = await prisma.vendor.findMany({
     where: { clientId },
-    select: { id: true, qboVendorId: true, email: true },
+    select: { id: true, qboVendorId: true, email: true, bankAccount: true },
   })
   const vendorByQboId = new Map(allVendors.map(v => [v.qboVendorId, v]))
 
@@ -238,9 +274,8 @@ async function syncBills(
   await runConcurrently(
     bills.map(b => async () => {
       const vendor = vendorByQboId.get(b.VendorRef.value) ?? null
-      const bankAccountHash = b.BankAccountRef?.value
-        ? hashBankData(b.BankAccountRef.value)
-        : undefined
+      // Vendor remittance profile — not the firm's AP funding account on the bill.
+      const bankAccountHash = hashPaymentProfile(vendor?.bankAccount ?? undefined)
 
       // Read existing status so we don't overwrite human decisions
       const existing = await prisma.invoice.findFirst({

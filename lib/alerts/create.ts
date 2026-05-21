@@ -1,10 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import type { RiskFactor, ScanResult } from '@/lib/scanner/scan'
 import { sendAlertEmail } from '@/lib/notifications/resend'
+import { requireResendForAlerts } from '@/lib/production-guard'
 import { getSlackWebhookUrl, sendSlackAlert } from '@/lib/notifications/slack'
 
 const FACTOR_SEVERITY: Record<string, string> = {
   bank_account_changed: 'critical',
+  global_threat_flag: 'critical',
   email_domain_mismatch: 'high',
   amount_extreme_high: 'high',
   amount_moderate_high: 'medium',
@@ -16,6 +18,7 @@ const FACTOR_SEVERITY: Record<string, string> = {
 
 const FACTOR_TYPE: Record<string, string> = {
   bank_account_changed: 'bank_change',
+  global_threat_flag: 'bank_change',
   email_domain_mismatch: 'email_mismatch',
   amount_extreme_high: 'amount_anomaly',
   amount_moderate_high: 'amount_anomaly',
@@ -27,6 +30,7 @@ const FACTOR_TYPE: Record<string, string> = {
 
 const FACTOR_TITLE: Record<string, string> = {
   bank_account_changed: 'Bank Account Changed',
+  global_threat_flag: 'Known Fraud Signal (Network Intel)',
   email_domain_mismatch: 'Email Domain Mismatch',
   amount_extreme_high: 'Unusually High Amount',
   amount_moderate_high: 'Elevated Invoice Amount',
@@ -56,6 +60,13 @@ export async function createAlert(
 
   const firmEmail = invoice?.client?.firm?.email
   const slackWebhookUrl = invoice?.client?.firm?.slackWebhookUrl ?? getSlackWebhookUrl()
+  const willNotify =
+    !!firmEmail &&
+    significantFactors.some(f => {
+      const sev = FACTOR_SEVERITY[f.factor] || 'medium'
+      return sev === 'critical' || sev === 'high'
+    })
+  if (willNotify) requireResendForAlerts()
 
   for (const factor of significantFactors) {
     const existingAlert = await prisma.alert.findFirst({

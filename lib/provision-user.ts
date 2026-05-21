@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { TRIAL_MAX_CLIENTS } from '@/lib/plans'
 
 type AuthLikeUser = {
   id: string
@@ -44,7 +45,7 @@ export async function ensureProvisionedUser(user: AuthLikeUser) {
       name: firmName,
       email,
       plan: 'trial',
-      maxClients: 3,
+      maxClients: TRIAL_MAX_CLIENTS,
     },
   })
 

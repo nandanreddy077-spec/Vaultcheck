@@ -76,13 +76,6 @@ export default function LandingPage() {
               </div>
               <div className="flex flex-wrap items-center gap-4">
                 <p className="text-sm text-slate-400">No credit card required · Cancel anytime</p>
-                <Link
-                  href="/guarantee"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#003ec7]/8 px-3 py-1 text-xs font-semibold text-[#003ec7] ring-1 ring-[#003ec7]/15 hover:bg-[#003ec7]/12 transition-colors"
-                >
-                  <Shield className="h-3 w-3" />
-                  $10K fraud guarantee
-                </Link>
               </div>
 
               {/* Differentiators */}
