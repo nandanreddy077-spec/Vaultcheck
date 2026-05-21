@@ -80,13 +80,31 @@ export async function POST(req: Request) {
     if (insertError || !newLead) { skipped++; continue }
 
     // Schedule emails at 3-day intervals (10am EDT = 14:00 UTC)
-    for (const emailStep of lead.emails) {
-      const sendAt = addDays(new Date(), (emailStep.step - 1) * 3)
-      sendAt.setUTCHours(14, 0, 0, 0)
+    // Cron sends Mon-Fri 13:00-21:00 UTC — if we're inside that window, fire ASAP
+    const nowUtcHour = new Date().getUTCHours()
+    const isWithinSendWindow = nowUtcHour >= 13 && nowUtcHour < 21
+    const isWeekday = [1, 2, 3, 4, 5].includes(new Date().getUTCDay())
 
-      // If step 1 window already passed today, push to tomorrow
-      if (emailStep.step === 1 && sendAt < new Date()) {
-        sendAt.setDate(sendAt.getDate() + 1)
+    for (const emailStep of lead.emails) {
+      let sendAt: Date
+
+      if (emailStep.step === 1) {
+        if (isWithinSendWindow && isWeekday) {
+          // Inside cron window — schedule 2 minutes from now so next run picks it up
+          sendAt = new Date(Date.now() + 2 * 60 * 1000)
+        } else {
+          // Outside window — next weekday at 14:00 UTC
+          sendAt = new Date()
+          sendAt.setUTCHours(14, 0, 0, 0)
+          // Advance to next weekday if needed
+          while (sendAt < new Date() || ![1,2,3,4,5].includes(sendAt.getUTCDay())) {
+            sendAt.setDate(sendAt.getDate() + 1)
+            sendAt.setUTCHours(14, 0, 0, 0)
+          }
+        }
+      } else {
+        // Steps 2-4: 3-day intervals from today at 14:00 UTC
+        sendAt = addDays(new Date(), (emailStep.step - 1) * 3)
         sendAt.setUTCHours(14, 0, 0, 0)
       }
 
