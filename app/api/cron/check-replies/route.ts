@@ -155,6 +155,25 @@ export async function GET(req: Request) {
           .single()
         if (existing) continue
 
+        // Hard unsubscribe check — keyword match before Claude to save tokens
+        // and ensure we always honour explicit opt-outs
+        const bodyLower = msg.body.toLowerCase()
+        const isExplicitUnsub = /\bunsubscribe\b|\bremove me\b|\bstop emailing\b|\btake me off\b|\bopt.?out\b/.test(bodyLower)
+        if (isExplicitUnsub) {
+          await db.from('outreach_unsubscribes').upsert({ email: lead.id ? undefined : msg.fromEmail, lead_email: msg.fromEmail }, { onConflict: 'email' }).catch(() => null)
+          await db.from('outreach_unsubscribes').insert({ email: msg.fromEmail }).catch(() => null) // ignore duplicate
+          await db.from('outreach_leads').update({ status: 'unsubscribed', funnel_stage: 'lost', lost_reason: 'Explicit unsubscribe request' }).eq('id', lead.id)
+          await db.from('outreach_emails').update({ status: 'cancelled' }).eq('lead_id', lead.id).eq('status', 'scheduled')
+          await db.from('outreach_conversations').insert({
+            lead_id: lead.id, direction: 'inbound', subject: msg.subject,
+            body: msg.body, intent: 'not_interested', intent_confidence: 100,
+            gmail_message_id: msg.messageId, gmail_account: account.user, auto_replied: false,
+          }).catch(() => null)
+          repliesFound++
+          console.log(`[check-replies] ${msg.fromEmail} → unsubscribed (keyword match)`)
+          continue
+        }
+
         // Analyze the reply with Claude
         const analysis = await analyzeReply(msg.body, {
           first_name: lead.first_name,
@@ -182,6 +201,8 @@ export async function GET(req: Request) {
         // Act on intent
         if (analysis.suggested_action === 'mark_lost') {
           await db.from('outreach_leads').update({ funnel_stage: 'lost', lost_reason: analysis.summary }).eq('id', lead.id)
+          // Add to unsubscribes so future CSV uploads skip them too
+          await db.from('outreach_unsubscribes').insert({ email: msg.fromEmail }).catch(() => null)
 
         } else if (analysis.suggested_action === 'reschedule') {
           // OOO — do nothing, sequence already stopped, human follows up
