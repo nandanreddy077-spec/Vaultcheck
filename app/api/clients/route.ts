@@ -35,8 +35,14 @@ export async function POST(req: NextRequest) {
   })
 
   if (clientCount >= dbUser.firm.maxClients) {
+    const isFree = dbUser.firm.plan === 'free' || dbUser.firm.plan === 'trial'
     return NextResponse.json(
-      { error: `Plan limit reached. Upgrade to add more than ${dbUser.firm.maxClients} clients.` },
+      {
+        error: isFree
+          ? `Free plan is limited to ${dbUser.firm.maxClients} clients. Upgrade at vantirs.com/#pricing to add more.`
+          : `Plan limit reached (${dbUser.firm.maxClients} clients). Contact support to upgrade.`,
+        upgradeUrl: '/#pricing',
+      },
       { status: 402 }
     )
   }

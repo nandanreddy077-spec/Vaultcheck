@@ -13,6 +13,9 @@ export const PLAN_LIMITS: Record<
   enterprise: { maxClients: 9999, label: 'Enterprise' },
 }
 
+// Permanent free tier — no expiry, 3 clients forever
+export const FREE_MAX_CLIENTS = 3
+// Paid plan trial — 14 days, then locked until upgraded
 export const TRIAL_MAX_CLIENTS = 3
 
 /** Map Paddle price IDs to internal plan + entitlements. */

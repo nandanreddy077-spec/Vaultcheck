@@ -28,9 +28,20 @@ export default async function SettingsPage() {
           <div className="space-y-4">
             <InfoBlock label="Name" value={dbUser.firm.name} />
             <InfoBlock label="Email" value={dbUser.firm.email} />
-            <InfoBlock label="Plan" value={dbUser.firm.plan} />
+            <InfoBlock
+              label="Plan"
+              value={dbUser.firm.plan === 'free' ? 'Free (3 clients · no time limit)' : dbUser.firm.plan}
+            />
             <InfoBlock label="Client limit" value={`${dbUser.firm.maxClients} clients`} />
           </div>
+          {(dbUser.firm.plan === 'free' || dbUser.firm.plan === 'trial') && (
+            <a
+              href="/#pricing"
+              className="mt-5 block w-full text-center py-2.5 text-sm font-semibold text-white bg-gradient-to-br from-[#003ec7] to-[#0052ff] rounded-xl hover:opacity-90 shadow shadow-blue-500/20"
+            >
+              Upgrade to add more clients →
+            </a>
+          )}
         </div>
 
         <div className="surface-panel p-6">

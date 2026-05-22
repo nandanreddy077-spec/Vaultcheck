@@ -55,11 +55,12 @@ export async function requireAuth() {
 
     const now = new Date()
 
-    // Auto-expire trial after 30 days — lock to 0 clients (force upgrade)
+    // Auto-expire paid trial after 14 days — lock to 0 clients (force upgrade)
+    // 'free' plan is permanent and never expires
     if (dbUser.firm.plan === 'trial') {
       const trialStart = dbUser.firm.trialStartedAt ?? dbUser.firm.createdAt
       const trialExpiry = new Date(trialStart)
-      trialExpiry.setDate(trialExpiry.getDate() + 30)
+      trialExpiry.setDate(trialExpiry.getDate() + 14)
       if (now > trialExpiry) {
         await prisma.firm.update({
           where: { id: dbUser.firm.id },
