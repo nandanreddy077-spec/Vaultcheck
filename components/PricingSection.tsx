@@ -6,6 +6,25 @@ import Link from 'next/link'
 
 const PLANS = [
   {
+    id: 'free',
+    name: 'Free',
+    monthlyPrice: 0,
+    clients: 3,
+    description: 'Try Vantirs with your first clients',
+    persona: 'No credit card · No time limit',
+    features: [
+      'Up to 3 client entities',
+      'Vendor fingerprinting',
+      'Alert queue',
+      'NACHA 2026 audit trail',
+      'Client protection reports',
+    ],
+    cta: 'Get started free',
+    ctaHref: '/signup',
+    highlight: false,
+    free: true,
+  },
+  {
     id: 'starter',
     name: 'Starter',
     monthlyPrice: 79,
@@ -162,13 +181,17 @@ export default function PricingSection() {
         </div>
 
         {/* Plan cards */}
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
           {PLANS.map(plan => {
-            const price = plan.monthlyPrice
+            const price = (plan as { free?: boolean }).free
+              ? 0
+              : plan.monthlyPrice
               ? annual
                 ? Math.round(plan.monthlyPrice * 0.8)
                 : plan.monthlyPrice
               : null
+
+            const isFree = (plan as { free?: boolean }).free
 
             return (
               <div
@@ -176,6 +199,8 @@ export default function PricingSection() {
                 className={`flex flex-col rounded-2xl bg-white p-6 shadow-[0_4px_20px_rgba(11,28,48,0.06)] transition-shadow hover:shadow-[0_12px_40px_rgba(11,28,48,0.10)] ${
                   plan.highlight
                     ? 'ring-2 ring-[#003ec7]'
+                    : isFree
+                    ? 'ring-1 ring-emerald-200 bg-emerald-50/30'
                     : 'ring-1 ring-[#c3c5d9]/15'
                 }`}
               >
@@ -184,13 +209,24 @@ export default function PricingSection() {
                     ⭐ Most popular
                   </span>
                 )}
+                {isFree && (
+                  <span className="mb-2 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+                    No credit card
+                  </span>
+                )}
 
                 <h3 className="font-manrope text-lg font-bold text-[#0b1c30]">{plan.name}</h3>
                 <p className="mt-0.5 text-xs font-medium text-slate-700">{plan.description}</p>
                 <p className="mt-0.5 text-[11px] text-slate-400 italic">{plan.persona}</p>
 
                 <div className="mt-4">
-                  {price !== null ? (
+                  {isFree ? (
+                    <>
+                      <span className="text-4xl font-bold text-emerald-600">$0</span>
+                      <span className="text-sm text-slate-500">/mo</span>
+                      <p className="mt-0.5 text-xs font-medium text-emerald-600">Forever free</p>
+                    </>
+                  ) : price !== null ? (
                     <>
                       <span className="text-4xl font-bold text-[#0b1c30]">${price}</span>
                       <span className="text-sm text-slate-500">/mo</span>
@@ -207,7 +243,7 @@ export default function PricingSection() {
 
                 {plan.clients ? (
                   <p className="mt-1 mb-4 text-xs font-semibold text-[#003ec7]">
-                    Up to {plan.clients} clients · ${plan.monthlyPrice ? (plan.monthlyPrice / plan.clients).toFixed(2) : '—'}/client
+                    Up to {plan.clients} clients{!isFree && plan.monthlyPrice ? ` · $${(plan.monthlyPrice / plan.clients).toFixed(2)}/client` : ''}
                   </p>
                 ) : (
                   <p className="mt-1 mb-4 text-xs font-semibold text-[#003ec7]">Unlimited clients</p>
@@ -216,7 +252,7 @@ export default function PricingSection() {
                 <ul className="flex-1 space-y-2">
                   {plan.features.map(f => (
                     <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
-                      <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                      <CheckCircle className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${isFree ? 'text-emerald-500' : 'text-emerald-500'}`} />
                       {f}
                     </li>
                   ))}
@@ -227,6 +263,8 @@ export default function PricingSection() {
                   className={`mt-6 block w-full rounded-xl py-3 text-center text-sm font-semibold transition ${
                     plan.highlight
                       ? 'bg-[#003ec7] text-white hover:bg-[#0032a3]'
+                      : isFree
+                      ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                       : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                   }`}
                 >
@@ -301,7 +339,7 @@ export default function PricingSection() {
 
         <div className="mt-8 flex flex-col items-center gap-3">
           <p className="text-center text-sm text-slate-400">
-            All plans start with <strong className="text-slate-600">3 clients free for 30 days</strong> · No credit card required · Cancel anytime
+            Free tier is <strong className="text-slate-600">permanent — 3 clients, no time limit</strong> · Paid plans include a 14-day free trial · Cancel anytime
           </p>
         </div>
       </div>
