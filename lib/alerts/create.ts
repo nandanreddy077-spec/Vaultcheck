@@ -40,6 +40,60 @@ const FACTOR_TITLE: Record<string, string> = {
   confidence_penalty: 'Limited Payment History',
 }
 
+// Used by insider-risk scanner and other direct callers that build alerts without a full scan result
+export async function createDirectAlert(opts: {
+  clientId: string
+  invoiceId: string
+  severity: string
+  type: string
+  title: string
+  description: string
+  expectedValue?: string
+  actualValue?: string
+}) {
+  const existing = await prisma.alert.findFirst({
+    where: { invoiceId: opts.invoiceId, type: opts.type },
+  })
+  if (existing) return
+
+  await prisma.alert.create({
+    data: {
+      clientId: opts.clientId,
+      invoiceId: opts.invoiceId,
+      severity: opts.severity,
+      type: opts.type,
+      title: opts.title,
+      description: opts.description,
+      status: 'open',
+    },
+  })
+
+  if (opts.severity === 'critical' || opts.severity === 'high') {
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: opts.invoiceId },
+      include: { vendor: true, client: { include: { firm: true } } },
+    })
+    const firmEmail = invoice?.client?.firm?.email
+    if (firmEmail) {
+      const clientName = invoice?.client?.name ?? 'Unknown client'
+      const vendorName = invoice?.vendor?.displayName ?? 'Unknown vendor'
+      await sendAlertEmail({
+        to: firmEmail,
+        subject: `[Vantirs] ${opts.severity.toUpperCase()}: ${opts.title}`,
+        text:
+          `Vantirs flagged an insider risk pattern.\n\n` +
+          `Client: ${clientName}\n` +
+          `Vendor: ${vendorName}\n` +
+          `Amount: $${invoice?.amount?.toLocaleString() ?? '?'}\n` +
+          `Alert: ${opts.title}\n` +
+          `Details: ${opts.description}\n\n` +
+          `Log in to review: https://www.vantirs.com/dashboard/insider-risk\n\n` +
+          `Vantirs does not guarantee fraud detection. Always verify with direct vendor contact.`,
+      })
+    }
+  }
+}
+
 export async function createAlert(
   clientId: string,
   invoiceId: string,

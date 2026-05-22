@@ -69,6 +69,8 @@ async function OverviewData() {
     }),
   ])
 
+  if (totalClients === 0) redirect('/dashboard/onboarding')
+
   const trendPercent =
     invoicesLastMonth > 0
       ? Math.round(((invoicesThisMonth - invoicesLastMonth) / invoicesLastMonth) * 100)

@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { createAlert } from '@/lib/alerts/create'
+import { createDirectAlert } from '@/lib/alerts/create'
 
 // Detects internal AP fraud patterns — employee embezzlement, duplicate payments,
 // suspicious new-vendor payments. Runs against existing invoice/vendor data.
@@ -50,7 +50,7 @@ export async function scanClientInsiderRisk(clientId: string): Promise<InsiderRi
       const amountDiff = Math.abs(inv.amount - prev.amount) / Math.max(prev.amount, 1)
 
       if (daysDiff <= 45 && amountDiff <= 0.05) {
-        await createAlert({
+        await createDirectAlert({
           clientId,
           invoiceId: inv.id,
           severity: 'high',
@@ -79,7 +79,7 @@ export async function scanClientInsiderRisk(clientId: string): Promise<InsiderRi
     const vendorAgeDays = vendorAge / 86400000
 
     if (vendorAgeDays < 60 && inv.vendor.fingerprint && inv.vendor.fingerprint.totalInvoices <= 3) {
-      await createAlert({
+      await createDirectAlert({
         clientId,
         invoiceId: inv.id,
         severity: 'high',
@@ -107,7 +107,7 @@ export async function scanClientInsiderRisk(clientId: string): Promise<InsiderRi
     const avgIsNotRound = fp.avgAmount % 500 !== 0 && fp.totalInvoices >= 5
 
     if (isRound && avgIsNotRound && Math.abs(inv.amount - fp.avgAmount) > fp.stdDevAmount * 2) {
-      await createAlert({
+      await createDirectAlert({
         clientId,
         invoiceId: inv.id,
         severity: 'medium',
@@ -138,7 +138,7 @@ export async function scanClientInsiderRisk(clientId: string): Promise<InsiderRi
 
     const expectedInPeriod = 30 / fp.avgFreqDays
     if (recentCount > expectedInPeriod * 2.5) {
-      await createAlert({
+      await createDirectAlert({
         clientId,
         invoiceId: inv.id,
         severity: 'medium',
