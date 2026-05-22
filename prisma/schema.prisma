@@ -95,9 +95,10 @@ model Vendor {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  client      Client             @relation(fields: [clientId], references: [id])
-  fingerprint VendorFingerprint?
-  invoices    Invoice[]
+  client        Client               @relation(fields: [clientId], references: [id])
+  fingerprint   VendorFingerprint?
+  invoices      Invoice[]
+  verifications VendorVerification[]
 
   @@unique([clientId, qboVendorId])
   @@unique([clientId, xeroContactId])
@@ -221,6 +222,37 @@ model GlobalThreatFlag {
   @@index([bankHash])
   @@index([vendorName])
   @@index([active])
+}
+
+// ─── Vendor Verification ────────────────────────────────────────────────────
+// When a vendor requests a bank change, the CPA sends them a secure link to
+// confirm their identity and bank details. Creates a timestamped paper trail.
+
+model VendorVerification {
+  id          String   @id @default(cuid())
+  vendorId    String
+  clientId    String
+  firmId      String
+  token       String   @unique @default(cuid())
+  status      String   @default("pending") // pending, completed, expired
+  requestedBy String   // userId who sent the link
+  requestedAt DateTime @default(now())
+  expiresAt   DateTime
+  completedAt DateTime?
+  // What the vendor confirmed
+  confirmedName          String?
+  confirmedEmail         String?
+  confirmedBankAccount   String?
+  confirmedRoutingNumber String?
+  confirmedPhone         String?
+  ipAddress              String?
+  notes                  String?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  @@index([token])
+  @@index([vendorId])
+  @@index([firmId])
 }
 
 model AuditLog {

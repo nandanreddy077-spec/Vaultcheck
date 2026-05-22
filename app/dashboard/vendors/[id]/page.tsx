@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Mail, Phone, Building2, Calendar, TrendingUp, Shield, AlertTriangle } from 'lucide-react'
+import VendorVerifySection from './VendorVerifySection'
 
 function riskBadgeClass(score: number): string {
   if (score <= 15) return 'risk-badge-low'
@@ -41,6 +42,11 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
         orderBy: { createdAt: 'desc' },
         take: 50,
         include: { alerts: { where: { status: 'open' }, select: { id: true, severity: true } } },
+      },
+      verifications: {
+        orderBy: { requestedAt: 'desc' },
+        take: 5,
+        select: { id: true, status: true, requestedAt: true, completedAt: true, confirmedEmail: true, confirmedName: true },
       },
     },
   })
@@ -240,6 +246,15 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
             </div>
           )}
         </div>
+      </div>
+
+      {/* Vendor Verification */}
+      <div className="mb-6">
+        <VendorVerifySection
+          vendorId={vendor.id}
+          vendorEmail={vendor.email ?? null}
+          verifications={vendor.verifications}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-6">

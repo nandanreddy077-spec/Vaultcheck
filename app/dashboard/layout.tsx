@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { LayoutDashboard, Users, AlertTriangle, FileText, Settings, LogOut, FileSpreadsheet, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, Users, AlertTriangle, FileText, Settings, LogOut, FileSpreadsheet, ClipboardList, UserX } from 'lucide-react'
 import Link from 'next/link'
 import VantirsLogo from '@/components/VantirsLogo'
 import FirmBadge from '@/components/FirmBadge'
@@ -48,6 +48,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <NavItem href="/dashboard/alerts" icon={<AlertTriangle className="w-4 h-4" />} label="Alert Queue" />
           <NavItem href="/dashboard/vendors" icon={<FileText className="w-4 h-4" />} label="Vendors" />
           <NavItem href="/dashboard/reports" icon={<FileSpreadsheet className="w-4 h-4" />} label="Reports" />
+          <NavItem href="/dashboard/insider-risk" icon={<UserX className="w-4 h-4" />} label="Insider Risk" />
           <NavItem href="/dashboard/audit-log" icon={<ClipboardList className="w-4 h-4" />} label="Audit Log" />
           <NavItem href="/dashboard/settings" icon={<Settings className="w-4 h-4" />} label="Settings" />
         </nav>
