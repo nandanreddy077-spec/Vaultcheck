@@ -6,8 +6,8 @@ import { Shield, CheckCircle, Clock, Send, Copy } from 'lucide-react'
 interface Verification {
   id: string
   status: string
-  requestedAt: string
-  completedAt: string | null
+  requestedAt: Date | string
+  completedAt: Date | string | null
   confirmedEmail: string | null
   confirmedName: string | null
 }
