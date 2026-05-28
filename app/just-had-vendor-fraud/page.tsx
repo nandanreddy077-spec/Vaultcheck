@@ -116,9 +116,9 @@ export default function JustHadVendorFraudPage() {
                   signal: 'Vantirs flags any bank account hash that does not match prior payments to that vendor — before payment.',
                 },
                 {
-                  attack: 'Email domain spoofing',
-                  how: 'Invoice arrives from vendor-name@companv.com (note the typo) or a look-alike domain registered days earlier.',
-                  signal: "Vantirs checks sender domain against vendor's known email history and flags domains that don't match.",
+                  attack: 'Duplicate invoice submission',
+                  how: 'Same invoice submitted twice — same vendor and amount, different invoice number. Common after a breach when attackers re-submit pending payments.',
+                  signal: 'Vantirs detects duplicate patterns across vendor, amount, and timing dimensions before a second payment clears.',
                 },
                 {
                   attack: 'New vendor urgency',

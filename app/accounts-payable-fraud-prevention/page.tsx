@@ -14,7 +14,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How does Vantirs prevent accounts payable fraud?',
-    a: 'Vantirs connects to your QuickBooks Online account and builds a behavioral fingerprint for each vendor. When an invoice or payment instruction deviates from that fingerprint — changed bank account, unfamiliar sender domain, unusual amount — Vantirs surfaces a specific, reviewable flag before your team approves payment.',
+    a: 'Vantirs connects to your QuickBooks Online account and builds a behavioral fingerprint for each vendor. When an invoice or payment instruction deviates from that fingerprint — changed bank account, unusual amount, first-time payment destination — Vantirs surfaces a specific, reviewable flag before your team approves payment.',
   },
   {
     q: 'Does AP fraud prevention software replace our internal controls?',

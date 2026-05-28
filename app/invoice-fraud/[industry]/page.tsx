@@ -25,7 +25,7 @@ export const INDUSTRIES: Record<string, IndustryEntry> = {
       },
       {
         q: 'How does Vantirs help healthcare AP teams?',
-        a: 'Vantirs fingerprints vendors in QuickBooks Online and flags invoices when bank details, email domains, or amounts diverge from established payment history—before funds leave the account.',
+        a: 'Vantirs fingerprints vendors in QuickBooks Online and flags invoices when bank details or amounts diverge from established payment history—before funds leave the account.',
       },
     ],
   },

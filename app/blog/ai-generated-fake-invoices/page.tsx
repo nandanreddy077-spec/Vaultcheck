@@ -25,7 +25,7 @@ export default function AiGeneratedFakeInvoicesPost() {
         description="AI tools have made fake invoices visually indistinguishable from real ones. AP teams relying on visual review are now under-defended. Here's how behavioral detection catches what the eye misses."
         path="/blog/ai-generated-fake-invoices"
         datePublished="2026-04-10"
-        dateModified="2026-05-15"
+        dateModified="2026-05-23"
         keywords={[
           'AI generated fake invoice detection',
           'invoice fraud detection software',
@@ -39,13 +39,19 @@ export default function AiGeneratedFakeInvoicesPost() {
           AI-generated fake invoices: how to detect what your AP team can&apos;t see in 2026
         </h1>
         <p className="mt-3 text-sm text-slate-500">
-          Published Apr 10, 2026 · Updated May 15, 2026 · About 10 min read
+          Published Apr 10, 2026 · Updated May 23, 2026 · About 10 min read
         </p>
         <p className="mt-5 text-lg leading-relaxed text-slate-600">
           For years, AP teams caught fake invoices by spotting visual anomalies — wrong fonts, blurry logos, slightly
           off formatting. That era is over. AI document generation tools now produce fake invoices that are visually
           indistinguishable from authentic ones. If your detection strategy is still built on what invoices look like,
           your team is under-defended against the current threat.
+        </p>
+        <p className="mt-4 text-lg leading-relaxed text-slate-600">
+          The scale of the problem has accelerated sharply: invoice fraud incidents have surged 73% over the past five
+          years, with 44% of businesses now reporting they have been targeted, according to ICAEW and Flagright
+          research. The driver of that acceleration is AI — which turned a skill-intensive forgery operation into
+          something any fraudster can run at scale.
         </p>
 
         <section className="mt-12">
@@ -232,6 +238,13 @@ export default function AiGeneratedFakeInvoicesPost() {
               className="font-semibold text-[#003ec7] underline-offset-2 hover:underline"
             >
               vendor bank account change fraud controls
+            </Link>
+            . And if you think strong email security is enough — read how{' '}
+            <Link
+              href="/blog/whatsapp-ceo-fraud-bec-left-inbox"
+              className="font-semibold text-[#003ec7] underline-offset-2 hover:underline"
+            >
+              BEC has moved from email to WhatsApp and messaging apps
             </Link>
             .
           </p>

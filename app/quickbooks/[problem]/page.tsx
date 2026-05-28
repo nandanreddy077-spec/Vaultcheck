@@ -21,11 +21,11 @@ export const PROBLEMS: Record<
     description:
       'Stop fake vendors and BEC-style payment requests before they leave your QuickBooks Online books. Compare new payment details to how each vendor actually paid in the past.',
     solution:
-      'Vantirs fingerprints vendors from QBO payment history and surfaces mismatches in bank details, email domains, and invoice patterns—so your team reviews the exceptions that matter.',
+      'Vantirs fingerprints vendors from QBO payment history and surfaces mismatches in bank details and invoice patterns—so your team reviews the exceptions that matter.',
     faq: [
       {
         q: 'How does vendor fraud show up in QuickBooks Online?',
-        a: 'Attackers often impersonate real vendors with new bank instructions or spoofed email domains. Without history-based checks, those changes can look routine until money is gone.',
+        a: 'Attackers impersonate real vendors by submitting new bank instructions that look routine. Without history-based checks, those changes get approved — until money is gone.',
       },
       {
         q: 'How does Vantirs reduce vendor fraud risk in QBO?',

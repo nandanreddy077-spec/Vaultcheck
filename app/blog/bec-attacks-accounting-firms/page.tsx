@@ -58,6 +58,18 @@ export default function BecAttacksPost() {
             <Link href="/blog/pre-approved-fraud-accounts-payable" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
               pre-approved fraud in AP
             </Link>
+            . The highest-risk single event in AP is a vendor bank account change — see the{' '}
+            <Link href="/blog/vendor-bank-account-change-fraud" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              full verification protocol
+            </Link>
+            . Note that BEC is no longer email-only:{' '}
+            <Link href="/blog/whatsapp-ceo-fraud-bec-left-inbox" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              the $36M WhatsApp impersonation fraud
+            </Link>{' '}
+            is a sign of where attacks are heading. For compliance deadlines, see the{' '}
+            <Link href="/blog/nacha-2026-ach-fraud-monitoring-compliance" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              NACHA 2026 ACH fraud monitoring requirements
+            </Link>
             .
           </p>
         </section>

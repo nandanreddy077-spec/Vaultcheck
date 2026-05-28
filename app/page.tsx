@@ -65,7 +65,7 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link href="/signup" className="btn-primary-gradient px-8 py-4 text-base font-semibold">
-                  Start 30-day free trial
+                  Start free — no credit card
                 </Link>
                 <Link
                   href="/login"
@@ -75,7 +75,7 @@ export default function LandingPage() {
                 </Link>
               </div>
               <div className="flex flex-wrap items-center gap-4">
-                <p className="text-sm text-slate-400">No credit card required · Cancel anytime</p>
+                <p className="text-sm text-slate-400">Free plan available · No credit card · Upgrade anytime</p>
               </div>
 
               {/* Differentiators */}
@@ -242,8 +242,8 @@ export default function LandingPage() {
                 },
                 {
                   icon: <Lock className="h-9 w-9 text-[#a94900]" />,
-                  title: 'Email domain spoofing',
-                  desc: "Surfaces sender domains that don't match known vendor domains—including look-alikes.",
+                  title: 'Duplicate invoices',
+                  desc: 'Detects invoices submitted twice — same vendor, same amount, different invoice number — before double-payment clears.',
                 },
                 {
                   icon: <TrendingUp className="h-9 w-9 text-[#565e74]" />,
@@ -331,91 +331,89 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Testimonials */}
+        {/* How detection works */}
         <section className="py-20 md:py-24">
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <div className="mx-auto mb-14 max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#003ec7]">From accounting firms using Vantirs</p>
-              <h2 className="mt-3 font-manrope text-3xl font-bold text-[#0b1c30] md:text-4xl">Trusted by the teams writing the checks</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#003ec7]">How it works</p>
+              <h2 className="mt-3 font-manrope text-3xl font-bold text-[#0b1c30] md:text-4xl">Exactly what gets checked — and how</h2>
+              <p className="mt-4 text-base text-slate-600">
+                Vantirs reads your QuickBooks history. Every signal is derived from data that already exists in your books — no manual input, no vendor portals, no configuration.
+              </p>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+            {/* Steps */}
+            <div className="relative mx-auto max-w-3xl">
+              <div className="absolute left-[1.375rem] top-8 hidden h-[calc(100%-4rem)] w-px bg-[#c3c5d9]/40 md:block" />
               {[
                 {
-                  initials: 'SM',
-                  color: 'bg-[#003ec7]',
-                  name: 'Sarah Mitchell',
-                  role: 'Controller',
-                  org: 'Whitmore & Associates, Denver CO',
-                  quote:
-                    'We nearly wired $84,000 to a spoofed vendor. Vantirs caught the bank account change 20 minutes before the payment run. That one catch paid for years of subscription.',
+                  step: '1',
+                  title: 'Connect QuickBooks via official OAuth',
+                  body: 'Two-minute setup using QuickBooks\' own OAuth flow. Vantirs receives read-only access — it cannot move money, create vendors, or modify any data in your books.',
                 },
                 {
-                  initials: 'JO',
-                  color: 'bg-[#0d5c2e]',
-                  name: 'James Okafor',
-                  role: 'AP Manager',
-                  org: 'Greenfield Advisory Group',
-                  quote:
-                    'During Q4 close we process 300+ vendor payments a week. I used to manually spot-check maybe 10% of them. Now every single invoice gets scored automatically — I sleep better.',
+                  step: '2',
+                  title: 'Vantirs builds a payment fingerprint per vendor',
+                  body: 'For every vendor across every client, Vantirs maps their historical payment destinations, typical invoice amounts, and billing cadence. This fingerprint is the baseline everything gets compared against.',
                 },
                 {
-                  initials: 'RT',
-                  color: 'bg-[#7c3aed]',
-                  name: 'Rachel Thornton',
-                  role: 'Managing Partner',
-                  org: 'Thornton CPA Group, Austin TX',
-                  quote:
-                    'Our E&O insurance carrier asked us to document our AP review controls. Vantirs gave us a full audit trail for every invoice decision. That conversation went from painful to easy.',
+                  step: '3',
+                  title: 'Every new invoice is automatically scored',
+                  body: 'When a new invoice syncs from QBO, Vantirs scores it against that vendor\'s fingerprint. No manual submission — it happens on every payment run.',
                 },
                 {
-                  initials: 'DC',
-                  color: 'bg-[#b45309]',
-                  name: 'David Chen',
-                  role: 'Director of Accounting Services',
-                  org: 'Pacific Rim Financial',
-                  quote:
-                    'Three of our clients got BEC phishing attempts in the same quarter. Vantirs flagged all three bank account changes before any payment went out. That\'s the whole product right there.',
+                  step: '4',
+                  title: 'Mismatches surface with the specific reason',
+                  body: 'Alerts say exactly what changed: "Bank account routing number differs from the last 12 payments to this vendor" or "Invoice amount is 340% above this vendor\'s historical average." Your team sees the evidence — not a score.',
                 },
-                {
-                  initials: 'LP',
-                  color: 'bg-[#0e7490]',
-                  name: 'Lauren Pacheco',
-                  role: 'Outsourced CFO',
-                  org: 'Apex CFO Partners',
-                  quote:
-                    'I manage AP for 14 clients. Keeping track of which vendors are legitimate across all of them was a spreadsheet nightmare. Vantirs just handles it — vendor history, anomaly flags, the works.',
-                },
-                {
-                  initials: 'MK',
-                  color: 'bg-[#9f1239]',
-                  name: 'Marcus Klein',
-                  role: 'Senior Accountant',
-                  org: 'Klein & Ruiz CPA, Chicago IL',
-                  quote:
-                    'A client\'s construction vendor changed their routing number mid-project. Old me would have approved it after a quick email. Vantirs flagged it as high risk and made me call the vendor directly — good thing I did.',
-                },
-              ].map(t => (
-                <blockquote
-                  key={t.name}
-                  className="flex flex-col rounded-2xl bg-[#f8f9ff] p-7 shadow-[0_4px_20px_rgba(11,28,48,0.04)] ring-1 ring-[#c3c5d9]/10"
-                >
-                  <div className="mb-4 flex gap-0.5">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} className="h-4 w-4 fill-[#f59e0b] text-[#f59e0b]" />
-                    ))}
+              ].map(item => (
+                <div key={item.step} className="relative mb-8 flex gap-6 last:mb-0">
+                  <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#003ec7] text-sm font-bold text-white shadow-sm">
+                    {item.step}
                   </div>
-                  <p className="flex-1 text-sm leading-relaxed text-slate-700">&ldquo;{t.quote}&rdquo;</p>
-                  <footer className="mt-6 flex items-center gap-3 border-t border-[#c3c5d9]/15 pt-5">
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${t.color} text-xs font-bold text-white`}>
-                      {t.initials}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#0b1c30]">{t.name}</p>
-                      <p className="text-xs text-slate-500">{t.role} · {t.org}</p>
-                    </div>
-                  </footer>
-                </blockquote>
+                  <div className="pb-2 pt-1.5">
+                    <h3 className="font-manrope text-base font-semibold text-[#0b1c30]">{item.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{item.body}</p>
+                  </div>
+                </div>
               ))}
+            </div>
+
+            {/* Trust signals */}
+            <div className="mt-16 rounded-2xl bg-[#f8f9ff] p-8 ring-1 ring-[#c3c5d9]/20 md:p-10">
+              <p className="mb-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Verifiable by your IT or compliance team</p>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    icon: <Shield className="h-5 w-5 text-[#003ec7]" />,
+                    label: 'Official QBO OAuth',
+                    detail: 'Read-only. No credentials stored. Revoke access from your QBO settings at any time.',
+                  },
+                  {
+                    icon: <Lock className="h-5 w-5 text-[#003ec7]" />,
+                    label: 'AES-256 encryption',
+                    detail: 'All payment data encrypted at rest. Bank account details are hashed, never stored in plaintext.',
+                  },
+                  {
+                    icon: <CheckCircle className="h-5 w-5 text-[#003ec7]" />,
+                    label: 'Full audit trail',
+                    detail: 'Every invoice decision logged with timestamp, reviewer, and risk factors. Exportable for auditors.',
+                  },
+                  {
+                    icon: <BarChart3 className="h-5 w-5 text-[#003ec7]" />,
+                    label: 'No vendor portal',
+                    detail: 'Vendors do nothing. No signup, no portal, no disruption to existing payment workflows.',
+                  },
+                ].map(t => (
+                  <div key={t.label} className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      {t.icon}
+                      <span className="text-sm font-semibold text-[#0b1c30]">{t.label}</span>
+                    </div>
+                    <p className="text-xs leading-relaxed text-slate-500">{t.detail}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -430,7 +428,7 @@ export default function LandingPage() {
                 Every payment run deserves a second look
               </h2>
               <p className="mx-auto max-w-lg text-lg text-white/75">
-                Start with a free vendor audit—or jump straight into a 30-day trial. No credit card required.
+                Free plan available — up to 3 clients, no time limit, no credit card. Paid plans unlock more clients and full audit trail exports.
               </p>
               <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row sm:gap-4">
                 <Link

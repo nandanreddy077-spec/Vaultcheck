@@ -6,11 +6,11 @@ import { FaqJsonLd } from '@/components/JsonLd'
 const FAQ_ITEMS = [
   {
     q: 'What is vendor fraud detection software?',
-    a: 'Vendor fraud detection software checks incoming invoices and payment instructions against your verified vendor history to surface mismatches — such as changed bank accounts, spoofed sender domains, or atypical invoice amounts — before any payment is approved or released.',
+    a: 'Vendor fraud detection software checks incoming invoices and payment instructions against your verified vendor history to surface mismatches — such as changed bank accounts, atypical invoice amounts, or first-time payment destinations — before any payment is approved or released.',
   },
   {
     q: 'How does Vantirs detect vendor fraud in QuickBooks Online?',
-    a: 'Vantirs connects to your QuickBooks Online account via OAuth and builds a behavioral fingerprint for each vendor using historical payment data. When a new invoice or payment request deviates from that fingerprint — different bank account, unusual amount, lookalike email domain — Vantirs flags it with a specific, reviewable reason before your AP team approves payment.',
+    a: 'Vantirs connects to your QuickBooks Online account via OAuth and builds a behavioral fingerprint for each vendor using historical payment data. When a new invoice or payment request deviates from that fingerprint — different bank account, unusual amount, new payment destination — Vantirs flags it with a specific, reviewable reason before your AP team approves payment.',
   },
   {
     q: 'What types of vendor fraud does Vantirs catch?',
@@ -37,9 +37,9 @@ const FRAUD_SIGNALS = [
       'Any incoming payment instruction with a beneficiary account that differs from your verified history for that vendor. The highest-risk event in AP.',
   },
   {
-    title: 'Lookalike sender domains',
+    title: 'Duplicate invoice submission',
     description:
-      'BEC and VEC attacks use domains like acme-corp.com instead of acmecorp.com. Vantirs checks sender domains against known vendor identities in your books.',
+      'The same invoice submitted twice with a different invoice number — same vendor, same amount, different timing. Common in high-volume AP environments and often missed by manual review.',
   },
   {
     title: 'Invoice amount anomalies',
@@ -57,9 +57,9 @@ const FRAUD_SIGNALS = [
       'Vendors with no payment history requesting large transfers or unusual payment methods receive automatic elevated scrutiny.',
   },
   {
-    title: 'Urgency and pressure patterns',
+    title: 'Ghost vendor activity',
     description:
-      'Language patterns associated with BEC urgency tactics, correlated with payment-instruction anomalies for compound risk scoring.',
+      'Vendors with no prior payment history receiving large payment requests — a hallmark of both insider fraud and external ghost vendor schemes.',
   },
 ]
 
@@ -276,9 +276,9 @@ export default function VendorFraudDetectionSoftwarePage() {
                 <td className="px-5 py-4 text-emerald-700">Flagged: new beneficiary account, no history — requires out-of-band verification</td>
               </tr>
               <tr className="border-t border-[#c3c5d9]/20">
-                <td className="px-5 py-4 font-medium text-[#0b1c30]">Invoice arrives from lookalike domain</td>
-                <td className="px-5 py-4">Passes email security — domain spoofing not caught</td>
-                <td className="px-5 py-4 text-emerald-700">Flagged: sender domain does not match verified vendor identity in QBO</td>
+                <td className="px-5 py-4 font-medium text-[#0b1c30]">Same invoice submitted twice, different number</td>
+                <td className="px-5 py-4">Passes review — duplicate not spotted across 300+ invoices</td>
+                <td className="px-5 py-4 text-emerald-700">Flagged: duplicate pattern detected — same vendor, same amount, second submission within billing window</td>
               </tr>
               <tr className="border-t border-[#c3c5d9]/20">
                 <td className="px-5 py-4 font-medium text-[#0b1c30]">Invoice amount is 3x normal range</td>

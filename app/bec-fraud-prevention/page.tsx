@@ -14,7 +14,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How does Vantirs stop BEC attacks in QuickBooks Online?',
-    a: 'Vantirs builds a behavioral fingerprint for each vendor from your QBO payment history. When a BEC or VEC attack attempts to reroute a payment — changing the bank account, sender domain, or invoice amount — Vantirs flags the specific anomaly before your AP team approves, giving them the context to pause and verify.',
+    a: 'Vantirs builds a behavioral fingerprint for each vendor from your QBO payment history. When a BEC or VEC attack attempts to reroute a payment — changing the bank account or invoice amount outside the vendor\'s normal range — Vantirs flags the specific anomaly before your AP team approves, giving them the context to pause and verify.',
   },
   {
     q: 'Can BEC attacks get past DMARC and email security filters?',
@@ -48,7 +48,7 @@ const HOW_BEC_WORKS = [
 export const metadata: Metadata = {
   title: 'BEC Fraud Prevention Software for Finance Teams | Vantirs',
   description:
-    'Stop business email compromise and vendor email compromise before AP approves the payment. Vantirs flags bank account changes, spoofed domains, and payment anomalies in QuickBooks Online.',
+    'Stop business email compromise and vendor email compromise before AP approves the payment. Vantirs flags bank account changes, payment destination anomalies, and unusual invoice amounts in QuickBooks Online.',
   alternates: { canonical: '/bec-fraud-prevention' },
   keywords: [
     'BEC fraud prevention software',
@@ -109,8 +109,8 @@ export default function BecFraudPreventionPage() {
               <li className="flex gap-3">
                 <span className="mt-0.5 flex-shrink-0 text-emerald-600">✓</span>
                 <div>
-                  <strong className="text-[#0b1c30]">Lookalike sender domain</strong>
-                  <p className="mt-0.5 text-slate-600">Domain differs from the vendor's verified identity in your QBO — one character swap, hyphen, or TLD change caught automatically.</p>
+                  <strong className="text-[#0b1c30]">Duplicate invoice patterns</strong>
+                  <p className="mt-0.5 text-slate-600">The same invoice re-submitted with a different number — same vendor, same amount — flagged before a second payment clears.</p>
                 </div>
               </li>
               <li className="flex gap-3">

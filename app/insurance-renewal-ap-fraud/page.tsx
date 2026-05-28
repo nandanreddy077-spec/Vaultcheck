@@ -66,7 +66,7 @@ export default function InsuranceRenewalPage() {
                 {
                   question: '"Do you have controls to detect BEC / business email compromise targeting your AP process?"',
                   bad: 'We train staff to look for suspicious emails (no automated detection)',
-                  good: 'Vantirs flags email domains that don\'t match a vendor\'s known email history, including look-alike domains. Every flag requires review before payment.',
+                  good: 'Vantirs flags any payment instruction where the bank account differs from the vendor\'s verified payment history. Every flag requires a documented review before payment proceeds.',
                 },
                 {
                   question: '"Can you provide documentation of your AP fraud prevention controls for the past 12 months?"',

@@ -5,14 +5,14 @@ import { FaqJsonLd } from '@/components/JsonLd'
 
 const FAQ_ITEMS = [
   { q: 'How does Vantirs connect to QuickBooks Online?', a: 'Vantirs uses OAuth to connect directly to your client\'s QuickBooks Online account. The setup takes under 2 minutes and syncs vendor and payment history automatically.' },
-  { q: 'What types of fraud does Vantirs detect in QuickBooks?', a: 'Vantirs flags bank account mismatches, email domain spoofing (BEC-style attacks), amount anomalies vs. vendor history, and new vendors that require explicit review.' },
+  { q: 'What types of fraud does Vantirs detect in QuickBooks?', a: 'Vantirs flags bank account mismatches, first-time payment destinations, amount anomalies vs. vendor history, duplicate invoice submissions, and new vendors that require explicit review.' },
   { q: 'Is Vantirs built only for QuickBooks Online?', a: 'Yes. Vantirs is purpose-built for QuickBooks Online, which means vendor fingerprinting is anchored to your real QBO payment data—not generic risk scores.' },
 ]
 
 export const metadata: Metadata = {
   title: 'QuickBooks Fraud Prevention App | Vantirs',
   description:
-    'QuickBooks Online fraud prevention built natively for accounting firms. Fingerprint vendors using payment history and flag bank mismatches and spoofed emails before clients pay.',
+    'QuickBooks Online fraud prevention built natively for accounting firms. Fingerprint vendors using payment history and flag bank mismatches and payment anomalies before clients pay.',
   alternates: { canonical: '/quickbooks-fraud-prevention' },
 }
 

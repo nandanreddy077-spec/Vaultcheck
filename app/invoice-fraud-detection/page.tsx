@@ -4,9 +4,9 @@ import MarketingSeoShell from '@/components/MarketingSeoShell'
 import { FaqJsonLd } from '@/components/JsonLd'
 
 const FAQ_ITEMS = [
-  { q: 'What is invoice fraud detection?', a: 'Invoice fraud detection identifies suspicious invoices before payment by checking for bank account mismatches, spoofed email domains, and statistical anomalies against vendor payment history.' },
-  { q: 'How does Vantirs detect fake invoices?', a: "Vantirs fingerprints every vendor using QuickBooks Online payment history and flags invoices where bank details, email domains, or amounts don't match established patterns." },
-  { q: 'Can Vantirs detect BEC-style invoice scams?', a: 'Yes. Vantirs surfaces email domain spoofing signals including look-alike domains, which are a hallmark of business email compromise (BEC) attacks targeting AP teams.' },
+  { q: 'What is invoice fraud detection?', a: 'Invoice fraud detection identifies suspicious invoices before payment by checking for bank account mismatches, first-time payment destinations, and statistical anomalies against vendor payment history.' },
+  { q: 'How does Vantirs detect fake invoices?', a: "Vantirs fingerprints every vendor using QuickBooks Online payment history and flags invoices where bank details or amounts don't match established patterns — with the specific variance shown, not just a score." },
+  { q: 'Can Vantirs detect BEC-style invoice scams?', a: 'Yes. BEC and VEC attacks ultimately redirect payments to a new bank account. Vantirs checks every payment destination against a vendor\'s verified history and flags any new beneficiary before your AP team approves.' },
 ]
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default function InvoiceFraudDetectionPage() {
               Catch invoice fraud before your team approves payment
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-slate-600">
-              Vantirs detects invoice-level fraud signals (bank mismatches, suspicious vendor changes, spoofed email domains, and statistical anomalies) using each vendor&apos;s payment history in QuickBooks Online.
+              Vantirs detects invoice-level fraud signals (bank account changes, new payment destinations, and statistical amount anomalies) using each vendor&apos;s payment history in QuickBooks Online.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href="/signup" className="btn-primary-gradient px-8 py-4 text-base font-semibold">

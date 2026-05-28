@@ -179,6 +179,13 @@ export default function VendorBankAccountChangeFraudPost() {
             for the action checklist.
           </p>
           <p className="mt-4 text-slate-700">
+            One more vector to account for: bank change requests are no longer arriving only by email. The{' '}
+            <Link href="/blog/whatsapp-ceo-fraud-bec-left-inbox" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              $36M WhatsApp CEO impersonation fraud
+            </Link>{' '}
+            is a reminder that your channel policy needs to cover messaging apps too — any payment instruction that doesn&apos;t route through your official AP intake should be rejected regardless of who appears to be asking.
+          </p>
+          <p className="mt-4 text-slate-700">
             Finance leaders who treat bank account change verification as a clerical task are mispricing the risk. This is a control that sits directly between your company&apos;s cash and a fraud ring&apos;s offshore account. It deserves the same rigor you apply to signing authority and wire approval limits.
           </p>
         </section>

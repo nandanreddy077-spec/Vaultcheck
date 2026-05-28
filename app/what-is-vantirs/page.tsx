@@ -19,7 +19,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How does Vantirs reduce payment fraud risk?',
-    a: 'Vantirs compares payment instructions against historical vendor patterns, flags anomalies such as bank mismatches and spoofed domains, and supports documented pre-payment reviews.',
+    a: 'Vantirs compares payment instructions against historical vendor patterns, flags anomalies such as bank mismatches and amount outliers, and creates a documented audit trail for every pre-payment review.',
   },
   {
     q: 'Is Vantirs for QuickBooks Online workflows?',

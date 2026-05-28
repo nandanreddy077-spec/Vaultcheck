@@ -10,7 +10,7 @@ export const ATTACK_TYPES = {
     definition:
       'Vendor impersonation is when a fraudster poses as a legitimate supplier—often via email or forged documents—to trick accounts payable into changing payment details or approving a fraudulent invoice. Attacks may use look-alike domains, cloned letterhead, or urgent language to bypass normal scrutiny.',
     detection:
-      'Vantirs builds a vendor fingerprint from QuickBooks Online history: known bank accounts, typical payment amounts, and communication patterns. When an incoming request diverges from that fingerprint—new beneficiary, unusual domain, or amount spike—your team gets a clear signal before approval.',
+      'Vantirs builds a vendor fingerprint from QuickBooks Online history: known bank accounts, typical payment amounts, and billing patterns. When an incoming request diverges from that fingerprint—new beneficiary or amount spike—your team gets a clear signal before approval.',
     checklist: [
       'Verify any payment or banking change through a known phone number, not reply-to email.',
       'Compare sender domains to historical vendor email patterns; flag look-alikes.',
@@ -25,7 +25,7 @@ export const ATTACK_TYPES = {
       },
       {
         q: 'Can Vantirs catch impersonation if the fraudster uses the real vendor name?',
-        a: 'Yes. Name alone is not trusted. Vantirs correlates bank details, email domains, and payment history so a convincing display name cannot override mismatched financial or domain signals.',
+        a: 'Yes. Name alone is not trusted. Vantirs correlates bank details and payment history so a convincing display name cannot override a mismatched payment destination.',
       },
     ],
   },
@@ -106,7 +106,7 @@ export const ATTACK_TYPES = {
     definition:
       'Payment diversion is any scheme that redirects legitimate outgoing payments to the wrong account—whether through altered invoices, man-in-the-middle messaging, or compromised portals. The business believes it is paying a real supplier while funds go to a criminal.',
     detection:
-      'Vantirs ties each payment request to verified vendor behavior: expected rails, typical counterparties, and historical alignment between invoice channel and bank details. Divergent paths—new account, new domain, or inconsistent metadata—surface before release.',
+      'Vantirs ties each payment request to verified vendor behavior: expected bank accounts, typical amounts, and historical payment patterns. Divergent paths—new account or inconsistent payment details—surface before release.',
     checklist: [
       'Validate payment instructions through a second channel for large wires.',
       'Use vendor portals or encrypted channels for sensitive updates.',
@@ -117,7 +117,7 @@ export const ATTACK_TYPES = {
     faq: [
       {
         q: 'Is payment diversion the same as BEC?',
-        a: 'Often related: BEC frequently causes diversion via spoofed instructions. Vantirs addresses both by combining email/domain signals with bank and vendor history in QuickBooks.',
+        a: 'Often related: BEC causes diversion by convincing AP to change a payment destination. Vantirs catches this at the payment layer — any new beneficiary account is flagged against vendor history before the wire goes out.',
       },
       {
         q: 'What if the diversion uses a slightly wrong account number?',
@@ -130,7 +130,7 @@ export const ATTACK_TYPES = {
     definition:
       'Email spoofing forges or misrepresents sender identity so a message appears to come from a trusted vendor, executive, or domain. Fraudsters use spoofing and look-alike domains to request payments, share fake invoices, or escalate urgency.',
     detection:
-      'Vantirs correlates sender domains and communication patterns with each vendor’s established profile. When an invoice-related message comes from an unfamiliar or look-alike domain, it is flagged alongside bank and amount checks for a unified review.',
+      ‘Email spoofing always has a goal: getting AP to change a payment destination. Vantirs catches that outcome at the payment layer. Any bank account that differs from a vendor\’s verified history in QuickBooks is flagged — regardless of how convincing the email looked.’,
     checklist: [
       'Deploy SPF, DKIM, and DMARC; monitor DMARC reports for abuse.',
       'Train users to inspect full headers and domains on financial emails.',
@@ -141,7 +141,7 @@ export const ATTACK_TYPES = {
     faq: [
       {
         q: 'Can spoofing be detected if the email looks identical to past threads?',
-        a: 'Visual similarity is not enough. Vantirs checks whether the domain and behavior match how the vendor actually transacts in QuickBooks, reducing reliance on appearance alone.',
+        a: 'Visual similarity is not enough — and that\'s exactly why Vantirs works at the payment layer, not the email layer. If the spoofed email results in a changed bank account, Vantirs flags it against the vendor\'s payment history before any money moves.',
       },
       {
         q: 'Does Vantirs replace DMARC?',

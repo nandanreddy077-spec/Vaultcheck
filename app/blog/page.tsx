@@ -11,6 +11,14 @@ export const metadata: Metadata = {
 
 const POSTS = [
   {
+    href: '/blog/ai-social-engineering-payment-fraud',
+    title: 'AI Social Engineering and Payment Fraud: Why Your AP Team Is the New Attack Surface',
+  },
+  {
+    href: '/blog/whatsapp-ceo-fraud-bec-left-inbox',
+    title: 'The $36M WhatsApp Fraud Is a Warning: BEC Has Left the Inbox',
+  },
+  {
     href: '/blog/pre-approved-fraud-accounts-payable',
     title: "What 'Pre-Approved Fraud' Means for Your AP Team (And How to Stop It)",
   },

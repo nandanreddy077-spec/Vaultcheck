@@ -37,7 +37,11 @@ export default function VendorVerificationChecklistPost() {
         <section className="mt-10">
           <h2 className="font-manrope text-2xl font-bold text-[#0b1c30]">Bank detail verification process</h2>
           <p className="mt-3 text-slate-700">
-            Treat bank changes as high risk by default. Your checklist should require independent confirmation: call-back to a number on file, dual control, or an automated verification that compares new details to historical payee fingerprints—not just the text of an email.
+            Treat bank changes as high risk by default. Your checklist should require independent confirmation: call-back to a number on file, dual control, or an automated verification that compares new details to historical payee fingerprints—not just the text of an email. For a full breakdown of how these attacks work and a step-by-step response protocol, see{' '}
+            <Link href="/blog/vendor-bank-account-change-fraud" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              vendor bank account change fraud
+            </Link>
+            .
           </p>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-slate-700">
             <li>Never accept wire or ACH instructions solely from email</li>
@@ -56,7 +60,15 @@ export default function VendorVerificationChecklistPost() {
         <section className="mt-10">
           <h2 className="font-manrope text-2xl font-bold text-[#0b1c30]">Ongoing monitoring requirements</h2>
           <p className="mt-3 text-slate-700">
-            Onboarding is only day one. Ongoing monitoring catches changes to bank details, sudden invoice volume spikes, duplicate bill numbers, and vendor impersonation attempts that arrive months after the relationship starts.
+            Onboarding is only day one. Ongoing monitoring catches changes to bank details, sudden invoice volume spikes, duplicate bill numbers, and vendor impersonation attempts that arrive months after the relationship starts. NACHA&apos;s 2026 rules now require documented, risk-based fraud monitoring for all ACH originators — see the{' '}
+            <Link href="/blog/nacha-2026-ach-fraud-monitoring-compliance" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              NACHA 2026 AP compliance guide
+            </Link>{' '}
+            for what auditors expect. AI has also made fake invoices visually indistinguishable from real ones, which means ongoing monitoring must go beyond visual review — see{' '}
+            <Link href="/blog/ai-generated-fake-invoices" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              AI-generated fake invoice detection
+            </Link>
+            .
           </p>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-slate-700">
             <li>Quarterly or trigger-based review of high-value vendors</li>

@@ -69,7 +69,11 @@ export default function TypesOfApFraudPost() {
             <strong className="text-[#0b1c30]">Why it slips through:</strong> Staff trust urgency and familiar branding; QBO stores the new details without questioning whether they match prior payee history.
           </p>
           <p className="mt-3 text-slate-700">
-            <strong className="text-[#0b1c30]">How to detect:</strong> Fingerprint prior payments; alert when routing or account numbers diverge from established patterns.
+            <strong className="text-[#0b1c30]">How to detect:</strong> Fingerprint prior payments; alert when routing or account numbers diverge from established patterns.{' '}
+            <Link href="/blog/vendor-bank-account-change-fraud" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              See the full vendor bank change verification protocol
+            </Link>
+            .
           </p>
         </section>
 
@@ -108,7 +112,12 @@ export default function TypesOfApFraudPost() {
             <strong className="text-[#0b1c30]">Why it slips through:</strong> Email is trusted; MFA on mail does not prove message content. AP processes optimize for speed.
           </p>
           <p className="mt-3 text-slate-700">
-            <strong className="text-[#0b1c30]">How to detect:</strong> Domain authentication signals, vendor fingerprinting, and payment holds on anomalous bank or invoice changes.
+            <strong className="text-[#0b1c30]">How to detect:</strong> Domain authentication signals, vendor fingerprinting, and payment holds on anomalous bank or invoice changes.{' '}
+            BEC has also moved beyond email — see{' '}
+            <Link href="/blog/whatsapp-ceo-fraud-bec-left-inbox" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              how fraudsters are using WhatsApp to bypass email security
+            </Link>
+            .
           </p>
         </section>
 
@@ -119,11 +128,15 @@ export default function TypesOfApFraudPost() {
             <Link href="/accounts-payable-fraud-prevention" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
               accounts payable fraud prevention
             </Link>{' '}
-            practices, then add continuous monitoring on top of your stack. For a concise rollout path, see{' '}
-            <Link href="/prevent" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
-              prevent
-            </Link>{' '}
-            —our hub for stopping payment fraud before funds leave.
+            practices, then add continuous monitoring on top of your stack. For AI-generated invoice fraud specifically, see{' '}
+            <Link href="/blog/ai-generated-fake-invoices" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              how behavioral detection catches what visual review misses
+            </Link>
+            . For ACH compliance requirements, see the{' '}
+            <Link href="/blog/nacha-2026-ach-fraud-monitoring-compliance" className="font-semibold text-[#003ec7] underline-offset-2 hover:underline">
+              NACHA 2026 compliance checklist for AP teams
+            </Link>
+            .
           </p>
         </section>
 

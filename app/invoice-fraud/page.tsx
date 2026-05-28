@@ -6,7 +6,7 @@ import { INDUSTRIES } from './[industry]/page'
 export const metadata: Metadata = {
   title: 'Invoice Fraud Prevention by Industry | Vantirs',
   description:
-    'Industry-specific invoice fraud prevention for healthcare, construction, legal, manufacturing, and more. See how Vantirs flags bank mismatches, spoofed domains, and suspicious invoices in QuickBooks Online.',
+    'Industry-specific invoice fraud prevention for healthcare, construction, legal, manufacturing, and more. See how Vantirs flags bank mismatches, payment anomalies, and suspicious invoices in QuickBooks Online.',
   alternates: { canonical: '/invoice-fraud' },
 }
 
