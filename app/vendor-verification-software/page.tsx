@@ -42,7 +42,7 @@ export default function VendorVerificationSoftwarePage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href="/signup" className="btn-primary-gradient px-8 py-4 text-base font-semibold">
-                Start 30-day free trial
+                Start free — no credit card
               </Link>
               <Link
                 href="/how-it-works"

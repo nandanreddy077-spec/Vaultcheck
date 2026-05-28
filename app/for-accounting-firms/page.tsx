@@ -42,7 +42,7 @@ export default function ForAccountingFirmsPage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href="/signup" className="btn-primary-gradient px-8 py-4 text-base font-semibold">
-                Start 30-day free trial
+                Start free — no credit card
               </Link>
               <Link href="/roi-calculator" className="inline-flex items-center justify-center rounded-xl bg-[#dce9ff]/80 px-8 py-4 text-base font-semibold text-[#003ec7] transition-colors hover:bg-[#d3e4fe]">
                 Calculate ROI

@@ -40,7 +40,7 @@ export default function FakeInvoicesPost() {
         <section className="mt-8">
           <h2 className="text-2xl font-bold text-[#0b1c30]">Step 3: Use automation for consistency</h2>
           <p className="mt-3 text-slate-700">
-            Vantirs fingerprints vendors using QuickBooks Online payment history and flags bank mismatches and spoofed email signals so your team doesn’t rely on memory.
+            Vantirs fingerprints vendors using QuickBooks Online payment history and flags bank mismatches and payment anomalies so your team doesn’t rely on memory.
           </p>
         </section>
 

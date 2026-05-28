@@ -65,7 +65,7 @@ export default function ConstructionPaymentFraudPreventionPage() {
           <h2 className="text-2xl font-bold text-[#0b1c30]">How Vantirs protects construction payment workflows</h2>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-slate-700">
             <li>Verifies beneficiary and routing data against known vendor payment history</li>
-            <li>Flags sender domain spoofing and BEC-style urgency patterns</li>
+            <li>Flags first-time payment destinations and new bank accounts not in vendor history</li>
             <li>Surfaces amount anomalies with context before payment approval</li>
             <li>Creates a defensible review trail for controllers and auditors</li>
           </ul>

@@ -40,7 +40,7 @@ export default function AuditorFlaggedPage() {
             <Link href="/signup" className="btn-primary-gradient mt-8 inline-flex items-center gap-2 px-10 py-4 text-base font-semibold">
               Get compliant now <ArrowRight className="h-4 w-4" />
             </Link>
-            <p className="mt-4 text-sm text-slate-400">No credit card required · 30-day free trial</p>
+            <p className="mt-4 text-sm text-slate-400">Free plan available · No credit card · Upgrade anytime</p>
           </div>
         </section>
 
