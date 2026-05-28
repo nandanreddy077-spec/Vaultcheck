@@ -58,7 +58,7 @@ export const ATTACK_TYPES = {
     definition:
       'Bank change fraud is the class of schemes where an attacker convinces AP to send future payments to a fraudulent account—often by email claiming an “updated” wire or ACH destination. It is one of the highest-loss vectors for mid-market finance teams.',
     detection:
-      'Vantirs compares requested bank and routing details against each vendor’s historical payment footprint in QuickBooks Online. A change from established beneficiaries triggers review, with context so approvers can validate out-of-band before funds move.',
+      "Vantirs compares requested bank and routing details against each vendor’s historical payment footprint in QuickBooks Online. A change from established beneficiaries triggers review, with context so approvers can validate out-of-band before funds move.",
     checklist: [
       'Never accept bank changes from email alone; call the vendor on a known number.',
       'Maintain a vendor master with validated banking info and change procedures.',
@@ -130,7 +130,7 @@ export const ATTACK_TYPES = {
     definition:
       'Email spoofing forges or misrepresents sender identity so a message appears to come from a trusted vendor, executive, or domain. Fraudsters use spoofing and look-alike domains to request payments, share fake invoices, or escalate urgency.',
     detection:
-      ‘Email spoofing always has a goal: getting AP to change a payment destination. Vantirs catches that outcome at the payment layer. Any bank account that differs from a vendor\’s verified history in QuickBooks is flagged — regardless of how convincing the email looked.’,
+      "Email spoofing always has a goal: getting AP to change a payment destination. Vantirs catches that outcome at the payment layer. Any bank account that differs from a vendor’s verified history in QuickBooks is flagged — regardless of how convincing the email looked.",
     checklist: [
       'Deploy SPF, DKIM, and DMARC; monitor DMARC reports for abuse.',
       'Train users to inspect full headers and domains on financial emails.',
@@ -154,7 +154,7 @@ export const ATTACK_TYPES = {
     definition:
       'Overbilling is the practice of charging more than contractually owed—inflated quantities, padded hours, duplicate line items, or “accidental” extras. It may be criminal or simply opportunistic, but the effect is the same: excess outflow.',
     detection:
-      'Vantirs compares current invoice lines and totals to each vendor’s historical distribution of amounts and frequencies. Statistical outliers and repeated spikes trigger review so overbilling does not become normalized.',
+      "Vantirs compares current invoice lines and totals to each vendor’s historical distribution of amounts and frequencies. Statistical outliers and repeated spikes trigger review so overbilling does not become normalized.",
     checklist: [
       'Anchor invoices to contracts and rate cards.',
       'Require manager sign-off on variances above a threshold.',
