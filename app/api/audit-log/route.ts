@@ -12,6 +12,8 @@ const ACTION_LABELS: Record<string, string> = {
   paddle_subscription_updated: 'Plan Updated',
   paddle_subscription_canceled: 'Plan Canceled',
   'plan.outreach_coupon_redeemed': 'Partner Code Redeemed',
+  vendor_bank_changed: 'Vendor Bank Account Changed',
+  nacha_export: 'NACHA Export',
 }
 
 export async function GET(req: NextRequest) {
@@ -29,11 +31,29 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
   const pageSize = 50
 
+  // NACHA export: derive date range from ?days=N (missing→90, NaN→400, clamp [1,365])
+  let nachaFrom: Date | undefined
+  if (format === 'nacha') {
+    const daysRaw = searchParams.get('days')
+    if (daysRaw !== null) {
+      const parsed = parseInt(daysRaw, 10)
+      if (isNaN(parsed)) {
+        return NextResponse.json({ error: 'days must be a number' }, { status: 400 })
+      }
+      const clamped = Math.min(Math.max(parsed, 1), 365)
+      nachaFrom = new Date(Date.now() - clamped * 86_400_000)
+    } else {
+      nachaFrom = new Date(Date.now() - 90 * 86_400_000)
+    }
+  }
+
   const where = {
     firmId: dbUser.firmId,
     ...(clientId ? { clientId } : {}),
     ...(action ? { action } : {}),
-    ...(from || to
+    ...(nachaFrom
+      ? { createdAt: { gte: nachaFrom } }
+      : from || to
       ? {
           createdAt: {
             ...(from ? { gte: new Date(from) } : {}),
@@ -43,12 +63,14 @@ export async function GET(req: NextRequest) {
       : {}),
   }
 
+  const rowCap = format === 'nacha' ? 10_000 : format === 'csv' ? 5000 : pageSize
+
   const [logs, total] = await Promise.all([
     prisma.auditLog.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      skip: format === 'csv' ? 0 : (page - 1) * pageSize,
-      take: format === 'csv' ? 5000 : pageSize,
+      skip: format === 'csv' || format === 'nacha' ? 0 : (page - 1) * pageSize,
+      take: rowCap,
     }),
     prisma.auditLog.count({ where }),
   ])
@@ -80,6 +102,34 @@ export async function GET(req: NextRequest) {
     entityId: log.entityId,
     details: log.details,
   }))
+
+  if (format === 'nacha') {
+    const truncated = logs.length === 10_000
+
+    // Self-log this export for audit trail completeness
+    await prisma.auditLog.create({
+      data: {
+        firmId: dbUser.firmId,
+        clientId: null,
+        userId: dbUser.id,
+        action: 'nacha_export',
+        entityType: 'audit_log',
+        entityId: dbUser.firmId,
+        details: {
+          rowCount: logs.length,
+          truncated,
+          exportedAt: new Date().toISOString(),
+        },
+      },
+    })
+
+    return NextResponse.json({
+      ok: true,
+      rows: enriched,
+      count: logs.length,
+      truncated,
+    })
+  }
 
   if (format === 'csv') {
     const header = 'Timestamp,Action,Client,Actor,Entity Type,Entity ID,Details\n'

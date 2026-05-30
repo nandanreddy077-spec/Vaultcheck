@@ -319,7 +319,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
                       <p className="text-sm font-medium text-gray-900 leading-tight">{alert.title}</p>
                       <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{alert.description}</p>
                       <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                        <span>${alert.invoice.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                        {alert.invoice && <span>${alert.invoice.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>}
                         <span>{new Date(alert.createdAt).toLocaleDateString()}</span>
                         <span className={`${alert.status === 'resolved' ? 'text-green-600' : 'text-orange-600'}`}>
                           {alert.status}

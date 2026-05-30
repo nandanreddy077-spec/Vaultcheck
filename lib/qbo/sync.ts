@@ -6,6 +6,7 @@ import { hashPaymentProfile } from '@/lib/vendor-payment-profile'
 import { scanInvoice } from '@/lib/scanner/scan'
 import { extractQboVendorPayment, type QboVendorRaw } from './vendor-payment'
 import { rescanOpenInvoicesForVendors } from './rescan-open-invoices'
+import { createVendorAlert } from '@/lib/alerts/create'
 
 interface QBOVendor extends QboVendorRaw {
   DisplayName: string
@@ -203,6 +204,14 @@ export async function incrementalSync(clientId: string) {
 async function syncVendors(clientId: string, vendors: QBOVendor[]): Promise<string[]> {
   const bankChangedVendorIds: string[] = []
 
+  // Hoist firm lookup once for all vendors — one query per sync, not per vendor (N+1 fix).
+  const clientRecord = await prisma.client.findUnique({
+    where: { id: clientId },
+    select: { firmId: true, firm: { select: { name: true } } },
+  })
+  const firmId = clientRecord?.firmId
+  const firmName = clientRecord?.firm?.name ?? 'Your accounting firm'
+
   await runConcurrently(
     vendors.map(v => async () => {
       const email = v.PrimaryEmailAddr?.Address
@@ -248,7 +257,28 @@ async function syncVendors(clientId: string, vendors: QBOVendor[]): Promise<stri
         },
       })
 
-      if (paymentChanged) bankChangedVendorIds.push(upserted.id)
+      if (paymentChanged) {
+        bankChangedVendorIds.push(upserted.id)
+        // Fire vendor-level alert immediately — covers the case where no open invoices exist.
+        // firmId was hoisted before this loop; skip alert if client was deleted mid-sync.
+        if (firmId) {
+          try {
+            await createVendorAlert({
+              vendorId: upserted.id,
+              clientId,
+              firmId,
+              firmName,
+              severity: 'critical',
+              type: 'bank_change',
+              title: `Bank Account Changed — ${upserted.displayName}`,
+              description: 'Vendor bank account changed during QBO sync.',
+            })
+          } catch (err) {
+            console.error('[syncVendors] createVendorAlert failed:', err)
+            // Do not re-throw — sync must not abort; bankChangedVendorIds already populated.
+          }
+        }
+      }
     }),
     20
   )

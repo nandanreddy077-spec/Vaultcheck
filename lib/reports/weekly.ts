@@ -134,8 +134,8 @@ export async function getWeeklyReportData(params: {
       type: a.type,
       title: a.title,
       description: a.description,
-      amount: a.invoice.amount,
-      vendorName: a.invoice.vendor?.displayName ?? 'Unknown vendor',
+      amount: a.invoice?.amount ?? 0,
+      vendorName: a.invoice?.vendor?.displayName ?? 'Unknown vendor',
     })),
     // for future charts
     _debug_prevResolvedCount: alertsResolvedPrev,

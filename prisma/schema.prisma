@@ -165,7 +165,8 @@ model Invoice {
 model Alert {
   id            String    @id @default(cuid())
   clientId      String
-  invoiceId     String
+  invoiceId     String?   // nullable: vendor-sync alerts have no invoice context
+  vendorId      String?   // set for vendor-level bank-change alerts (no invoice)
   severity      String // critical, high, medium, low
   type          String // bank_change, amount_anomaly, new_vendor, email_mismatch, pattern_mismatch
   title         String
@@ -178,10 +179,14 @@ model Alert {
   resolution    String?
   createdAt     DateTime  @default(now())
 
-  client  Client  @relation(fields: [clientId], references: [id])
-  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  client  Client   @relation(fields: [clientId], references: [id])
+  invoice Invoice? @relation(fields: [invoiceId], references: [id])
 
   @@unique([invoiceId, type])
+  // Do NOT use @@unique for vendorId. A DB-level unique constraint permanently blocks
+  // re-alerts once the first is resolved (P0 security regression). Dedup is enforced
+  // at the application level with a 24h open-alert window in createVendorAlert().
+  @@index([vendorId, type, clientId])
   @@index([clientId, status])
   @@index([severity])
 }

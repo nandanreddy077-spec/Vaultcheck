@@ -17,11 +17,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How does vendor fingerprinting help my firm catch fraud without slowing every invoice?',
-    a: 'Fingerprinting builds a profile from each vendor’s QuickBooks Online payment history—amounts, timing, bank details, and related signals—so anomalies stand out with context. Your team focuses on exceptions that look wrong relative to history instead of re-checking every routine bill.',
+    a: "Fingerprinting builds a profile from each vendor's QuickBooks Online payment history—amounts, timing, bank details, and related signals—so anomalies stand out with context. Your team focuses on exceptions that look wrong relative to history instead of re-checking every routine bill.",
   },
   {
     q: 'Can one Vantirs setup cover multiple clients on QuickBooks Online?',
-    a: 'Yes. You connect each client’s QuickBooks Online company via OAuth and get vendor-level signals per client. That keeps reviews scoped to the right books and helps firms apply consistent fraud checks across their portfolio.',
+    a: "Yes. You connect each client's QuickBooks Online company via OAuth and get vendor-level signals per client. That keeps reviews scoped to the right books and helps firms apply consistent fraud checks across their portfolio.",
   },
 ]
 
@@ -29,20 +29,30 @@ export default function ForAccountingFirmsPage() {
   return (
     <MarketingSeoShell>
       <FaqJsonLd items={FAQ_ITEMS} />
+      <div className="bg-amber-50 border-b border-amber-200">
+        <div className="mx-auto max-w-7xl px-6 py-3 md:px-8">
+          <p className="text-center text-sm font-medium text-amber-800">
+            <span className="font-bold">NACHA Phase 2: June 22, 2026</span> — ACH-originating firms may need documented fraud monitoring controls.{' '}
+            <Link href="/nacha-2026-compliance" className="underline underline-offset-2 hover:text-amber-900">
+              Learn more &#8594;
+            </Link>
+          </p>
+        </div>
+      </div>
       <section className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-20">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7]">Accounting firms</p>
             <h1 className="mt-4 font-manrope text-4xl font-extrabold leading-[1.08] tracking-tight text-[#0b1c30] md:text-5xl">
-              Fraud prevention for accounting firms protecting client payments
+              NACHA-compliant fraud prevention for accounting firms protecting client payments
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-slate-600">
-              If you handle multiple clients on QuickBooks Online, you can’t afford “every invoice is different” reviews. Vantirs fingerprints vendors per client history and flags suspicious requests before clients release funds.
+              If you handle multiple clients on QuickBooks Online, you can't afford "every invoice is different" reviews. Vantirs fingerprints vendors per client history and flags suspicious requests before clients release funds.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href="/signup" className="btn-primary-gradient px-8 py-4 text-base font-semibold">
-                Start free — no credit card
+                Get NACHA-compliant — free
               </Link>
               <Link href="/roi-calculator" className="inline-flex items-center justify-center rounded-xl bg-[#dce9ff]/80 px-8 py-4 text-base font-semibold text-[#003ec7] transition-colors hover:bg-[#d3e4fe]">
                 Calculate ROI
@@ -64,13 +74,13 @@ export default function ForAccountingFirmsPage() {
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_12px_40px_rgba(11,28,48,0.08)] ring-1 ring-[#c3c5d9]/15">
             <h2 className="text-xl font-bold text-[#0b1c30]">What you can automate</h2>
             <p className="mt-2 text-sm text-slate-600">
-              Turn manual checks into ongoing controls across every client’s vendor activity.
+              Turn manual checks into ongoing controls across every client's vendor activity.
             </p>
             <ul className="mt-4 space-y-3 text-sm text-slate-700">
               <li>• Vendor changes that require review</li>
               <li>• Bank detail mismatches vs history</li>
               <li>• Email domain spoofing signals</li>
-              <li>• Statistical outliers that look “off” but are hard to prove</li>
+              <li>• Statistical outliers that look "off" but are hard to prove</li>
             </ul>
             <div className="mt-6">
               <Link href="/invoice-fraud-detection" className="text-sm font-semibold text-[#003ec7] hover:text-[#0032a3]">

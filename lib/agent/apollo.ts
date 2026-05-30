@@ -120,6 +120,11 @@ export async function fetchLeadsFromApollo(limit = 10): Promise<ApolloLead[]> {
       'Principal',
     ],
     person_locations: ['United States'],
+    // Industry filter targeting accounting firms specifically.
+    // SPIKE VERIFIED: Apollo /mixed_people endpoint uses organization_industries (label-based string array).
+    // If this yields 0 results, check plan tier — filter may require a paid Apollo plan.
+    // Fallback: remove this filter and add manual outreach via LinkedIn/G2/Clutch.
+    organization_industries: ['accounting', 'accounting services'],
     sort_by_field: '[none]',
     sort_ascending: false,
   }

@@ -12,6 +12,8 @@ on:
     - cron: '0 */4 * * *'
     # Xero incremental sync — every 4 hours (offset by 1h to avoid overlap)
     - cron: '0 1/4 * * *'
+    # Weekly reports — Monday 6am UTC
+    - cron: '0 6 * * 1'
   workflow_dispatch: # allow manual trigger from GitHub UI
 
 jobs:
@@ -64,5 +66,15 @@ jobs:
       - name: Xero incremental sync — all clients
         run: |
           curl -f -s -X POST "https://www.vantirs.com/api/cron/xero-sync" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            | tee /dev/stderr
+
+  weekly-reports:
+    if: github.event.schedule == '0 6 * * 1' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate and email weekly reports — all firms
+        run: |
+          curl -f -s -X POST "https://www.vantirs.com/api/cron/weekly-reports" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | tee /dev/stderr

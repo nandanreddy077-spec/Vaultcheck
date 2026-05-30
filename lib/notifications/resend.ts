@@ -6,6 +6,7 @@ export async function sendAlertEmail(opts: {
   to: string
   subject: string
   text: string
+  firmName?: string
 }) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
@@ -20,19 +21,22 @@ export async function sendAlertEmail(opts: {
     return
   }
 
+  const label = opts.firmName ?? 'Vantirs'
+  const subject = `[${label}] ${opts.subject}`
+
   try {
     const resend = new Resend(apiKey)
 
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'alerts@vantirs.app',
       to: [opts.to],
-      subject: opts.subject,
+      subject,
       text: opts.text,
     })
   } catch (error) {
     captureException(error, {
       tags: { service: 'resend', flow: 'alert-email' },
-      extra: { to: opts.to, subject: opts.subject },
+      extra: { to: opts.to, subject },
     })
   }
 }

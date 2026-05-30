@@ -6,7 +6,7 @@ import { getSiteUrl } from '@/lib/site-url'
 
 const pageTitle = 'NACHA 2026 ACH Fraud Monitoring Compliance for AP Teams | Vantirs'
 const pageDescription =
-  'NACHA 2026 requires risk-based ACH fraud monitoring for non-consumer payments. See how AP teams can operationalize compliance before June 22.'
+  'NACHA Phase 2 (June 22, 2026) may apply to firms that originate ACH payments for clients. See what the rule covers and how AP teams can build defensible fraud monitoring controls.'
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -29,11 +29,12 @@ export default function NachaComplianceLandingPage() {
         <div className="max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#003ec7]">NACHA 2026 compliance</p>
           <h1 className="mt-4 font-manrope text-4xl font-extrabold leading-[1.08] tracking-tight text-[#0b1c30] md:text-5xl">
-            NACHA&apos;s 2026 rule requires ACH fraud monitoring. Vantirs makes it operational.
+            NACHA Phase 2 is live June 22, 2026. Build defensible ACH fraud controls now.
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-slate-600">
-            If your AP team originates non-consumer ACH payments, you need a risk-based process that verifies payment
-            instructions before file release and leaves a defensible audit trail.
+            NACHA&apos;s Phase 2 fraud monitoring rule may apply to your firm depending on your ODFI relationship and
+            ACH origination volume. Whether or not the rule applies directly, firms processing client AP benefit from
+            a risk-based process that verifies payment instructions before ACH release and leaves a defensible audit trail.
           </p>
         </div>
 
@@ -62,7 +63,7 @@ export default function NachaComplianceLandingPage() {
         </div>
 
         <section className="mt-12 rounded-[2rem] bg-[#eff4ff] p-8 ring-1 ring-[#c3c5d9]/15">
-          <h2 className="font-manrope text-2xl font-bold text-[#0b1c30]">Get your compliance plan in place before June 22</h2>
+          <h2 className="font-manrope text-2xl font-bold text-[#0b1c30]">Build your ACH fraud controls before June 22</h2>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-slate-700">
             <li>Assess current ACH fraud controls and identify gaps.</li>
             <li>Implement verification for vendor bank detail changes.</li>

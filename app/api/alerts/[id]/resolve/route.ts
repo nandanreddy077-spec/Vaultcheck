@@ -45,71 +45,72 @@ export async function POST(
     },
   })
 
-  // Alert decisions may be split across multiple risk factors for the same invoice.
-  // We only set the invoice decision when all alerts for that invoice are resolved.
-  const remainingOpenAlerts = await prisma.alert.count({
-    where: {
-      invoiceId: updated.invoiceId,
-      status: 'open',
-    },
-  })
-
-  if (remainingOpenAlerts === 0) {
-    const resolvedAlerts = await prisma.alert.findMany({
-      where: { invoiceId: updated.invoiceId },
-      select: { resolution: true },
-    })
-
-    const shouldReject = resolvedAlerts.some(a => a.resolution === 'confirmed_fraud')
-    const invoiceStatus = shouldReject ? 'rejected' : 'approved'
-
-    const invoice = await prisma.invoice.findFirst({
+  // Vendor-sync alerts have no invoice — skip invoice-level decisions for those.
+  if (updated.invoiceId) {
+    // Alert decisions may be split across multiple risk factors for the same invoice.
+    // We only set the invoice decision when all alerts for that invoice are resolved.
+    const remainingOpenAlerts = await prisma.alert.count({
       where: {
-        id: updated.invoiceId,
-        client: { firmId: dbUser.firmId },
-      },
-      select: {
-        id: true,
-        bankAccountHash: true,
-        senderEmail: true,
-        vendor: { select: { displayName: true, emailDomain: true } },
+        invoiceId: updated.invoiceId,
+        status: 'open',
       },
     })
 
-    if (invoice) {
-      // If confirmed fraud, share the signal with the global threat intelligence layer
-      // so other Vantirs clients with the same vendor are warned automatically.
-      if (shouldReject) {
-        await createThreatFlag({
-          firmId: dbUser.firmId,
-          vendorName: invoice.vendor?.displayName,
-          emailDomain: invoice.vendor?.emailDomain,
-          bankHash: invoice.bankAccountHash,
-          reason: 'bank_fraud',
-          notes: `Confirmed fraud — alert ${id}`,
+    if (remainingOpenAlerts === 0) {
+      const resolvedAlerts = await prisma.alert.findMany({
+        where: { invoiceId: updated.invoiceId },
+        select: { resolution: true },
+      })
+
+      const shouldReject = resolvedAlerts.some(a => a.resolution === 'confirmed_fraud')
+      const invoiceStatus = shouldReject ? 'rejected' : 'approved'
+
+      const invoice = await prisma.invoice.findFirst({
+        where: {
+          id: updated.invoiceId,
+          client: { firmId: dbUser.firmId },
+        },
+        select: {
+          id: true,
+          bankAccountHash: true,
+          senderEmail: true,
+          vendor: { select: { displayName: true, emailDomain: true } },
+        },
+      })
+
+      if (invoice) {
+        if (shouldReject) {
+          await createThreatFlag({
+            firmId: dbUser.firmId,
+            vendorName: invoice.vendor?.displayName,
+            emailDomain: invoice.vendor?.emailDomain,
+            bankHash: invoice.bankAccountHash,
+            reason: 'bank_fraud',
+            notes: `Confirmed fraud — alert ${id}`,
+          })
+        }
+
+        await prisma.invoice.update({
+          where: { id: invoice.id },
+          data: {
+            status: invoiceStatus,
+            decidedAt: new Date(),
+            decidedBy: dbUser.id,
+          },
+        })
+
+        await prisma.auditLog.create({
+          data: {
+            firmId: dbUser.firmId,
+            clientId: updated.clientId,
+            userId: dbUser.id,
+            action: 'invoice_decided',
+            entityType: 'invoice',
+            entityId: updated.invoiceId,
+            details: { status: invoiceStatus },
+          },
         })
       }
-
-      await prisma.invoice.update({
-        where: { id: invoice.id },
-        data: {
-          status: invoiceStatus,
-          decidedAt: new Date(),
-          decidedBy: dbUser.id,
-        },
-      })
-
-      await prisma.auditLog.create({
-        data: {
-          firmId: dbUser.firmId,
-          clientId: updated.clientId,
-          userId: dbUser.id,
-          action: 'invoice_decided',
-          entityType: 'invoice',
-          entityId: updated.invoiceId,
-          details: { status: invoiceStatus },
-        },
-      })
     }
   }
 

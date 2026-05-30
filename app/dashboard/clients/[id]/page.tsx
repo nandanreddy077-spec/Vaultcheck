@@ -192,7 +192,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       <p className="text-sm font-medium text-[#0b1c30]">{alert.title}</p>
                       <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">{alert.description}</p>
                       <p className="text-xs text-slate-500 mt-1">
-                        ${alert.invoice.amount.toLocaleString()} · {new Date(alert.createdAt).toLocaleDateString()}
+                        {alert.invoice ? `$${alert.invoice.amount.toLocaleString()} · ` : ''}{new Date(alert.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <span className={`risk-badge-${alert.severity === 'critical' ? 'critical' : alert.severity === 'high' ? 'high' : 'moderate'}`}>
